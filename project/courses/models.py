@@ -2,17 +2,13 @@ from django.db import models
 from django.utils.text import slugify
 from users.models import User
 
-# Create your models here.
 class Student(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    passwd = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile',null=True, blank=True)
     phone = models.CharField(max_length=15)
     profile_pic = models.ImageField(upload_to='profiles/%Y/%m/%d')
-    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='students', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.user.username
 
 class Instructor(models.Model):
     name = models.CharField(max_length=100)
@@ -55,6 +51,8 @@ class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     date = models.DateField()
+    progress = models.FloatField(default=0.0)
+    status = models.CharField(max_length=20, choices=[('Enrolled', 'Enrolled'), ('Completed', 'Completed')], default='Enrolled')
 
     def __str__(self):
         return f"{self.student.name} enrolled in {self.course.title}"
@@ -65,6 +63,9 @@ class Review(models.Model):
     date = models.DateField()
     rating = models.IntegerField()
     comment = models.TextField()
+    
+    class Meta:
+        unique_together = ['student', 'course']
 
     def __str__(self):
         return f"{self.student.name} reviewed {self.course.title}"
@@ -77,4 +78,3 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment of ${self.price} USD for {self.enrollment.course.title}"
-

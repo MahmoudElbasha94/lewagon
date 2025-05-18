@@ -151,11 +151,28 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),  # Auth header Authorization type
 }
 
-# use custom user instead of default user
+
 AUTH_USER_MODEL = 'users.User'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # React development server
 ]
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tahanyahmed213@gmail.com'
+EMAIL_HOST_PASSWORD = 'dqhd hsal reyt cxun'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

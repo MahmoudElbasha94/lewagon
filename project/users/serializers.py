@@ -7,8 +7,16 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'password', 'confirm_password', 'is_student', 'is_instructor']
+        fields = ['id', 'email', 'first_name', 'last_name', 'password', 'confirm_password','profile_picture']
         extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        password = validated_data.pop('password')
+        user = User(**validated_data, is_student=True)
+        user.set_password(password)
+        user.save()
+        return user
 
     def validate_password(self, value):
         
@@ -40,7 +48,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'is_student', 'is_instructor']
+        fields = ['first_name', 'last_name', 'is_student', 'is_instructor', 'profile_picture']
         read_only_fields = ['is_student', 'is_instructor']  
 
 class ChangePasswordSerializer(serializers.Serializer):

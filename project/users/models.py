@@ -30,6 +30,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name  = models.CharField(max_length=30)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     is_student    = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
 

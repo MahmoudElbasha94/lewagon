@@ -1,112 +1,124 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../utils/api';
+/*
+ملف سياق الكوبونات
+هذا الملف يحتوي على وظائف إدارة الكوبونات في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
 
-interface Coupon {
-  id: string;
-  code: string;
-  discountType: 'percentage' | 'fixed';
-  discountValue: number;
-  description: string;
-  validFrom: string;
-  validUntil: string;
-  usageLimit: number;
-  usedCount: number;
-  minPurchaseAmount?: number;
-  maxDiscountAmount?: number;
-  isActive: boolean;
-  courses: string[];
-  categories: string[];
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { Coupon } from '../types/Coupon';
 
 interface CouponContextType {
   coupons: Coupon[];
   loading: boolean;
   error: string | null;
-  createCoupon: (coupon: Omit<Coupon, 'id' | 'usedCount'>) => Promise<void>;
+  fetchCoupons: () => Promise<void>;
+  createCoupon: (coupon: Omit<Coupon, 'id'>) => Promise<void>;
   updateCoupon: (id: string, coupon: Partial<Coupon>) => Promise<void>;
   deleteCoupon: (id: string) => Promise<void>;
-  validateCoupon: (code: string, courseId?: string) => Promise<{ valid: boolean; discount: number }>;
+  validateCoupon: (code: string) => Promise<Coupon | null>;
 }
 
 const CouponContext = createContext<CouponContextType | undefined>(undefined);
 
 export const CouponProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // وظيفة جلب الكوبونات
+  const fetchCoupons = async () => {
+    setLoading(true);
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/coupons');
+      // const data = await response.json();
+      // setCoupons(data);
+      setError(null);
+    } catch (error) {
+      console.error('فشل جلب الكوبونات:', error);
+      setError('حدث خطأ أثناء جلب الكوبونات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // وظيفة إنشاء كوبون جديد
+  const createCoupon = async (coupon: Omit<Coupon, 'id'>) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/coupons', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(coupon),
+      // });
+      // const newCoupon = await response.json();
+      // setCoupons(prev => [...prev, newCoupon]);
+      setError(null);
+    } catch (error) {
+      console.error('فشل إنشاء الكوبون:', error);
+      setError('حدث خطأ أثناء إنشاء الكوبون');
+    }
+  };
+
+  // وظيفة تحديث كوبون
+  const updateCoupon = async (id: string, coupon: Partial<Coupon>) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch(`/api/coupons/${id}`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(coupon),
+      // });
+      setCoupons(prev =>
+        prev.map(c => (c.id === id ? { ...c, ...coupon } : c))
+      );
+      setError(null);
+    } catch (error) {
+      console.error('فشل تحديث الكوبون:', error);
+      setError('حدث خطأ أثناء تحديث الكوبون');
+    }
+  };
+
+  // وظيفة حذف كوبون
+  const deleteCoupon = async (id: string) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch(`/api/coupons/${id}`, {
+      //   method: 'DELETE',
+      // });
+      setCoupons(prev => prev.filter(c => c.id !== id));
+      setError(null);
+    } catch (error) {
+      console.error('فشل حذف الكوبون:', error);
+      setError('حدث خطأ أثناء حذف الكوبون');
+    }
+  };
+
+  // وظيفة التحقق من صلاحية الكوبون
+  const validateCoupon = async (code: string): Promise<Coupon | null> => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch(`/api/coupons/validate/${code}`);
+      // if (!response.ok) {
+      //   return null;
+      // }
+      // const coupon = await response.json();
+      // return coupon;
+      return null;
+    } catch (error) {
+      console.error('فشل التحقق من صلاحية الكوبون:', error);
+      return null;
+    }
+  };
+
+  // جلب الكوبونات عند تحميل المكون
   useEffect(() => {
     fetchCoupons();
   }, []);
-
-  const fetchCoupons = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/coupons');
-      setCoupons(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch coupons');
-      console.error('Error fetching coupons:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createCoupon = async (coupon: Omit<Coupon, 'id' | 'usedCount'>) => {
-    try {
-      setLoading(true);
-      const response = await api.post('/coupons', coupon);
-      setCoupons(prev => [...prev, response.data]);
-      setError(null);
-    } catch (err) {
-      setError('Failed to create coupon');
-      console.error('Error creating coupon:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateCoupon = async (id: string, coupon: Partial<Coupon>) => {
-    try {
-      setLoading(true);
-      const response = await api.put(`/coupons/${id}`, coupon);
-      setCoupons(prev => prev.map(c => c.id === id ? { ...c, ...response.data } : c));
-      setError(null);
-    } catch (err) {
-      setError('Failed to update coupon');
-      console.error('Error updating coupon:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteCoupon = async (id: string) => {
-    try {
-      setLoading(true);
-      await api.delete(`/coupons/${id}`);
-      setCoupons(prev => prev.filter(c => c.id !== id));
-      setError(null);
-    } catch (err) {
-      setError('Failed to delete coupon');
-      console.error('Error deleting coupon:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const validateCoupon = async (code: string, courseId?: string): Promise<{ valid: boolean; discount: number }> => {
-    try {
-      const response = await api.post(`/coupons/validate`, { code, courseId });
-      return response.data;
-    } catch (err) {
-      console.error('Error validating coupon:', err);
-      return { valid: false, discount: 0 };
-    }
-  };
 
   return (
     <CouponContext.Provider
@@ -114,6 +126,7 @@ export const CouponProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         coupons,
         loading,
         error,
+        fetchCoupons,
         createCoupon,
         updateCoupon,
         deleteCoupon,
@@ -125,12 +138,21 @@ export const CouponProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 };
 
+// وظيفة استخدام سياق الكوبونات
 export const useCoupons = () => {
   const context = useContext(CouponContext);
   if (context === undefined) {
-    throw new Error('useCoupons must be used within a CouponProvider');
+    throw new Error('يجب استخدام useCoupons داخل CouponProvider');
   }
   return context;
 };
 
-export default CouponProvider; 
+export default CouponProvider;
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django Models بدلاً من Coupon Context
+// 2. Django Forms بدلاً من Coupon Validation
+// 3. Django Cache بدلاً من Coupon State
+// 4. Django Signals بدلاً من Coupon Events
+// 5. Django Admin بدلاً من Coupon Management
+// ... existing code ... 

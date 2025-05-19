@@ -1,3 +1,9 @@
+/*
+ملف سياق الدورات
+هذا الملف يحتوي على وظائف إدارة الدورات في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import courseData from '../data/courses';
 import type { Course } from '../types/Course';
@@ -12,6 +18,7 @@ import type {
 } from '../types/CourseTypes';
 import type { CourseBasicInfo } from '../types/instructor';
 
+// تعريف نوع سياق الدورات
 interface CourseContextType extends CourseManagement {
   courses: Course[];
   loading: boolean;
@@ -38,16 +45,10 @@ interface CourseContextType extends CourseManagement {
   answerQuestion: (questionId: string, answer: string) => Promise<boolean>;
 }
 
+// إنشاء سياق الدورات
 const CourseContext = createContext<CourseContextType | undefined>(undefined);
 
-export const useCourses = () => {
-  const context = useContext(CourseContext);
-  if (context === undefined) {
-    throw new Error('useCourses must be used within a CourseProvider');
-  }
-  return context;
-};
-
+// مكون مزود الدورات
 export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
@@ -404,3 +405,19 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     </CourseContext.Provider>
   );
 };
+
+// مكون استخدام سياق الدورات
+export const useCourses = () => {
+  const context = useContext(CourseContext);
+  if (context === undefined) {
+    throw new Error('useCourses must be used within a CourseProvider');
+  }
+  return context;
+};
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django ORM بدلاً من Course Context
+// 2. Django QuerySets بدلاً من Course State
+// 3. Django Caching بدلاً من Course Caching
+// 4. Django Signals بدلاً من Course Events
+// 5. Django Content Types بدلاً من Course Types

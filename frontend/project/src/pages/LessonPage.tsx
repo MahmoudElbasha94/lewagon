@@ -11,6 +11,13 @@ import {
 import Button from '../components/common/Button';
 import PageTransition from '../components/common/PageTransition';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django Class-Based Views بدلاً من Lesson Page
+// 2. Django Templates بدلاً من Lesson UI
+// 3. Django ORM بدلاً من Lesson Data
+// 4. Django Media Files بدلاً من Video Content
+// 5. Django Progress Tracking بدلاً من Lesson Progress
+
 const LessonPage: React.FC = () => {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const navigate = useNavigate();

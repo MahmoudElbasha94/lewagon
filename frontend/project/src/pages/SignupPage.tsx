@@ -9,6 +9,13 @@ import PageTransition from '../components/common/PageTransition';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django Forms بدلاً من Signup Form
+// 2. Django User Model بدلاً من User Creation
+// 3. Django Email Backend بدلاً من Email Verification
+// 4. Django Session بدلاً من Auth State
+// 5. Django Messages بدلاً من Form Messages
+
 // Form validation schema
 const signupSchema = z.object({
   firstName: z.string()

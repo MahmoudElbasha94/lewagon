@@ -1,3 +1,9 @@
+/*
+ملف إدارة المدربين
+هذا الملف يحتوي على وظائف إدارة المدربين في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Linkedin, Github, Globe, Search, X, ChevronUp, Star, Users, BookOpen, Award, ChevronRight, Filter, Mail, Phone, FileText, Upload, CheckCircle } from 'lucide-react';
@@ -6,6 +12,10 @@ import { InstructorApplicationForm } from '../components/InstructorApplicationFo
 import { InstructorDetails } from '../components/InstructorDetails';
 import { Instructor } from '../types';
 import { useInView } from 'react-intersection-observer';
+import { useInstructors } from '../contexts/InstructorContext';
+import type { Instructor as InstructorType } from '../types/Instructor';
+import Button from '../components/common/Button';
+import PageTransition from '../components/common/PageTransition';
 
 const stats = [
   { number: "50+", label: "Industry Experts" },
@@ -36,13 +46,13 @@ const expertiseCategories = [
   "Mathematics"
 ];
 
-const InstructorsPage = () => {
+const InstructorsPage: React.FC = () => {
+  const { instructors, loading, error } = useInstructors();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'rating' | 'students' | 'courses'>('rating');
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [filteredInstructors, setFilteredInstructors] = useState<Instructor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -68,7 +78,7 @@ const InstructorsPage = () => {
 
   useEffect(() => {
     filterInstructors();
-  }, [searchQuery, selectedExpertise, instructors]);
+  }, [searchTerm, selectedCategory, instructors]);
 
   const handleScroll = () => {
     setShowScrollTop(window.scrollY > 500);
@@ -93,21 +103,19 @@ const InstructorsPage = () => {
   const filterInstructors = () => {
     let filtered = [...instructors];
 
-    if (searchQuery) {
+    if (searchTerm) {
       filtered = filtered.filter(instructor =>
-        instructor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        instructor.bio.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        instructor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        instructor.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
         instructor.expertise.some(exp => 
-          exp.toLowerCase().includes(searchQuery.toLowerCase())
+          exp.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     }
 
-    if (selectedExpertise.length > 0) {
+    if (selectedCategory) {
       filtered = filtered.filter(instructor =>
-        instructor.expertise.some(exp => 
-          selectedExpertise.includes(exp)
-        )
+        instructor.categories.includes(selectedCategory)
       );
     }
 
@@ -115,16 +123,14 @@ const InstructorsPage = () => {
   };
 
   const toggleExpertiseFilter = (expertise: string) => {
-    setSelectedExpertise(prev =>
-      prev.includes(expertise)
-        ? prev.filter(e => e !== expertise)
-        : [...prev, expertise]
+    setSelectedCategory(prev =>
+      prev === expertise ? null : expertise
     );
   };
 
   const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedExpertise([]);
+    setSearchTerm('');
+    setSelectedCategory(null);
   };
 
   const handleApplicationSubmit = async (e: React.FormEvent) => {
@@ -150,6 +156,27 @@ const InstructorsPage = () => {
       setSubmitSuccess(false);
       setShowApplicationForm(false);
     }, 3000);
+  };
+
+  // وظيفة ترتيب المدربين
+  const sortedInstructors = [...filteredInstructors].sort((a, b) => {
+    switch (sortBy) {
+      case 'rating':
+        return b.rating - a.rating;
+      case 'students':
+        return b.totalStudents - a.totalStudents;
+      case 'courses':
+        return b.courses.length - a.courses.length;
+      default:
+        return 0;
+    }
+  });
+
+  // وظيفة عرض تفاصيل المدرب
+  const handleInstructorClick = (instructorId: string) => {
+    // TODO: استبدال هذا باستدعاء API حقيقي
+    // navigate(`/instructors/${instructorId}`);
+    console.log('عرض تفاصيل المدرب:', instructorId);
   };
 
   if (loading) {
@@ -201,8 +228,8 @@ const InstructorsPage = () => {
               <input
                 type="text"
                 placeholder="Search instructors..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -221,7 +248,7 @@ const InstructorsPage = () => {
                   key={filter}
                   onClick={() => toggleExpertiseFilter(filter)}
                   className={`px-4 py-2 rounded-full border transition-all ${
-                    selectedExpertise.includes(filter)
+                    selectedCategory === filter
                       ? 'bg-red-600 text-white border-red-600'
                       : 'bg-white text-gray-700 border-gray-300 hover:border-red-600'
                   }`}
@@ -230,7 +257,7 @@ const InstructorsPage = () => {
                 </button>
               ))}
             </div>
-            {(searchQuery || selectedExpertise.length > 0) && (
+            {(searchTerm || selectedCategory) && (
               <button
                 onClick={clearFilters}
                 className="px-4 py-2 text-gray-600 hover:text-red-600"
@@ -250,13 +277,13 @@ const InstructorsPage = () => {
         {/* Results Summary */}
         <div className="mb-8 text-gray-600">
           Found {filteredInstructors.length} instructor{filteredInstructors.length !== 1 ? 's' : ''}
-          {(searchQuery || selectedExpertise.length > 0) && ' matching your criteria'}
+          {(searchTerm || selectedCategory) && ' matching your criteria'}
         </div>
 
         {/* Instructors Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
           <AnimatePresence>
-            {filteredInstructors.map((instructor) => (
+            {sortedInstructors.map((instructor) => (
               <motion.div 
                 key={instructor.id}
                 initial={{ opacity: 0, y: 20 }}

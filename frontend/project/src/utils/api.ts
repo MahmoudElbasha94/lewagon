@@ -1,9 +1,15 @@
+/*
+ملف إعدادات API الرئيسي
+هذا الملف يحتوي على الإعدادات الأساسية للتعامل مع API في التطبيق
+سيتم استبداله بملف urls.py في Django
+*/
+
 import axios from 'axios';
 
-// Get the API URL from environment variables
+// الحصول على عنوان API من متغيرات البيئة
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-// Create axios instance with default config
+// إنشاء نسخة من axios مع الإعدادات الافتراضية
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -11,7 +17,7 @@ export const api = axios.create({
   },
 });
 
-// Add request interceptor to handle auth token
+// إضافة interceptor للطلبات للتعامل مع token المصادقة
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -25,28 +31,28 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle errors
+// إضافة interceptor للاستجابات للتعامل مع الأخطاء
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // Handle specific error codes
+      // التعامل مع رموز الأخطاء المحددة
       switch (error.response.status) {
         case 401:
-          // Unauthorized - clear token and redirect to login
+          // غير مصرح - حذف token وإعادة التوجيه إلى صفحة تسجيل الدخول
           localStorage.removeItem('token');
           window.location.href = '/login';
           break;
         case 403:
-          // Forbidden - redirect to home
+          // محظور - إعادة التوجيه إلى الصفحة الرئيسية
           window.location.href = '/';
           break;
         case 404:
-          // Not found - show toast or handle specifically
+          // غير موجود - عرض رسالة خطأ
           console.error('Resource not found');
           break;
         default:
-          // Handle other errors
+          // التعامل مع الأخطاء الأخرى
           console.error('API Error:', error.response.data);
       }
     }
@@ -54,7 +60,8 @@ api.interceptors.response.use(
   }
 );
 
-// API endpoints
+// نقاط النهاية API
+// سيتم استبدالها بملف urls.py في Django
 export const endpoints = {
   auth: {
     login: '/auth/login',

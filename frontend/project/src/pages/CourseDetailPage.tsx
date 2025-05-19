@@ -1,3 +1,15 @@
+/**
+ * TODO: التغييرات المطلوبة للجانغو:
+ * 1. سيتم استبدال هذا المكون بـ Django Template
+ * 2. سيتم استخدام Django Class-Based Views بدلاً من React Components
+ * 3. سيتم استخدام Django ORM للتعامل مع بيانات الكورس
+ * 4. سيتم استخدام Django Template Tags بدلاً من JSX
+ * 5. سيتم استخدام Django Forms للتعامل مع التسجيل في الكورس
+ * 6. سيتم استخدام Django Messages Framework للإشعارات
+ * 7. سيتم استخدام Django Media Files للتعامل مع الصور والفيديوهات
+ * 8. سيتم استخدام Django Cache Framework لتحسين الأداء
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { useCourses } from '../contexts/CourseContext';
@@ -23,10 +35,18 @@ const CourseDetailPage: React.FC = () => {
   const { courses, loading, enrollInCourse, isEnrolled } = useCourses();
   const { user, isAuthenticated } = useAuth();
   
-  // Add useEffect to scroll to top
+  // TODO: في الجانغو، سيتم استخدام Django Class-Based View بدلاً من React Component
+  // TODO: سيتم استخدام Django ORM للوصول إلى بيانات الكورس
+  // TODO: سيتم استخدام Django Authentication بدلاً من useAuth hook
+  // TODO: سيتم استخدام Django URL Patterns بدلاً من useParams
+  // TODO: سيتم استخدام Django QuerySet بدلاً من courses array
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من useEffect
+  // TODO: سيتم استخدام Django Static Files بدلاً من window object
 
   const [activeTab, setActiveTab] = useState('overview');
   const [openAccordion, setOpenAccordion] = useState<string | null>('what-youll-learn');
@@ -34,11 +54,19 @@ const CourseDetailPage: React.FC = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
+  // TODO: في الجانغو، سيتم استخدام Django Template Context بدلاً من useState
+  // TODO: سيتم استخدام Django Session بدلاً من state management
+  // TODO: سيتم استخدام Django Cache Framework بدلاً من modal state
+
   // Find the course
   const course = courses.find(c => String(c.id) === id);
 
   // Check if user is enrolled
   const userEnrolled = user && course ? isEnrolled(user.id, String(course.id)) : false;
+
+  // TODO: في الجانغو، سيتم استخدام Django ORM Query بدلاً من find
+  // TODO: سيتم استخدام Django Model Methods بدلاً من isEnrolled function
+  // TODO: سيتم استخدام Django User Model بدلاً من user object
 
   // Handle enrollment
   const handleEnroll = async () => {
@@ -48,6 +76,12 @@ const CourseDetailPage: React.FC = () => {
     }
     
     if (!user || !course) return;
+    
+    // TODO: في الجانغو، سيتم استخدام Django View للتعامل مع التسجيل في الكورس
+    // TODO: سيتم استخدام Django Forms للتحقق من صحة البيانات
+    // TODO: سيتم استخدام Django Messages Framework للإشعارات
+    // TODO: سيتم استخدام Django Redirect بدلاً من navigate
+    // TODO: سيتم استخدام Django Session بدلاً من state management
     
     // Redirect to checkout page instead of direct enrollment
     navigate(`/checkout/${course.id}`);
@@ -62,6 +96,9 @@ const CourseDetailPage: React.FC = () => {
     }
   };
 
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من toggleAccordion
+  // TODO: سيتم استخدام Django Static Files بدلاً من state management
+
   // Handle share
   const handleShare = async () => {
     try {
@@ -75,7 +112,13 @@ const CourseDetailPage: React.FC = () => {
     }
   };
 
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من handleShare
+  // TODO: سيتم استخدام Django Static Files بدلاً من navigator object
+  // TODO: سيتم استخدام Django Messages Framework بدلاً من console.log
+
   if (loading) {
+    // TODO: في الجانغو، سيتم استخدام Django Template Tags لعرض حالة التحميل
+    // TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
@@ -84,6 +127,9 @@ const CourseDetailPage: React.FC = () => {
   }
 
   if (!course) {
+    // TODO: في الجانغو، سيتم استخدام Django Template Tags لعرض رسالة الخطأ
+    // TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes
+    // TODO: سيتم استخدام Django URL Patterns بدلاً من Link component
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Course Not Found</h1>

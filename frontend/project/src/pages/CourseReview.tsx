@@ -35,6 +35,13 @@ const CourseReview: React.FC = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Course Review</h1>
         
+        {/* TODO: في Django، سيتم استخدام:
+        1. Django Admin بدلاً من Course Review
+        2. Django Forms بدلاً من Review Forms
+        3. Django ORM بدلاً من Review Data
+        4. Django Permissions بدلاً من Review Access
+        5. Django Signals بدلاً من Review Events */}
+        
         {pendingCourses.length === 0 ? (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">

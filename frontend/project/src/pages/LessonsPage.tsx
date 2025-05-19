@@ -14,6 +14,13 @@ import {
 import { useCourses } from '../contexts/CourseContext';
 import PageTransition from '../components/common/PageTransition';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django Class-Based Views بدلاً من Lessons List
+// 2. Django Templates بدلاً من Lessons UI
+// 3. Django ORM بدلاً من Lessons Data
+// 4. Django Pagination بدلاً من List Pagination
+// 5. Django Filter بدلاً من Lessons Filtering
+
 const LessonsPage: React.FC = () => {
   const { courses } = useCourses();
   const [searchTerm, setSearchTerm] = useState('');

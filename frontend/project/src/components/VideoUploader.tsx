@@ -1,3 +1,14 @@
+/**
+ * TODO: التغييرات المطلوبة للجانغو:
+ * 1. سيتم استبدال هذا المكون بـ Django Template
+ * 2. سيتم استخدام Django Forms للتحقق من صحة الملفات
+ * 3. سيتم استخدام Django FileField و ImageField للتعامل مع الملفات
+ * 4. سيتم استخدام Django Media Files للتعامل مع الملفات المرفوعة
+ * 5. سيتم استخدام Django Messages Framework للإشعارات
+ * 6. سيتم استخدام Django CSRF Protection للحماية
+ * 7. سيتم استخدام Django File Upload Handlers للتعامل مع الملفات الكبيرة
+ */
+
 import React, { useState, useRef } from 'react';
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';

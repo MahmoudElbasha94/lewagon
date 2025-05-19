@@ -1,71 +1,72 @@
-import React, { useState } from 'react';
-import { Save, Upload } from 'lucide-react';
-import PageTransition from '../components/common/PageTransition';
-import { useSettings } from '../contexts/SettingsContext';
+/*
+ملف إعدادات الموقع
+هذا الملف يحتوي على وظائف إدارة إعدادات الموقع في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
 
-interface SiteSettingsForm {
-  siteName: string;
-  siteDescription: string;
-  logo: File | null;
-  favicon: File | null;
-  supportEmail: string;
-  defaultLanguage: string;
-  currencies: string[];
-  maintenanceMode: boolean;
-  socialLinks: {
-    facebook: string;
-    twitter: string;
-    instagram: string;
-    linkedin: string;
-  };
-  smtp: {
-    host: string;
-    port: number;
-    username: string;
-    password: string;
-    encryption: 'none' | 'tls' | 'ssl';
-  };
-}
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Save, Upload, Trash2 } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
+import type { Settings } from '../types/Settings';
+import Button from '../components/common/Button';
+import PageTransition from '../components/common/PageTransition';
 
 const SiteSettings: React.FC = () => {
-  const { settings, updateSettings } = useSettings();
-  const [formData, setFormData] = useState<SiteSettingsForm>({
-    siteName: settings?.siteName || '',
-    siteDescription: settings?.siteDescription || '',
-    logo: null,
-    favicon: null,
-    supportEmail: settings?.supportEmail || '',
-    defaultLanguage: settings?.defaultLanguage || 'en',
-    currencies: settings?.currencies || ['USD'],
-    maintenanceMode: settings?.maintenanceMode || false,
-    socialLinks: settings?.socialLinks || {
-      facebook: '',
-      twitter: '',
-      instagram: '',
-      linkedin: ''
-    },
-    smtp: settings?.smtp || {
-      host: '',
-      port: 587,
-      username: '',
-      password: '',
-      encryption: 'tls'
-    }
-  });
+  const { settings, loading, error, updateSettings, uploadLogo, uploadFavicon } = useSettings();
+  const [formData, setFormData] = useState<Partial<Settings>>({});
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [faviconFile, setFaviconFile] = useState<File | null>(null);
 
+  // وظيفة تحديث البيانات عند تحميل الإعدادات
+  useEffect(() => {
+    if (settings) {
+      setFormData(settings);
+    }
+  }, [settings]);
+
+  // وظيفة تحديث حقل في النموذج
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // وظيفة حفظ الإعدادات
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await updateSettings(formData);
+      // TODO: إضافة رسالة نجاح
     } catch (error) {
-      console.error('Failed to update settings:', error);
+      console.error('فشل تحديث الإعدادات:', error);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon') => {
+  // وظيفة رفع الشعار
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, [field]: file }));
+      setLogoFile(file);
+      try {
+        await uploadLogo(file);
+        // TODO: إضافة رسالة نجاح
+      } catch (error) {
+        console.error('فشل رفع الشعار:', error);
+      }
+    }
+  };
+
+  // وظيفة رفع الأيقونة
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFaviconFile(file);
+      try {
+        await uploadFavicon(file);
+        // TODO: إضافة رسالة نجاح
+      } catch (error) {
+        console.error('فشل رفع الأيقونة:', error);
+      }
     }
   };
 
@@ -174,7 +175,7 @@ const SiteSettings: React.FC = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, 'logo')}
+                      onChange={(e) => handleLogoUpload(e)}
                       className="hidden"
                     />
                   </label>
@@ -198,7 +199,7 @@ const SiteSettings: React.FC = () => {
                     <input
                       type="file"
                       accept="image/x-icon,image/png"
-                      onChange={(e) => handleFileChange(e, 'favicon')}
+                      onChange={(e) => handleFaviconUpload(e)}
                       className="hidden"
                     />
                   </label>
@@ -217,7 +218,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="url"
-                  value={formData.socialLinks.facebook}
+                  value={formData.socialLinks?.facebook}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     socialLinks: { ...prev.socialLinks, facebook: e.target.value }
@@ -232,7 +233,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="url"
-                  value={formData.socialLinks.twitter}
+                  value={formData.socialLinks?.twitter}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     socialLinks: { ...prev.socialLinks, twitter: e.target.value }
@@ -247,7 +248,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="url"
-                  value={formData.socialLinks.instagram}
+                  value={formData.socialLinks?.instagram}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     socialLinks: { ...prev.socialLinks, instagram: e.target.value }
@@ -262,7 +263,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="url"
-                  value={formData.socialLinks.linkedin}
+                  value={formData.socialLinks?.linkedin}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     socialLinks: { ...prev.socialLinks, linkedin: e.target.value }
@@ -284,7 +285,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.smtp.host}
+                  value={formData.smtp?.host}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     smtp: { ...prev.smtp, host: e.target.value }
@@ -299,7 +300,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="number"
-                  value={formData.smtp.port}
+                  value={formData.smtp?.port}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     smtp: { ...prev.smtp, port: Number(e.target.value) }
@@ -313,7 +314,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.smtp.username}
+                  value={formData.smtp?.username}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     smtp: { ...prev.smtp, username: e.target.value }
@@ -327,7 +328,7 @@ const SiteSettings: React.FC = () => {
                 </label>
                 <input
                   type="password"
-                  value={formData.smtp.password}
+                  value={formData.smtp?.password}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     smtp: { ...prev.smtp, password: e.target.value }
@@ -340,7 +341,7 @@ const SiteSettings: React.FC = () => {
                   Encryption
                 </label>
                 <select
-                  value={formData.smtp.encryption}
+                  value={formData.smtp?.encryption}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
                     smtp: { ...prev.smtp, encryption: e.target.value as 'none' | 'tls' | 'ssl' }

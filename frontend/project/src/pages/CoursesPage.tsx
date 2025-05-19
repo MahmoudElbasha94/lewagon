@@ -47,6 +47,13 @@ const CoursesPage: React.FC = () => {
   const [enrollingCourse, setEnrollingCourse] = useState<Course | null>(null);
   const enrollModalRef = useRef<HTMLDivElement>(null);
 
+  // TODO: في Django، سيتم استخدام:
+  // 1. Django Class-Based Views بدلاً من Courses List
+  // 2. Django Templates بدلاً من Courses UI
+  // 3. Django ORM بدلاً من Courses Data
+  // 4. Django Filter بدلاً من Courses Filtering
+  // 5. Django Pagination بدلاً من List Pagination
+
   // Filter and sort courses
   useEffect(() => {
     if (!courses || courses.length === 0) return;

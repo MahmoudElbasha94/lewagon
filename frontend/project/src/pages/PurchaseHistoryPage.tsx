@@ -1,4 +1,10 @@
-import React, { useState } from 'react';
+/*
+ملف سجل المشتريات
+هذا الملف يحتوي على وظائف إدارة سجل مشتريات الطلاب في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ShoppingBag, 
@@ -79,7 +85,29 @@ const mockInvoices: Record<string, Invoice> = {
 
 const PurchaseHistoryPage: React.FC = () => {
   const { user } = useAuth();
+  const [purchases, setPurchases] = useState<PurchaseHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
+
+  // وظيفة جلب سجل المشتريات
+  useEffect(() => {
+    fetchPurchases();
+  }, []);
+
+  const fetchPurchases = async () => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/purchases');
+      // const data = await response.json();
+      // setPurchases(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('فشل جلب سجل المشتريات:', error);
+      setError('حدث خطأ أثناء جلب سجل المشتريات');
+      setLoading(false);
+    }
+  };
 
   const toggleInvoice = (purchaseId: string) => {
     setExpandedInvoice(expandedInvoice === purchaseId ? null : purchaseId);
@@ -103,6 +131,36 @@ const PurchaseHistoryPage: React.FC = () => {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // وظيفة تحميل الفاتورة
+  const handleDownloadInvoice = async (purchaseId: string) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch(`/api/purchases/${purchaseId}/invoice`);
+      // const blob = await response.blob();
+      // const url = window.URL.createObjectURL(blob);
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = `invoice-${purchaseId}.pdf`;
+      // document.body.appendChild(a);
+      // a.click();
+      // window.URL.revokeObjectURL(url);
+      // document.body.removeChild(a);
+      console.log('تحميل الفاتورة:', purchaseId);
+    } catch (error) {
+      console.error('فشل تحميل الفاتورة:', error);
+    }
+  };
+
+  // وظيفة عرض تفاصيل الشراء
+  const handleViewDetails = (purchase: PurchaseHistory) => {
+    setExpandedInvoice(purchase.id);
+  };
+
+  // وظيفة إغلاق تفاصيل الشراء
+  const handleCloseDetails = () => {
+    setExpandedInvoice(null);
   };
 
   return (
@@ -175,7 +233,7 @@ const PurchaseHistoryPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           icon={<Download className="w-4 h-4" />}
-                          onClick={() => window.open(purchase.invoiceUrl, '_blank')}
+                          onClick={() => handleDownloadInvoice(purchase.id)}
                         >
                           Download Invoice
                         </Button>

@@ -215,4 +215,12 @@ export const SupportProvider: React.FC<{ children: React.ReactNode }> = ({ child
       {children}
     </SupportContext.Provider>
   );
-}; 
+};
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django Admin بدلاً من Support Context
+// 2. Django Forms بدلاً من Support Forms
+// 3. Django Email Backend بدلاً من Support Emails
+// 4. Django Messages بدلاً من Support Messages
+// 5. Django Templates بدلاً من Support UI
+// ... existing code ... 

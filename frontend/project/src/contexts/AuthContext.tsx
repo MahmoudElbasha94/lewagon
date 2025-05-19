@@ -1,222 +1,213 @@
+/**
+ * TODO: التغييرات المطلوبة للجانغو:
+ * 1. سيتم استبدال هذا الملف بنظام المصادقة المدمج في الجانغو (Django Authentication System)
+ * 2. سيتم استخدام Django User Model بدلاً من User interface
+ * 3. سيتم تحويل login و signup إلى views.py
+ * 4. سيتم استخدام Django Forms للتحقق من صحة البيانات
+ * 5. سيتم استخدام Django Sessions بدلاً من localStorage
+ * 6. سيتم إضافة middleware.py للتحقق من المصادقة
+ * 7. سيتم استخدام Django Signals للإشعارات
+ */
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django Authentication System بدلاً من Auth Context
+// 2. Django Session Framework بدلاً من Token Management
+// 3. Django User Model بدلاً من User State
+// 4. Django Permissions بدلاً من Role Checks
+// 5. Django Middleware بدلاً من Auth Guards
+
+/*
+ملف سياق المصادقة
+هذا الملف يحتوي على وظائف إدارة المصادقة في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { User, ProfileUpdateData, PasswordChangeData } from '../types';
+import type { User } from '../types/User';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  updateProfile: (data: ProfileUpdateData) => Promise<boolean>;
-  updatePassword: (data: PasswordChangeData) => Promise<boolean>;
-  isAuthenticated: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  signup: (userData: Omit<User, 'id'>) => Promise<void>;
+  updateProfile: (userData: Partial<User>) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Check if user is already logged in
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  // وظيفة تسجيل الدخول
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/auth/login', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ email, password }),
+      // });
+      // const data = await response.json();
+      // setUser(data.user);
+      // localStorage.setItem('token', data.token);
+      setError(null);
+    } catch (error) {
+      console.error('فشل تسجيل الدخول:', error);
+      setError('حدث خطأ أثناء تسجيل الدخول');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  // وظيفة تسجيل الخروج
+  const logout = async () => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch('/api/auth/logout', {
+      //   method: 'POST',
+      // });
+      setUser(null);
+      localStorage.removeItem('token');
+      setError(null);
+    } catch (error) {
+      console.error('فشل تسجيل الخروج:', error);
+      setError('حدث خطأ أثناء تسجيل الخروج');
+    }
+  };
+
+  // وظيفة إنشاء حساب جديد
+  const signup = async (userData: Omit<User, 'id'>) => {
+    setLoading(true);
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/auth/signup', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(userData),
+      // });
+      // const data = await response.json();
+      // setUser(data.user);
+      // localStorage.setItem('token', data.token);
+      setError(null);
+    } catch (error) {
+      console.error('فشل إنشاء الحساب:', error);
+      setError('حدث خطأ أثناء إنشاء الحساب');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // وظيفة تحديث الملف الشخصي
+  const updateProfile = async (userData: Partial<User>) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/auth/profile', {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(userData),
+      // });
+      // const data = await response.json();
+      // setUser(data);
+      setError(null);
+    } catch (error) {
+      console.error('فشل تحديث الملف الشخصي:', error);
+      setError('حدث خطأ أثناء تحديث الملف الشخصي');
+    }
+  };
+
+  // وظيفة إعادة تعيين كلمة المرور
+  const resetPassword = async (email: string) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch('/api/auth/reset-password', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ email }),
+      // });
+      setError(null);
+    } catch (error) {
+      console.error('فشل إعادة تعيين كلمة المرور:', error);
+      setError('حدث خطأ أثناء إعادة تعيين كلمة المرور');
+    }
+  };
+
+  // وظيفة تغيير كلمة المرور
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch('/api/auth/change-password', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ oldPassword, newPassword }),
+      // });
+      setError(null);
+    } catch (error) {
+      console.error('فشل تغيير كلمة المرور:', error);
+      setError('حدث خطأ أثناء تغيير كلمة المرور');
+    }
+  };
+
+  // التحقق من وجود جلسة مستخدم عند تحميل المكون
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // fetch('/api/auth/me', {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // })
+      //   .then(response => response.json())
+      //   .then(data => setUser(data))
+      //   .catch(error => {
+      //     console.error('فشل التحقق من الجلسة:', error);
+      //     localStorage.removeItem('token');
+      //   });
+    }
   }, []);
 
-  // Login function - simulated
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock validation - in a real app, this would be a backend API call
-      if (email === 'admin@test.com' && password === 'Admin@123') {
-        const userData: User = {
-          id: 'admin-1',
-          name: 'Admin User',
-          email: 'admin@test.com',
-          role: 'admin',
-          avatar: '/images/avatars/admin.jpg',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-          preferences: {
-            notifications: true,
-            emailUpdates: true,
-            theme: 'light'
-          }
-        };
-        
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        toast.success('Successfully logged in as admin');
-        return true;
-      } else if (email === 'instructor@test.com' && password === 'Instructor@123') {
-        const userData: User = {
-          id: 'instructor-1',
-          name: 'Instructor User',
-          email: 'instructor@test.com',
-          role: 'instructor',
-          avatar: '/images/avatars/instructor.jpg',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-          preferences: {
-            notifications: true,
-            emailUpdates: true,
-            theme: 'light'
-          }
-        };
-        
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        toast.success('Successfully logged in as instructor');
-        return true;
-      } else if (email === 'student@test.com' && password === 'Student@123') {
-        const userData: User = {
-          id: 'student-1',
-          name: 'Student User',
-          email: 'student@test.com',
-          role: 'student',
-          avatar: '/images/avatars/student.jpg',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-          preferences: {
-            notifications: true,
-            emailUpdates: true,
-            theme: 'light'
-          }
-        };
-        
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        toast.success('Successfully logged in as student');
-        return true;
-      } else {
-        toast.error('Invalid email or password');
-        return false;
-      }
-    } catch (error) {
-      toast.error('Login failed. Please try again.');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Signup function - simulated
-  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
-    setLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, this would be a backend API call
-      const userData: User = {
-        id: Math.random().toString(36).substring(2, 9),
-        name,
-        email,
-        role: 'student',
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isActive: true,
-        preferences: {
-          notifications: true,
-          emailUpdates: true,
-          theme: 'light'
-        }
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      toast.success('Account created successfully!');
-      return true;
-    } catch (error) {
-      toast.error('Failed to create account. Please try again.');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Update profile function - simulated
-  const updateProfile = async (data: ProfileUpdateData): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, this would be a backend API call
-      const updatedUser: User = {
-        ...user,
-        name: data.name,
-        email: data.email,
-        avatar: data.avatar ? URL.createObjectURL(data.avatar) : user.avatar,
-      };
-      
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
-
-  // Update password function - simulated
-  const updatePassword = async (data: PasswordChangeData): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, this would validate the current password and update it on the backend
-      // For demo purposes, we'll just simulate success
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
-
-  // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    toast.info('Successfully logged out');
-  };
-
-  const value = {
-    user,
-    loading,
-    login,
-    signup,
-    logout,
-    updateProfile,
-    updatePassword,
-    isAuthenticated: !!user,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        login,
+        logout,
+        signup,
+        updateProfile,
+        resetPassword,
+        changePassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
+};
+
+// وظيفة استخدام سياق المصادقة
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('يجب استخدام useAuth داخل AuthProvider');
+  }
+  return context;
 };

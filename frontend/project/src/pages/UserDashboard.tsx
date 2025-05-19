@@ -11,6 +11,13 @@ import { Link } from 'react-router-dom';
 import PageTransition from '../components/common/PageTransition';
 import type { Course } from '../types/Course';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django Class-Based Views بدلاً من User Dashboard
+// 2. Django Templates بدلاً من Dashboard UI
+// 3. Django ORM بدلاً من User Data
+// 4. Django Permissions بدلاً من Access Control
+// 5. Django Cache بدلاً من Dashboard State
+
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const { courses, isEnrolled } = useCourses();

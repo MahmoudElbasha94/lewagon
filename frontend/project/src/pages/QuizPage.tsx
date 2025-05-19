@@ -1,3 +1,9 @@
+/*
+ملف صفحة الاختبارات
+هذا الملف يحتوي على وظائف إدارة الاختبارات في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,12 +35,12 @@ const QuizPage: React.FC = () => {
   const [quizResult, setQuizResult] = useState<QuizAttempt | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
 
-  // Fetch quiz data
+  // جلب بيانات الاختبار
   useEffect(() => {
-    // TODO: Replace with actual API call
+    // TODO: استبدال هذا باستدعاء API حقيقي
     const fetchQuiz = async () => {
       try {
-        // Simulated quiz data
+        // بيانات اختبار تجريبية
         const mockQuiz: Quiz = {
           id: quizId || '1',
           lessonId: lessonId || '1',
@@ -56,20 +62,20 @@ const QuizPage: React.FC = () => {
               explanation: 'React is a JavaScript library for building user interfaces.',
               points: 25
             },
-            // Add more questions...
+            // إضافة المزيد من الأسئلة...
           ]
         };
         setQuiz(mockQuiz);
         setTimeLeft(mockQuiz.timeLimit * 60);
       } catch (error) {
-        toast.error('Failed to load quiz');
+        toast.error('فشل تحميل الاختبار');
       }
     };
 
     fetchQuiz();
   }, [quizId, lessonId]);
 
-  // Timer countdown
+  // عداد الوقت
   useEffect(() => {
     if (!isSubmitted && timeLeft > 0) {
       const timer = setInterval(() => {
@@ -87,6 +93,7 @@ const QuizPage: React.FC = () => {
     }
   }, [timeLeft, isSubmitted]);
 
+  // وظيفة اختيار الإجابة
   const handleSelectAnswer = (questionId: string, optionId: string) => {
     if (isSubmitted) return;
     setSelectedAnswers((prev) => ({
@@ -95,42 +102,51 @@ const QuizPage: React.FC = () => {
     }));
   };
 
+  // وظيفة تقديم الاختبار
   const handleSubmitQuiz = async () => {
-    if (!quiz || !user) return;
-
-    const answers = Object.entries(selectedAnswers).map(([questionId, optionId]) => {
-      const question = quiz.questions.find(q => q.id === questionId);
-      const isCorrect = question?.options.find(o => o.id === optionId)?.isCorrect || false;
-      return { questionId, selectedOptionId: optionId, isCorrect };
-    });
-
-    const correctAnswers = answers.filter(a => a.isCorrect).length;
-    const score = (correctAnswers / quiz.questions.length) * 100;
-    const passed = score >= quiz.passingScore;
-
-    const attempt: QuizAttempt = {
-      id: Date.now().toString(),
-      userId: user.id,
-      quizId: quiz.id,
-      startTime: new Date(Date.now() - timeLeft * 1000),
-      endTime: new Date(),
-      score,
-      answers,
-      passed
-    };
-
-    setQuizResult(attempt);
+    if (isSubmitted) return;
     setIsSubmitted(true);
 
-    if (passed) {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // في التطبيق الحقيقي، سيكون هذا استدعاء API للخادم
+      const score = calculateScore();
+      const passed = score >= (quiz?.passingScore || 0);
 
-    // TODO: Save attempt to backend
+      // محاكاة استدعاء API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      if (passed) {
+        toast.success('تهانينا! لقد اجتزت الاختبار بنجاح');
+      } else {
+        toast.error('لم تجتز الاختبار. حاول مرة أخرى');
+      }
+
+      // إعادة التوجيه إلى صفحة الدرس
+      navigate(`/lessons/${lessonId}`);
+    } catch (error) {
+      toast.error('حدث خطأ أثناء تقديم الاختبار');
+    }
+  };
+
+  // وظيفة حساب النتيجة
+  const calculateScore = () => {
+    if (!quiz) return 0;
+
+    let totalScore = 0;
+    let maxScore = 0;
+
+    quiz.questions.forEach(question => {
+      maxScore += question.points;
+      const selectedOption = selectedAnswers[question.id];
+      const correctOption = question.options.find(opt => opt.isCorrect)?.id;
+
+      if (selectedOption === correctOption) {
+        totalScore += question.points;
+      }
+    });
+
+    return (totalScore / maxScore) * 100;
   };
 
   const formatTime = (seconds: number): string => {

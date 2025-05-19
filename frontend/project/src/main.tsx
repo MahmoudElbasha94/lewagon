@@ -4,6 +4,12 @@ import { RouterProvider, createBrowserRouter, Future } from 'react-router-dom';
 import App from './App';
 import './index.css';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django WSGI/ASGI بدلاً من React Entry Point
+// 2. Django Static Files بدلاً من React Assets
+// 3. Django Template Engine بدلاً من React DOM
+// 4. Django Settings بدلاً من React Config
+
 // Configure future flags
 const router = createBrowserRouter([
   {

@@ -1,8 +1,21 @@
+/**
+ * TODO: التغييرات المطلوبة للجانغو:
+ * 1. سيتم استبدال هذا المكون بـ Django Template Tag
+ * 2. سيتم استخدام Django Template Filters بدلاً من CSS Classes
+ * 3. سيتم استخدام Django Static Files للصور والأيقونات
+ * 4. سيتم استخدام Django Template Inheritance للأنماط المشتركة
+ * 5. سيتم استخدام Django Template Context بدلاً من Props
+ */
+
 import React from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 
 export type ButtonVariant = 'outline' | 'text' | 'primary' | 'secondary' | 'glass' | 'ghost' | 'gradient';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+// TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من TypeScript Types
+// TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط
+// TODO: سيتم استخدام Django Template Context بدلاً من Type Definitions
 
 interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'size'> {
   variant?: ButtonVariant;
@@ -18,6 +31,10 @@ interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'size'> {
   gradientTo?: string;
   loadingText?: string;
 }
+
+// TODO: في الجانغو، سيتم استخدام Django Template Context بدلاً من Props Interface
+// TODO: سيتم استخدام Django Template Tags بدلاً من React Props
+// TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes
 
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
@@ -37,10 +54,19 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent';
   
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags للتحكم في الأنماط
+  // TODO: سيتم استخدام Django Static Files للصور والأيقونات
+  // TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط
+  // TODO: سيتم استخدام Django Template Context بدلاً من Props
+
   const getGradientStyles = () => {
     if (variant !== 'gradient') return '';
     return `bg-gradient-to-r from-${gradientFrom} to-${gradientTo} hover:from-${gradientFrom}/90 hover:to-${gradientTo}/90 text-white focus:ring-${gradientFrom}`;
   };
+
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من getGradientStyles
+  // TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes
+  // TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط
 
   const variantStyles = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
@@ -52,6 +78,10 @@ const Button: React.FC<ButtonProps> = ({
     gradient: getGradientStyles()
   };
 
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من variantStyles
+  // TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes
+  // TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط
+
   const sizeStyles = {
     xs: 'px-2 py-1 text-xs',
     sm: 'px-3 py-1.5 text-sm',
@@ -60,6 +90,10 @@ const Button: React.FC<ButtonProps> = ({
     xl: 'px-8 py-4 text-xl',
     '2xl': 'px-10 py-5 text-2xl'
   };
+
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من sizeStyles
+  // TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes
+  // TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط
 
   const loadingAnimation = {
     animate: {
@@ -71,6 +105,10 @@ const Button: React.FC<ButtonProps> = ({
       }
     }
   };
+
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من loadingAnimation
+  // TODO: سيتم استخدام Django Static Files بدلاً من CSS Animations
+  // TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط
 
   return (
     <motion.button
@@ -90,6 +128,9 @@ const Button: React.FC<ButtonProps> = ({
       `}
       {...props}
     >
+      {/* TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من motion.button */}
+      {/* TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes */}
+      {/* TODO: سيتم استخدام Django Template Filters للتحكم في الأنماط */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center text-current">
           <motion.div 

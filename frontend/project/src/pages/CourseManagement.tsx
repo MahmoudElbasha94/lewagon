@@ -1,3 +1,9 @@
+/*
+ملف إدارة الدورات
+هذا الملف يحتوي على وظائف إدارة الدورات في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -67,25 +73,27 @@ const CourseManagement: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all');
 
+  // وظيفة حذف دورة
   const handleDeleteCourse = async (courseId: string) => {
-    if (window.confirm('Are you sure you want to delete this course?')) {
+    if (window.confirm('هل أنت متأكد من حذف هذه الدورة؟')) {
       try {
-        // Replace with actual API call
+        // TODO: استبدال هذا باستدعاء API حقيقي
         // await fetch(`/api/courses/${courseId}`, {
         //   method: 'DELETE',
         // });
         setCourses(prev => prev.filter(course => course.id !== courseId));
       } catch (error) {
-        console.error('Failed to delete course:', error);
+        console.error('فشل حذف الدورة:', error);
       }
     }
   };
 
+  // وظيفة إضافة قسم جديد
   const handleAddSection = (courseId: string) => {
     const newSection: CourseSection = {
       id: `s${Date.now()}`,
-      title: 'New Section',
-      description: 'Section description',
+      title: 'قسم جديد',
+      description: 'وصف القسم',
       order: courses.find(c => c.id === courseId)?.sections.length || 0 + 1,
       lessons: [],
     };
@@ -99,11 +107,68 @@ const CourseManagement: React.FC = () => {
     );
   };
 
+  // وظيفة تحديث حالة الدورة
+  const handleStatusChange = async (courseId: string, newStatus: Course['status']) => {
+    try {
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch(`/api/courses/${courseId}/status`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ status: newStatus }),
+      // });
+
+      setCourses(prev =>
+        prev.map(course =>
+          course.id === courseId ? { ...course, status: newStatus } : course
+        )
+      );
+    } catch (error) {
+      console.error('فشل تحديث حالة الدورة:', error);
+    }
+  };
+
+  // وظيفة تحديث عنوان القسم
+  const handleSectionTitleChange = (courseId: string, sectionId: string, newTitle: string) => {
+    setCourses(prev =>
+      prev.map(course =>
+        course.id === courseId
+          ? {
+              ...course,
+              sections: course.sections.map(section =>
+                section.id === sectionId
+                  ? { ...section, title: newTitle }
+                  : section
+              ),
+            }
+          : course
+      )
+    );
+  };
+
+  // وظيفة حذف قسم
+  const handleDeleteSection = (courseId: string, sectionId: string) => {
+    if (window.confirm('هل أنت متأكد من حذف هذا القسم؟')) {
+      setCourses(prev =>
+        prev.map(course =>
+          course.id === courseId
+            ? {
+                ...course,
+                sections: course.sections.filter(section => section.id !== sectionId),
+              }
+            : course
+        )
+      );
+    }
+  };
+
+  // وظيفة إضافة درس جديد
   const handleAddLesson = (courseId: string, sectionId: string) => {
     const newLesson: CourseLessonDraft = {
       id: `l${Date.now()}`,
-      title: 'New Lesson',
-      description: 'Lesson description',
+      title: 'درس جديد',
+      description: 'وصف الدرس',
       duration: '0:00',
       order:
         courses
@@ -127,6 +192,59 @@ const CourseManagement: React.FC = () => {
           : course
       )
     );
+  };
+
+  // وظيفة تحديث عنوان الدرس
+  const handleLessonTitleChange = (
+    courseId: string,
+    sectionId: string,
+    lessonId: string,
+    newTitle: string
+  ) => {
+    setCourses(prev =>
+      prev.map(course =>
+        course.id === courseId
+          ? {
+              ...course,
+              sections: course.sections.map(section =>
+                section.id === sectionId
+                  ? {
+                      ...section,
+                      lessons: section.lessons.map(lesson =>
+                        lesson.id === lessonId
+                          ? { ...lesson, title: newTitle }
+                          : lesson
+                      ),
+                    }
+                  : section
+              ),
+            }
+          : course
+      )
+    );
+  };
+
+  // وظيفة حذف درس
+  const handleDeleteLesson = (courseId: string, sectionId: string, lessonId: string) => {
+    if (window.confirm('هل أنت متأكد من حذف هذا الدرس؟')) {
+      setCourses(prev =>
+        prev.map(course =>
+          course.id === courseId
+            ? {
+                ...course,
+                sections: course.sections.map(section =>
+                  section.id === sectionId
+                    ? {
+                        ...section,
+                        lessons: section.lessons.filter(lesson => lesson.id !== lessonId),
+                      }
+                    : section
+                ),
+              }
+            : course
+        )
+      );
+    }
   };
 
   const handleVideoUpload = (courseId: string, sectionId: string, lessonId: string, videoUrl: string) => {

@@ -28,6 +28,7 @@ export interface InstructorProfile extends InstructorApplication {
   totalReviews: number;
 }
 
+// تعريف واجهة أرباح المدرب - تحتوي على تفاصيل أرباح المدرب من الدورات
 export interface InstructorEarnings {
   id: string;
   instructorId: string;
@@ -39,6 +40,7 @@ export interface InstructorEarnings {
   paymentMethod?: string;
 }
 
+// تعريف واجهة إحصائيات المدرب - تحتوي على إحصائيات أداء المدرب
 export interface InstructorStats {
   totalStudents: number;
   totalCourses: number;
@@ -53,6 +55,7 @@ export interface InstructorStats {
   }[];
 }
 
+// تعريف واجهة إشعارات المدرب - تحتوي على الإشعارات المرسلة للمدرب
 export interface InstructorNotification {
   id: string;
   instructorId: string;
@@ -69,6 +72,7 @@ export interface InstructorNotification {
   };
 }
 
+// تعريف واجهة خطوات إنشاء الدورة - تستخدم لتتبع تقدم إنشاء الدورة
 export interface CourseCreationStep {
   id: number;
   title: string;
@@ -76,6 +80,7 @@ export interface CourseCreationStep {
   current: boolean;
 }
 
+// تعريف واجهة قسم الدورة - تحتوي على أقسام الدورة ودروسها
 export interface CourseSection {
   id: string;
   title: string;
@@ -103,6 +108,7 @@ export interface CourseLessonDraft {
   }[];
 }
 
+// تعريف واجهة المعلومات الأساسية للدورة - تحتوي على المعلومات الأساسية المطلوبة لإنشاء دورة
 export interface CourseBasicInfo {
   title: string;
   subtitle: string;
@@ -117,6 +123,7 @@ export interface CourseBasicInfo {
   requirements: string[];
 }
 
+// تعريف واجهة تسعير الدورة - تحتوي على معلومات تسعير الدورة والخصومات
 export interface CoursePricing {
   price: number;
   currency: string;
@@ -126,6 +133,7 @@ export interface CoursePricing {
   discountEndDate?: string;
 }
 
+// تعريف واجهة تحليلات الدورة - تحتوي على إحصائيات وتحليلات أداء الدورة
 export interface CourseAnalytics {
   id: string;
   views: number;

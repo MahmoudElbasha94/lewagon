@@ -30,6 +30,13 @@ import { Certificate } from '../types/Certificate';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django Class-Based Views بدلاً من Certificate Page
+// 2. Django Templates بدلاً من Certificate UI
+// 3. Django ORM بدلاً من Certificate Data
+// 4. Django Media Files بدلاً من Certificate PDF
+// 5. Django Permissions بدلاً من Certificate Access
+
 const CertificatePage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const certificateRef = useRef<HTMLDivElement>(null);

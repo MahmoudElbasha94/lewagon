@@ -228,4 +228,11 @@ export const useNotifications = () => {
   return context;
 };
 
-export default NotificationProvider; 
+export default NotificationProvider;
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django Messages Framework بدلاً من Notification Context
+// 2. Django Channels بدلاً من Real-time Notifications
+// 3. Django Email Backend بدلاً من Email Notifications
+// 4. Django Cache بدلاً من Notification State
+// 5. Django Signals بدلاً من Notification Events 

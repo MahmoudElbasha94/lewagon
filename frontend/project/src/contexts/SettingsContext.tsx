@@ -1,126 +1,109 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../utils/api';
+/*
+ملف سياق الإعدادات
+هذا الملف يحتوي على وظائف إدارة إعدادات الموقع في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
 
-interface Settings {
-  siteName: string;
-  siteDescription: string;
-  logo: string;
-  favicon: string;
-  primaryColor: string;
-  secondaryColor: string;
-  emailServer: string;
-  emailPort: string;
-  emailUser: string;
-  emailPassword: string;
-  socialLinks: {
-    facebook: string;
-    twitter: string;
-    instagram: string;
-    linkedin: string;
-  };
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { Settings } from '../types/Settings';
 
 interface SettingsContextType {
-  settings: Settings;
+  settings: Settings | null;
   loading: boolean;
   error: string | null;
-  updateSettings: (newSettings: Partial<Settings>) => Promise<void>;
-  uploadLogo: (file: File) => Promise<string>;
-  uploadFavicon: (file: File) => Promise<string>;
+  fetchSettings: () => Promise<void>;
+  updateSettings: (settings: Partial<Settings>) => Promise<void>;
+  uploadLogo: (file: File) => Promise<void>;
+  uploadFavicon: (file: File) => Promise<void>;
 }
-
-const defaultSettings: Settings = {
-  siteName: '',
-  siteDescription: '',
-  logo: '',
-  favicon: '',
-  primaryColor: '#FF0000',
-  secondaryColor: '#0000FF',
-  emailServer: '',
-  emailPort: '',
-  emailUser: '',
-  emailPassword: '',
-  socialLinks: {
-    facebook: '',
-    twitter: '',
-    instagram: '',
-    linkedin: ''
-  }
-};
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
+  // وظيفة جلب الإعدادات
   const fetchSettings = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await api.get('/settings');
-      setSettings(response.data);
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/settings');
+      // const data = await response.json();
+      // setSettings(data);
       setError(null);
-    } catch (err) {
-      setError('Failed to fetch settings');
-      console.error('Error fetching settings:', err);
+    } catch (error) {
+      console.error('فشل جلب الإعدادات:', error);
+      setError('حدث خطأ أثناء جلب الإعدادات');
     } finally {
       setLoading(false);
     }
   };
 
+  // وظيفة تحديث الإعدادات
   const updateSettings = async (newSettings: Partial<Settings>) => {
     try {
-      setLoading(true);
-      const response = await api.put('/settings', newSettings);
-      setSettings(response.data);
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // await fetch('/api/settings', {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(newSettings),
+      // });
+      setSettings(prev => prev ? { ...prev, ...newSettings } : null);
       setError(null);
-    } catch (err) {
-      setError('Failed to update settings');
-      console.error('Error updating settings:', err);
-      throw err;
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('فشل تحديث الإعدادات:', error);
+      setError('حدث خطأ أثناء تحديث الإعدادات');
     }
   };
 
-  const uploadLogo = async (file: File): Promise<string> => {
+  // وظيفة رفع الشعار
+  const uploadLogo = async (file: File) => {
     try {
       const formData = new FormData();
       formData.append('logo', file);
-      const response = await api.post('/settings/upload-logo', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.logoUrl;
-    } catch (err) {
-      setError('Failed to upload logo');
-      console.error('Error uploading logo:', err);
-      throw err;
+
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/settings/logo', {
+      //   method: 'POST',
+      //   body: formData,
+      // });
+      // const data = await response.json();
+      // setSettings(prev => prev ? { ...prev, logo: data.logoUrl } : null);
+      setError(null);
+    } catch (error) {
+      console.error('فشل رفع الشعار:', error);
+      setError('حدث خطأ أثناء رفع الشعار');
     }
   };
 
-  const uploadFavicon = async (file: File): Promise<string> => {
+  // وظيفة رفع الأيقونة
+  const uploadFavicon = async (file: File) => {
     try {
       const formData = new FormData();
       formData.append('favicon', file);
-      const response = await api.post('/settings/upload-favicon', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.faviconUrl;
-    } catch (err) {
-      setError('Failed to upload favicon');
-      console.error('Error uploading favicon:', err);
-      throw err;
+
+      // TODO: استبدال هذا باستدعاء API حقيقي
+      // const response = await fetch('/api/settings/favicon', {
+      //   method: 'POST',
+      //   body: formData,
+      // });
+      // const data = await response.json();
+      // setSettings(prev => prev ? { ...prev, favicon: data.faviconUrl } : null);
+      setError(null);
+    } catch (error) {
+      console.error('فشل رفع الأيقونة:', error);
+      setError('حدث خطأ أثناء رفع الأيقونة');
     }
   };
+
+  // جلب الإعدادات عند تحميل المكون
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   return (
     <SettingsContext.Provider
@@ -128,6 +111,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         settings,
         loading,
         error,
+        fetchSettings,
         updateSettings,
         uploadLogo,
         uploadFavicon,
@@ -138,12 +122,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
+// وظيفة استخدام سياق الإعدادات
 export const useSettings = () => {
   const context = useContext(SettingsContext);
   if (context === undefined) {
-    throw new Error('useSettings must be used within a SettingsProvider');
+    throw new Error('يجب استخدام useSettings داخل SettingsProvider');
   }
   return context;
 };
 
-export default SettingsProvider; 
+export default SettingsProvider;
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django Settings بدلاً من Settings Context
+// 2. Django Cache بدلاً من Settings State
+// 3. Django Environment Variables بدلاً من Config
+// 4. Django Context Processors بدلاً من Settings Provider
+// 5. Django Template Tags بدلاً من Settings Access 

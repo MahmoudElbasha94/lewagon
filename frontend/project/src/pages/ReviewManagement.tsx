@@ -1,3 +1,9 @@
+/*
+ملف إدارة التقييمات
+هذا الملف يحتوي على وظائف إدارة تقييمات الطلاب في التطبيق
+سيتم استبداله بملف views.py في Django مع استخدام Django REST Framework
+*/
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star, ThumbsUp, MessageCircle, Flag, Search } from 'lucide-react';

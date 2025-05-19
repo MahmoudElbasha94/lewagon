@@ -1,3 +1,19 @@
+/*
+TODO: التغييرات المطلوبة للجانغو:
+1. سيتم استبدال هذا الملف بملف urls.py الذي يحتوي على جميع مسارات التطبيق
+2. سيتم تحويل كل Route إلى path في urls.py
+3. سيتم استبدال المكونات React بviews.py في الجانغو
+4. سيتم تحويل ProtectedRoute و AdminRoute و InstructorRoute و StudentRoute إلى decorators في الجانغو
+5. سيتم تحويل Context Providers إلى middleware في الجانغو
+*/
+
+// TODO: في Django، سيتم استخدام:
+// 1. Django URLs بدلاً من React Router
+// 2. Django Templates بدلاً من JSX
+// 3. Django Context بدلاً من React Context
+// 4. Django Middleware بدلاً من React Middleware
+// 5. Django Static Files بدلاً من React Assets
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';

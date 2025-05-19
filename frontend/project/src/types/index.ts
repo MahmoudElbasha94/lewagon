@@ -1,5 +1,16 @@
+/**
+ * TODO: التغييرات المطلوبة للجانغو:
+ * 1. سيتم استبدال هذه الـ interfaces بـ Django Models في models.py
+ * 2. سيتم استخدام Django Model Fields بدلاً من TypeScript types
+ * 3. سيتم إضافة Meta classes للـ models لتحديد العلاقات والخصائص
+ * 4. سيتم استخدام Django Model Managers للتعامل مع البيانات
+ * 5. سيتم إضافة Django Model Methods للوظائف المخصصة
+ * 6. سيتم استخدام Django Model Validators للتحقق من صحة البيانات
+ */
+
 export * from './Course';
 
+// تعريف واجهة المدرب - تحتوي على معلومات المدرب الأساسية وإحصائياته
 export interface Instructor {
   id: string | number;
   name: string;
@@ -17,6 +28,7 @@ export interface Instructor {
   };
 }
 
+// تعريف واجهة المرفقات - تستخدم لإرفاق ملفات مع الدروس
 export interface Attachment {
   id: string;
   name: string;
@@ -25,6 +37,7 @@ export interface Attachment {
   size: number;
 }
 
+// تعريف واجهة الدرس - تحتوي على معلومات الدرس ومحتواه
 export interface Lesson {
   id: string;
   title: string;
@@ -41,6 +54,7 @@ export interface UserProgress {
   completed: boolean;
 }
 
+// تعريف واجهة التقييم - تحتوي على تقييمات الطلاب للدورات
 export interface Review {
   id: string;
   userId: string;
@@ -51,6 +65,7 @@ export interface Review {
   date: string;
 }
 
+// تعريف واجهة المستخدم - تحتوي على معلومات المستخدم وتفضيلاته
 export interface User {
   id: string;
   name: string;
@@ -85,6 +100,7 @@ export interface ProfileFormData extends ProfileUpdateData {
   theme: 'light' | 'dark';
 }
 
+// تعريف واجهة سجل المشتريات - تحتوي على تفاصيل مشتريات الطلاب للدورات
 export interface PurchaseHistory {
   id: string;
   courseId: string;
@@ -99,6 +115,7 @@ export interface PurchaseHistory {
   transactionId: string;
 }
 
+// تعريف واجهة الفاتورة - تحتوي على تفاصيل فواتير المشتريات
 export interface Invoice {
   id: string;
   purchaseId: string;
@@ -125,6 +142,7 @@ export interface Invoice {
   };
 }
 
+// تعريف واجهة طريقة الدفع - تحتوي على معلومات طرق الدفع المدخلة
 export interface PaymentMethod {
   id: string;
   type: 'credit_card' | 'debit_card' | 'paypal';

@@ -1,3 +1,11 @@
+// TODO: في الجانغو، سيتم استبال هذا المكون بـ Django Template
+// TODO: سيتم استخدام Django Forms بدلاً من react-hook-form
+// TODO: سيتم استخدام Django Authentication Views بدلاً من useAuth hook
+// TODO: سيتم استخدام Django Messages Framework للإشعارات
+// TODO: سيتم استخدام Django Session Management بدلاً من localStorage
+// TODO: سيتم استخدام Django CSRF Protection للحماية
+// TODO: سيتم استخدام Django Password Validation بدلاً من zod schema
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,6 +16,10 @@ import Button from '../components/common/Button';
 import PageTransition from '../components/common/PageTransition';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+
+// TODO: في الجانغو، سيتم استخدام Django Forms Validation بدلاً من Zod Schema
+// TODO: سيتم استخدام Django Password Validators بدلاً من Regex Validation
+// TODO: سيتم استخدام Django Form Fields بدلاً من Zod Schema Fields
 
 // Form validation schema
 const loginSchema = z.object({
@@ -25,6 +37,10 @@ const loginSchema = z.object({
   })
 });
 
+// TODO: في الجانغو، سيتم استخدام Django Forms بدلاً من react-hook-form
+// TODO: سيتم استخدام Django Form Validation بدلاً من formState
+// TODO: سيتم استخدام Django CSRF Protection بدلاً من form submission
+
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
@@ -38,6 +54,11 @@ const LoginPage: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [lockTimer, setLockTimer] = useState(0);
   
+  // TODO: في الجانغو، سيتم استخدام Django Session بدلاً من useState
+  // TODO: سيتم استخدام Django Messages Framework بدلاً من errorMessage
+  // TODO: سيتم استخدام Django Rate Limiting بدلاً من loginAttempts
+  // TODO: سيتم استخدام Django Cache Framework بدلاً من lockTimer
+
   const from = location.state?.from || '/dashboard';
   
   const { 
@@ -50,6 +71,10 @@ const LoginPage: React.FC = () => {
     resolver: zodResolver(loginSchema),
     mode: 'onChange'
   });
+
+  // TODO: في الجانغو، سيتم استخدام Django Forms بدلاً من react-hook-form
+  // TODO: سيتم استخدام Django Form Validation بدلاً من formState
+  // TODO: سيتم استخدام Django CSRF Protection بدلاً من form submission
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -67,6 +92,9 @@ const LoginPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isLocked, lockTimer]);
 
+  // TODO: في الجانغو، سيتم استخدام Django Cache Framework بدلاً من useEffect
+  // TODO: سيتم استخدام Django Background Tasks بدلاً من setInterval
+
   const handleLoginAttempt = () => {
     setLoginAttempts((prev) => {
       const attempts = prev + 1;
@@ -80,6 +108,10 @@ const LoginPage: React.FC = () => {
     });
   };
   
+  // TODO: في الجانغو، سيتم استخدام Django Rate Limiting بدلاً من handleLoginAttempt
+  // TODO: سيتم استخدام Django Cache Framework بدلاً من setLockTimer
+  // TODO: سيتم استخدام Django Form Reset بدلاً من reset
+
   const onSubmit = async (data: LoginFormData) => {
     if (isLocked) return;
     
@@ -87,6 +119,10 @@ const LoginPage: React.FC = () => {
       setIsLoading(true);
       setErrorMessage('');
       const success = await login(data.email, data.password);
+      
+      // TODO: في الجانغو، سيتم استخدام Django Authentication Backend بدلاً من login function
+      // TODO: سيتم استخدام Django Session بدلاً من success state
+      // TODO: سيتم استخدام Django Messages Framework بدلاً من setErrorMessage
       
       if (success) {
         navigate(from, { replace: true });
@@ -102,11 +138,18 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  // TODO: في الجانغو، سيتم استخدام Django Redirect بدلاً من navigate
+  // TODO: سيتم استخدام Django Form Validation بدلاً من try/catch
+  // TODO: سيتم استخدام Django Messages Framework بدلاً من setErrorMessage
+
   const inputVariants = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 }
   };
+
+  // TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من Framer Motion
+  // TODO: سيتم استخدام Django Static Files بدلاً من CSS Animations
 
   const pageVariants = {
     initial: { opacity: 0, scale: 0.98 },
@@ -139,6 +182,9 @@ const LoginPage: React.FC = () => {
   return (
     <PageTransition>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden py-20">
+        {/* TODO: في الجانغو، سيتم استخدام Django Template Tags بدلاً من JSX */}
+        {/* TODO: سيتم استخدام Django Static Files بدلاً من CSS Classes */}
+        {/* TODO: سيتم استخدام Django Template Inheritance بدلاً من Component Composition */}
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.3),transparent)]" />

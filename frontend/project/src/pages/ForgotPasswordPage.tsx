@@ -8,6 +8,13 @@ import PageTransition from '../components/common/PageTransition';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+// TODO: في Django، سيتم استخدام:
+// 1. Django Forms بدلاً من Password Reset Form
+// 2. Django Password Reset Views بدلاً من Reset Logic
+// 3. Django Email Backend بدلاً من Reset Emails
+// 4. Django Token بدلاً من Reset Tokens
+// 5. Django Messages بدلاً من Form Messages
+
 // Form validation schema
 const forgotPasswordSchema = z.object({
   email: z.string()

@@ -1,3 +1,12 @@
+/*
+TODO: التغييرات المطلوبة للجانغو:
+1. سيتم استبدال هذا الملف بملف views.py في الجانغو
+2. سيتم تحويل كل دالة إلى view function في الجانغو
+3. سيتم استخدام Django REST Framework لإنشاء API endpoints
+4. سيتم تحويل axios calls إلى Django views
+5. سيتم إضافة serializers.py لتحويل البيانات
+*/
+
 import { Instructor } from '../types';
 import axios from 'axios';
 

@@ -7,9 +7,13 @@ from django.db.models import Count
 from django.core.exceptions import PermissionDenied
 from rest_framework.generics import UpdateAPIView, DestroyAPIView, ListAPIView
 from django.utils.timezone import now
+
+from rest_framework import permissions
 from .models import Course, Enrollment, Student, Review, Payment
-from .serializers import CourseSerializer, ReviewCreateSerializer, PaymentSerializer
+from .serializers import CourseSerializer, ReviewCreateSerializer, PaymentSerializer, ReviewSerializer
 from users.permissions import IsStudent, IsInstructor, IsAdmin
+
+from courses import serializers
 
 class AllCoursesView(APIView):
     permission_classes = []
@@ -121,11 +125,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
         
-        
-class CourseAdminViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
-    permission_classes = [IsAuthenticated, IsAdmin]
 
 
 class CourseAdminViewSet(viewsets.ModelViewSet):
@@ -137,6 +136,14 @@ class PaymentAdminViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.is_admin:
+            return Payment.objects.all()
+        elif user.is_student:
+            return Payment.objects.filter(enrollment__student=user.student_profile)
+        return Payment.objects.none()
+
     
 
 class UpdateProgressView(APIView):
@@ -182,3 +189,29 @@ class CertificateView(APIView):
 
         except Enrollment.DoesNotExist:
             return Response({'error': 'Enrollment not found'}, status=404)
+        
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.is_admin:
+            return Review.objects.all()
+        elif user.is_student:
+            return Review.objects.filter(student=user.student_profile)
+        return Review.objects.none()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        course = serializer.validated_data['course']
+        student = user.student_profile
+
+        if Review.objects.filter(course=course, student=student).exists():
+            raise serializers.ValidationError("You have already reviewed this course.")
+
+        if not Enrollment.objects.filter(course=course, student=student).exists():
+            raise serializers.ValidationError("You must be enrolled in the course to leave a review.")
+
+        serializer.save(student=student)
+

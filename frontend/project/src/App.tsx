@@ -153,6 +153,11 @@ const App: React.FC = () => {
                       } />
 
                       {/* Instructor Routes */}
+                      <Route path="/instructor/dashboard" element={
+                        <InstructorRoute>
+                          <Analytics />
+                        </InstructorRoute>
+                      } />
                       <Route path="/instructor/notifications" element={
                         <InstructorRoute>
                           <Notifications />

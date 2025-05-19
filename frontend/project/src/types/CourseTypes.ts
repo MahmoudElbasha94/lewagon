@@ -1,3 +1,21 @@
+// تعريف واجهة المعلومات الأساسية للدورة - تستخدم في تحديث معلومات الدورة
+export interface CourseBasicInfo {
+  title?: string;                // عنوان الدورة
+  subtitle?: string;             // العنوان الفرعي
+  description?: string;          // وصف الدورة
+  category?: string;             // تصنيف الدورة
+  level?: 'beginner' | 'intermediate' | 'advanced';  // مستوى الدورة
+  language?: string;             // لغة الدورة
+  price?: number;                // سعر الدورة
+  discountPrice?: number;        // سعر الخصم
+  coverImage?: File;             // صورة الغلاف
+  previewVideo?: File;           // فيديو المعاينة
+  tags?: string[];              // الوسوم
+  requirements?: string[];       // المتطلبات
+  objectives?: string[];         // الأهداف التعليمية
+  isPublished?: boolean;         // حالة النشر
+}
+
 // تعريف واجهة اختبار الدورة - تحتوي على معلومات اختبار في الدورة
 export interface CourseQuiz {
   id: string;                    // معرف الاختبار

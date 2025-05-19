@@ -17,29 +17,23 @@ import PageTransition from '../components/common/PageTransition';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// TODO: في الجانغو، سيتم استخدام Django Forms Validation بدلاً من Zod Schema
-// TODO: سيتم استخدام Django Password Validators بدلاً من Regex Validation
-// TODO: سيتم استخدام Django Form Fields بدلاً من Zod Schema Fields
-
-// Form validation schema
-const loginSchema = z.object({
-  email: z.string()
-    .email('Please enter a valid email address')
-    .min(1, 'Email is required'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-  rememberMe: z.boolean().refine(val => val === true, {
-    message: 'You must agree to remember me'
-  })
-});
-
 // TODO: في الجانغو، سيتم استخدام Django Forms بدلاً من react-hook-form
 // TODO: سيتم استخدام Django Form Validation بدلاً من formState
 // TODO: سيتم استخدام Django CSRF Protection بدلاً من form submission
+
+// تعريف مخطط التحقق من صحة البيانات
+const loginSchema = z.object({
+  email: z.string()
+    .email('يرجى إدخال بريد إلكتروني صحيح')
+    .min(1, 'البريد الإلكتروني مطلوب'),
+  password: z.string()
+    .min(8, 'يجب أن تكون كلمة المرور 8 أحرف على الأقل')
+    .regex(/[A-Z]/, 'يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل')
+    .regex(/[a-z]/, 'يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل')
+    .regex(/[0-9]/, 'يجب أن تحتوي كلمة المرور على رقم واحد على الأقل')
+    .regex(/[^A-Za-z0-9]/, 'يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل'),
+  rememberMe: z.boolean().optional()
+});
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -113,26 +107,21 @@ const LoginPage: React.FC = () => {
   // TODO: سيتم استخدام Django Form Reset بدلاً من reset
 
   const onSubmit = async (data: LoginFormData) => {
-    if (isLocked) return;
-    
     try {
       setIsLoading(true);
       setErrorMessage('');
-      const success = await login(data.email, data.password);
       
-      // TODO: في الجانغو، سيتم استخدام Django Authentication Backend بدلاً من login function
-      // TODO: سيتم استخدام Django Session بدلاً من success state
-      // TODO: سيتم استخدام Django Messages Framework بدلاً من setErrorMessage
+      // محاولة تسجيل الدخول
+      const user = await login(data.email, data.password);
       
-      if (success) {
-        navigate(from, { replace: true });
-      } else {
-        handleLoginAttempt();
-        setErrorMessage('Invalid credentials. Please try again.');
-      }
-    } catch (error) {
+      // حفظ المستخدم في localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // توجيه المستخدم إلى صفحة لوحة التحكم
+      navigate('/dashboard');
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول');
       handleLoginAttempt();
-      setErrorMessage('An error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }

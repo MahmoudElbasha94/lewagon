@@ -30,6 +30,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   signup: (userData: Omit<User, 'id'>) => Promise<void>;
@@ -44,26 +45,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // وظيفة تسجيل الدخول
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: استبدال هذا باستدعاء API حقيقي
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-      // const data = await response.json();
-      // setUser(data.user);
-      // localStorage.setItem('token', data.token);
-      setError(null);
+      console.log('محاولة تسجيل الدخول:', { email, password });
+      
+      // محاكاة عملية تسجيل الدخول
+      let userData: User | null = null;
+
+      if (email === 'admin@test.com' && password === 'Admin@123') {
+        userData = {
+          id: '1',
+          name: 'Admin User',
+          email: 'admin@test.com',
+          role: 'admin',
+          avatar: '',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          preferences: {
+            notifications: true,
+            emailUpdates: true,
+            theme: 'light'
+          }
+        };
+      } else if (email === 'instructor@test.com' && password === 'Instructor@123') {
+        userData = {
+          id: '2',
+          name: 'Instructor User',
+          email: 'instructor@test.com',
+          role: 'instructor',
+          avatar: '',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          preferences: {
+            notifications: true,
+            emailUpdates: true,
+            theme: 'light'
+          }
+        };
+      } else if (email === 'student@test.com' && password === 'Student@123') {
+        userData = {
+          id: '3',
+          name: 'Student User',
+          email: 'student@test.com',
+          role: 'student',
+          avatar: '',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          preferences: {
+            notifications: true,
+            emailUpdates: true,
+            theme: 'light'
+          }
+        };
+      }
+
+      console.log('نتيجة التحقق من بيانات المستخدم:', userData);
+
+      if (userData) {
+        setUser(userData);
+        setIsAuthenticated(true);
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log('تم تسجيل الدخول بنجاح:', userData);
+      } else {
+        console.error('بيانات الدخول غير صحيحة');
+        throw new Error('بيانات الدخول غير صحيحة');
+      }
     } catch (error) {
       console.error('فشل تسجيل الدخول:', error);
-      setError('حدث خطأ أثناء تسجيل الدخول');
+      setError('بيانات الدخول غير صحيحة');
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -72,12 +130,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // وظيفة تسجيل الخروج
   const logout = async () => {
     try {
-      // TODO: استبدال هذا باستدعاء API حقيقي
-      // await fetch('/api/auth/logout', {
-      //   method: 'POST',
-      // });
       setUser(null);
-      localStorage.removeItem('token');
+      setIsAuthenticated(false);
+      localStorage.removeItem('user');
       setError(null);
     } catch (error) {
       console.error('فشل تسجيل الخروج:', error);
@@ -167,20 +222,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // التحقق من وجود جلسة مستخدم عند تحميل المكون
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // TODO: استبدال هذا باستدعاء API حقيقي
-      // fetch('/api/auth/me', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // })
-      //   .then(response => response.json())
-      //   .then(data => setUser(data))
-      //   .catch(error => {
-      //     console.error('فشل التحقق من الجلسة:', error);
-      //     localStorage.removeItem('token');
-      //   });
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('فشل تحميل بيانات المستخدم:', error);
+        localStorage.removeItem('user');
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     }
   }, []);
 
@@ -190,6 +243,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         loading,
         error,
+        isAuthenticated,
         login,
         logout,
         signup,

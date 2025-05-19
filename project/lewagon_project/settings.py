@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'courses.apps.CoursesConfig',
     'users.apps.UsersConfig',
+    'contact.apps.ContactConfig',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -176,3 +177,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tahanyahmed213@gmail.com'
 EMAIL_HOST_PASSWORD = 'dqhd hsal reyt cxun'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

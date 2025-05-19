@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import CourseDetailView, InstructorCourseListView, CourseCreateView, AllCoursesView, CourseUpdateView, CourseDeleteView, StudentEnrolledCoursesView, SubmitReviewView, CourseAdminViewSet, PaymentAdminViewSet, UpdateProgressView, CertificateView
+from .views import CourseDetailView,InstructorCourseListView, CourseCreateView, AllCoursesView, CourseUpdateView, CourseDeleteView, StudentEnrolledCoursesView, SubmitReviewView, CourseAdminViewSet, PaymentAdminViewSet, UpdateProgressView, CertificateView, PaymentViewSet, ReviewViewSet
 urlpatterns = [
     path('all/', AllCoursesView.as_view(), name='all_courses'),
     path('course/<slug:slug>/', CourseDetailView.as_view(), name='course_detail'),
@@ -18,4 +18,6 @@ urlpatterns = [
 router = DefaultRouter()
 router.register('admin/courses', CourseAdminViewSet, basename='admin-courses')
 router.register('admin/payments', PaymentAdminViewSet, basename='admin-payments')
+router.register('student/payments', PaymentViewSet, basename='student-payments')
+router.register('admin/reviews', ReviewViewSet, basename='admin-reviews')
 urlpatterns += router.urls

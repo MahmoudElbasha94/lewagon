@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Users, BookOpen, Star } from 'lucide-react';
+import { ArrowRight, Play, Users, BookOpen, Star, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const DEMO_VIDEO_URL = 'https://www.youtube.com/embed/dQw4w9WgXcQ'; // Example video URL
+
 const HeroSection: React.FC = () => {
+  const [showDemo, setShowDemo] = useState(false);
+  
   const stats = [
     { icon: Users, label: 'Active Learners', value: '50K+' },
     { icon: BookOpen, label: 'Total Courses', value: '300+' },
@@ -11,13 +15,13 @@ const HeroSection: React.FC = () => {
   ];
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-red-700 via-red-600 to-red-800 pt-16 pb-32">
+    <div className="relative overflow-hidden bg-gradient-to-br from-red-700 via-red-600 to-red-800">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-grid-slate-900/[0.15] bg-[size:32px_32px]" />
       <div className="absolute inset-0 bg-black/40" /> {/* Dark overlay for better text visibility */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24">
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24 items-center">
           {/* Left Column - Text Content */}
           <motion.div
@@ -45,6 +49,7 @@ const HeroSection: React.FC = () => {
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Link>
                 <button
+                  onClick={() => setShowDemo(true)}
                   className="group inline-flex items-center gap-x-2 rounded-full px-6 py-4 text-lg font-semibold text-white hover:text-red-100 transition-all duration-300"
                 >
                   <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/30 backdrop-blur-sm group-hover:bg-white/40">
@@ -129,6 +134,26 @@ const HeroSection: React.FC = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Video Preview Modal */}
+      {showDemo && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden">
+            <button
+              onClick={() => setShowDemo(false)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <iframe
+              src={`${DEMO_VIDEO_URL}?autoplay=1`}
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

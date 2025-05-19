@@ -22,13 +22,15 @@ const LessonsPage: React.FC = () => {
 
   // Combine all lessons from all courses
   const allLessons = courses.flatMap(course => 
-    course.lessons.map(lesson => ({
-      ...lesson,
-      courseTitle: course.title,
-      courseId: course.id,
-      category: course.category || 'General',
-      level: course.level || 'Beginner'
-    }))
+    course.sections.flatMap(section => 
+      section.lessons.map(lesson => ({
+        ...lesson,
+        courseTitle: course.title,
+        courseId: course.id,
+        category: course.category || 'General',
+        level: course.level || 'Beginner'
+      }))
+    )
   );
 
   // Filter lessons based on search and filters

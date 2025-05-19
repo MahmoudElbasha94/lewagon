@@ -9,30 +9,48 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCourses } from '../contexts/CourseContext';
 import { Link } from 'react-router-dom';
 import PageTransition from '../components/common/PageTransition';
+import type { Course } from '../types/Course';
 
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const { courses, isEnrolled } = useCourses();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Get enrolled courses
-  const enrolledCourses = courses.filter(course => user && isEnrolled(user.id, course.id));
+  // Get enrolled courses with null check
+  const enrolledCourses = courses?.filter(course => user && isEnrolled(user.id, String(course.id))) || [];
 
-  // Calculate progress statistics
-  const completedCourses = enrolledCourses.filter(course => 
+  // Calculate progress statistics with null checks
+  const completedCourses = enrolledCourses?.filter(course => 
     course.courseProgress && course.courseProgress.completed === course.courseProgress.totalUnits
-  );
+  ) || [];
   
-  const totalProgress = enrolledCourses.reduce((acc, course) => {
+  const totalProgress = enrolledCourses?.reduce((acc, course) => {
     if (course.courseProgress) {
       return acc + (course.courseProgress.completed / course.courseProgress.totalUnits) * 100;
     }
     return acc;
-  }, 0);
+  }, 0) || 0;
 
-  const averageProgress = enrolledCourses.length > 0 
+  const averageProgress = enrolledCourses?.length > 0 
     ? totalProgress / enrolledCourses.length 
     : 0;
+
+  // Calculate total lessons across all sections
+  const getTotalLessons = (course: Course): number => {
+    return course.sections?.reduce((total: number, section) => 
+      total + (section.lessons?.length || 0), 0) || 0;
+  };
+
+  // Get total duration across all sections
+  const getTotalDuration = (course: Course): number => {
+    return course.sections?.reduce((total: number, section) => {
+      return total + section.lessons?.reduce((lessonTotal: number, lesson) => {
+        const duration = lesson.duration || '0:00';
+        const [hours = 0, minutes = 0] = duration.split(':').map(Number);
+        return lessonTotal + hours * 60 + minutes;
+      }, 0) || 0;
+    }, 0) || 0;
+  };
 
   return (
     <PageTransition>
@@ -114,7 +132,7 @@ const UserDashboard: React.FC = () => {
               <div className="flex items-end justify-between">
                 <div>
                   <h3 className="text-3xl font-bold text-gray-900">
-                    {enrolledCourses.reduce((acc, course) => acc + parseInt(course.duration), 0)}h
+                    {enrolledCourses.reduce((acc, course) => acc + getTotalDuration(course), 0)}h
                   </h3>
                   <p className="text-gray-600">Total Hours</p>
                 </div>
@@ -124,170 +142,198 @@ const UserDashboard: React.FC = () => {
 
           {/* Main Content */}
           <div className="mt-8">
-            <div className="bg-white rounded-xl shadow">
-              {/* Tabs */}
-              <div className="border-b border-gray-200">
-                <div className="flex space-x-8 px-6">
-                  <button
-                    className={`py-4 px-2 border-b-2 font-medium ${
-                      activeTab === 'overview'
-                        ? 'border-primary-500 text-primary-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                    onClick={() => setActiveTab('overview')}
-                  >
-                    Overview
-                  </button>
-                  <button
-                    className={`py-4 px-2 border-b-2 font-medium ${
-                      activeTab === 'courses'
-                        ? 'border-primary-500 text-primary-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                    onClick={() => setActiveTab('courses')}
-                  >
-                    My Courses
-                  </button>
-                  <button
-                    className={`py-4 px-2 border-b-2 font-medium ${
-                      activeTab === 'certificates'
-                        ? 'border-primary-500 text-primary-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                    onClick={() => setActiveTab('certificates')}
-                  >
-                    Certificates
-                  </button>
-                </div>
-              </div>
-
-              {/* Tab Content */}
-              <div className="p-6">
-                {activeTab === 'overview' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h3>
-                    {enrolledCourses.length > 0 ? (
-                      <div className="space-y-4">
-                        {enrolledCourses.map(course => (
-                          <div key={course.id} className="bg-gray-50 rounded-lg p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4">
-                                <img 
-                                  src={course.thumbnail} 
-                                  alt={course.title}
-                                  className="h-16 w-16 rounded-lg object-cover"
-                                />
-                                <div>
-                                  <h4 className="font-medium text-gray-900">{course.title}</h4>
-                                  <p className="text-sm text-gray-600">
-                                    {course.courseProgress 
-                                      ? `${((course.courseProgress.completed / course.courseProgress.totalUnits) * 100).toFixed(1)}% complete`
-                                      : 'Not started'}
-                                  </p>
-                                </div>
-                              </div>
-                              <Link 
-                                to={`/courses/${course.id}/lessons/${course.lessons[0].id}`}
-                                className="flex items-center text-primary-600 hover:text-primary-700"
-                              >
-                                Continue
-                                <ChevronRight className="h-4 w-4 ml-1" />
-                              </Link>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <BookMarked className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No courses yet</h3>
-                        <p className="text-gray-600 mb-4">Start your learning journey today</p>
-                        <Link
-                          to="/courses"
-                          className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
-                        >
-                          Browse Courses
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === 'courses' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">My Courses</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {enrolledCourses.map(course => (
-                        <div key={course.id} className="bg-gray-50 rounded-lg overflow-hidden">
-                          <img 
-                            src={course.thumbnail} 
-                            alt={course.title}
-                            className="w-full h-48 object-cover"
-                          />
-                          <div className="p-4">
-                            <h4 className="font-medium text-gray-900 mb-2">{course.title}</h4>
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 text-gray-400 mr-1" />
-                                <span className="text-sm text-gray-600">{course.duration}</span>
-                              </div>
-                              <div className="flex items-center">
-                                <BookOpen className="h-4 w-4 text-gray-400 mr-1" />
-                                <span className="text-sm text-gray-600">
-                                  {course.lessons.length} lessons
-                                </span>
-                              </div>
-                            </div>
-                            <Link
-                              to={`/courses/${course.id}/lessons/${course.lessons[0].id}`}
-                              className="block w-full text-center bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors"
-                            >
-                              Continue Learning
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'certificates' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">My Certificates</h3>
-                    {completedCourses.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {completedCourses.map(course => (
-                          <div key={course.id} className="bg-gray-50 rounded-lg p-6">
-                            <div className="flex items-center justify-center mb-4">
-                              <Award className="h-12 w-12 text-primary-600" />
-                            </div>
-                            <h4 className="text-center font-medium text-gray-900 mb-2">
-                              {course.title}
-                            </h4>
-                            <p className="text-center text-sm text-gray-600 mb-4">
-                              {course.certification.type}
-                            </p>
-                            <button className="w-full bg-white text-primary-600 border border-primary-600 py-2 rounded-lg hover:bg-primary-50 transition-colors">
-                              Download Certificate
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          No certificates yet
-                        </h3>
-                        <p className="text-gray-600">
-                          Complete courses to earn certificates
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">My Courses</h2>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setActiveTab('courses')}
+                  className={`px-4 py-2 rounded-lg ${
+                    activeTab === 'courses'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  All Courses
+                </button>
+                <button
+                  onClick={() => setActiveTab('certificates')}
+                  className={`px-4 py-2 rounded-lg ${
+                    activeTab === 'certificates'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Certificates
+                </button>
               </div>
             </div>
+
+            {activeTab === 'courses' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {enrolledCourses.map(course => (
+                  <motion.div
+                    key={course.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ 
+                      y: -8,
+                      transition: { duration: 0.2 }
+                    }}
+                    className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  >
+                    <div className="relative h-52">
+                      <img
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                      <div className="absolute top-4 right-4">
+                        {course.certification && (
+                          <span className="px-3 py-1.5 bg-white/90 text-red-600 text-xs font-semibold rounded-full shadow-sm">
+                            {course.certification.type}
+                          </span>
+                        )}
+                      </div>
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <h3 className="text-xl font-bold text-white mb-2 drop-shadow-lg line-clamp-2">{course.title}</h3>
+                        <div className="flex items-center text-white/90 text-sm space-x-4">
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 mr-1.5 drop-shadow-lg" />
+                            <span className="drop-shadow-lg">{course.duration}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <BookOpen className="w-4 h-4 mr-1.5 drop-shadow-lg" />
+                            <span className="drop-shadow-lg">{getTotalLessons(course)} lessons</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center">
+                          <div className="relative">
+                            <img
+                              src={course.instructorDetails.avatar}
+                              alt={course.instructorDetails.name}
+                              className="w-10 h-10 rounded-full border-2 border-white shadow-md"
+                            />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">{course.instructorDetails.name}</p>
+                            <p className="text-xs text-gray-500">Instructor</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mb-6">
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="font-medium text-gray-900">Course Progress</span>
+                          <span className="font-semibold text-red-600">{course.courseProgress?.completed || 0}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${course.courseProgress?.completed || 0}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 mb-6 text-center">
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <p className="text-lg font-semibold text-gray-900">{getTotalLessons(course)}</p>
+                          <p className="text-xs text-gray-500">Total Lessons</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <p className="text-lg font-semibold text-gray-900">{course.courseProgress?.completedLessons || 0}</p>
+                          <p className="text-xs text-gray-500">Completed</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <p className="text-lg font-semibold text-gray-900">{getTotalDuration(course)}h</p>
+                          <p className="text-xs text-gray-500">Duration</p>
+                        </div>
+                      </div>
+                      <Link
+                        to={`/course/${course.id}/learn`}
+                        className="flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-xl hover:from-red-600 hover:to-red-700 transform transition-all duration-200 hover:scale-[1.02] focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        Continue Learning
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+                {enrolledCourses.length === 0 && (
+                  <div className="col-span-3 bg-white rounded-2xl shadow-sm p-8 text-center">
+                    <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                      <BookOpen className="h-8 w-8 text-red-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Courses Yet</h3>
+                    <p className="text-gray-600 mb-6">Start your learning journey by enrolling in a course</p>
+                    <Link
+                      to="/courses"
+                      className="inline-flex items-center px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors"
+                    >
+                      Browse Courses
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {completedCourses.map(course => (
+                  <motion.div
+                    key={course.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ 
+                      y: -8,
+                      transition: { duration: 0.2 }
+                    }}
+                    className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  >
+                    <div className="p-8">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center">
+                          <div className="p-3 bg-yellow-100 rounded-xl">
+                            <Award className="h-8 w-8 text-yellow-600" />
+                          </div>
+                          <div className="ml-4">
+                            <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
+                            <p className="text-sm text-gray-600 mt-1">{course.certification?.type}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
+                        <div className="flex items-center space-x-4">
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-primary-600">100%</p>
+                            <p className="text-xs text-gray-500">Completed</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-green-600">{getTotalLessons(course)}</p>
+                            <p className="text-xs text-gray-500">Lessons</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-blue-600">{course.duration}</p>
+                            <p className="text-xs text-gray-500">Hours</p>
+                          </div>
+                        </div>
+                      </div>
+                      <Link
+                        to={`/course/${course.id}/certificate`}
+                        className="flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm font-semibold rounded-xl hover:from-yellow-600 hover:to-yellow-700 transform transition-all duration-200 hover:scale-[1.02] focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                      >
+                        View Certificate
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

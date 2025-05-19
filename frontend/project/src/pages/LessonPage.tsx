@@ -21,18 +21,22 @@ const LessonPage: React.FC = () => {
   const [markingComplete, setMarkingComplete] = useState(false);
 
   // Find the course and lesson
-  const course = courses.find(c => c.id === courseId);
-  const lesson = course?.lessons.find(l => l.id.toString() === lessonId);
+  const course = courses.find(c => c.id.toString() === courseId);
+  const section = course?.sections.find(s => 
+    s.lessons.some(l => l.id.toString() === lessonId)
+  );
+  const lesson = section?.lessons.find(l => l.id.toString() === lessonId);
   
   // Find the index of the current lesson
-  const lessonIndex = course?.lessons.findIndex(l => l.id.toString() === lessonId) ?? -1;
+  const allLessons = course?.sections.flatMap(s => s.lessons) || [];
+  const lessonIndex = allLessons.findIndex(l => l.id.toString() === lessonId);
   
   // Previous and next lessons
-  const prevLesson = lessonIndex > 0 ? course?.lessons[lessonIndex - 1] : null;
-  const nextLesson = lessonIndex < (course?.lessons.length ?? 0) - 1 ? course?.lessons[lessonIndex + 1] : null;
+  const prevLesson = lessonIndex > 0 ? allLessons[lessonIndex - 1] : null;
+  const nextLesson = lessonIndex < allLessons.length - 1 ? allLessons[lessonIndex + 1] : null;
   
   // Check if the lesson is completed
-  const isCompleted = user && course && lesson ? getLessonProgress(user.id, course.id, lesson.id) : false;
+  const isCompleted = user && course && lesson ? getLessonProgress(user.id, course.id.toString(), lesson.id) : false;
 
   // Handle marking lesson as complete
   const handleMarkComplete = async () => {
@@ -40,7 +44,7 @@ const LessonPage: React.FC = () => {
     
     setMarkingComplete(true);
     try {
-      markLessonComplete(user.id, course.id, lesson.id);
+      markLessonComplete(user.id, course.id.toString(), lesson.id);
       toast.success('Lesson completed successfully!');
     } catch (error) {
       toast.error('Failed to update lesson status');
@@ -112,43 +116,48 @@ const LessonPage: React.FC = () => {
                     </button>
                   </div>
                   
-                  <div className="space-y-2">
-                    {course.lessons.map((item, index) => {
-                      const isActive = item.id === lessonId;
-                      const isItemCompleted = user ? getLessonProgress(user.id, course.id, item.id) : false;
-                      
-                      return (
-                        <Link
-                          key={item.id.toString()}
-                          to={`/courses/${course.id}/lessons/${item.id.toString()}`}
-                          onClick={() => setShowSidebar(false)}
-                          className={`block p-3 rounded-lg ${
-                            isActive 
-                              ? 'bg-primary-50 text-primary-700' 
-                              : 'hover:bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center">
-                            <div className={`flex items-center justify-center h-6 w-6 rounded-full mr-3 text-sm 
-                              ${isItemCompleted 
-                                ? 'bg-success-100 text-success-700' 
-                                : isActive 
-                                  ? 'bg-primary-100 text-primary-700' 
-                                  : 'bg-gray-100 text-gray-700'
+                  <div className="space-y-4">
+                    {course.sections.map((section, sectionIndex) => (
+                      <div key={section.id} className="space-y-2">
+                        <h3 className="font-medium text-gray-900">{section.title}</h3>
+                        {section.lessons.map((item, lessonIndex) => {
+                          const isActive = item.id === lessonId;
+                          const isItemCompleted = user ? getLessonProgress(user.id, course.id.toString(), item.id) : false;
+                          
+                          return (
+                            <Link
+                              key={item.id}
+                              to={`/courses/${course.id}/lessons/${item.id}`}
+                              onClick={() => setShowSidebar(false)}
+                              className={`block p-3 rounded-lg ${
+                                isActive 
+                                  ? 'bg-primary-50 text-primary-700' 
+                                  : 'hover:bg-gray-50'
                               }`}
                             >
-                              {isItemCompleted ? <CheckCircle className="h-4 w-4" /> : (index + 1)}
-                            </div>
-                            <div>
-                              <h3 className={`font-medium ${isActive ? 'text-primary-700' : 'text-gray-900'}`}>
-                                {item.title}
-                              </h3>
-                              <p className="text-xs text-gray-500">{item.duration}</p>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
+                              <div className="flex items-center">
+                                <div className={`flex items-center justify-center h-6 w-6 rounded-full mr-3 text-sm 
+                                  ${isItemCompleted 
+                                    ? 'bg-success-100 text-success-700' 
+                                    : isActive 
+                                      ? 'bg-primary-100 text-primary-700' 
+                                      : 'bg-gray-100 text-gray-700'
+                                  }`}
+                                >
+                                  {isItemCompleted ? <CheckCircle className="h-4 w-4" /> : (lessonIndex + 1)}
+                                </div>
+                                <div>
+                                  <h3 className={`font-medium ${isActive ? 'text-primary-700' : 'text-gray-900'}`}>
+                                    {item.title}
+                                  </h3>
+                                  <p className="text-xs text-gray-500">{item.duration}</p>
+                                </div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    ))}
                   </div>
                 </motion.div>
               </motion.div>
@@ -158,42 +167,47 @@ const LessonPage: React.FC = () => {
             <div className="hidden lg:block">
               <div className="bg-white rounded-lg shadow-sm p-4 sticky top-24">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Course Content</h2>
-                <div className="space-y-2">
-                  {course.lessons.map((item, index) => {
-                    const isActive = item.id === lessonId;
-                    const isItemCompleted = user ? getLessonProgress(user.id, course.id, item.id) : false;
-                    
-                    return (
-                      <Link
-                        key={item.id.toString()}
-                        to={`/courses/${course.id}/lessons/${item.id.toString()}`}
-                        className={`block p-3 rounded-lg ${
-                          isActive 
-                            ? 'bg-primary-50 text-primary-700' 
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <div className={`flex items-center justify-center h-6 w-6 rounded-full mr-3 text-sm 
-                            ${isItemCompleted 
-                              ? 'bg-success-100 text-success-700' 
-                              : isActive 
-                                ? 'bg-primary-100 text-primary-700' 
-                                : 'bg-gray-100 text-gray-700'
+                <div className="space-y-4">
+                  {course.sections.map((section, sectionIndex) => (
+                    <div key={section.id} className="space-y-2">
+                      <h3 className="font-medium text-gray-900">{section.title}</h3>
+                      {section.lessons.map((item, lessonIndex) => {
+                        const isActive = item.id === lessonId;
+                        const isItemCompleted = user ? getLessonProgress(user.id, course.id.toString(), item.id) : false;
+                        
+                        return (
+                          <Link
+                            key={item.id}
+                            to={`/courses/${course.id}/lessons/${item.id}`}
+                            className={`block p-3 rounded-lg ${
+                              isActive 
+                                ? 'bg-primary-50 text-primary-700' 
+                                : 'hover:bg-gray-50'
                             }`}
                           >
-                            {isItemCompleted ? <CheckCircle className="h-4 w-4" /> : (index + 1)}
-                          </div>
-                          <div>
-                            <h3 className={`font-medium ${isActive ? 'text-primary-700' : 'text-gray-900'}`}>
-                              {item.title}
-                            </h3>
-                            <p className="text-xs text-gray-500">{item.duration}</p>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
+                            <div className="flex items-center">
+                              <div className={`flex items-center justify-center h-6 w-6 rounded-full mr-3 text-sm 
+                                ${isItemCompleted 
+                                  ? 'bg-success-100 text-success-700' 
+                                  : isActive 
+                                    ? 'bg-primary-100 text-primary-700' 
+                                    : 'bg-gray-100 text-gray-700'
+                                }`}
+                              >
+                                {isItemCompleted ? <CheckCircle className="h-4 w-4" /> : (lessonIndex + 1)}
+                              </div>
+                              <div>
+                                <h3 className={`font-medium ${isActive ? 'text-primary-700' : 'text-gray-900'}`}>
+                                  {item.title}
+                                </h3>
+                                <p className="text-xs text-gray-500">{item.duration}</p>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

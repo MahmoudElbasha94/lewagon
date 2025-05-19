@@ -198,17 +198,17 @@ const LoginPage: React.FC = () => {
                 className="flex items-center gap-3 mb-4 relative"
                 animate={floatingAnimation}
               >
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl" />
-                <Code className="h-12 w-12 text-blue-400" strokeWidth={1.5} />
-                <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  CodeSphere
+                <div className="absolute -inset-4 bg-gradient-to-r from-red-500/20 to-red-500/20 rounded-full blur-xl" />
+                <Code className="h-12 w-12 text-red-400" strokeWidth={1.5} />
+                <span className="text-3xl font-bold bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
+                  Le Wagon
                 </span>
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   className="absolute -top-1 -right-6"
                 >
-                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  <Sparkles className="w-5 h-5 text-red-400" />
                 </motion.div>
               </motion.div>
               
@@ -506,7 +506,7 @@ const LoginPage: React.FC = () => {
               className="mt-6 mb-4 text-center text-gray-300"
               variants={inputVariants}
             >
-              <span>New to CodeSphere?</span>{' '}
+              <span>New to Le Wagon?</span>{' '}
               <Link
                 to="/signup"
                 className="text-blue-400 hover:text-blue-300 font-medium transition-colors relative group"

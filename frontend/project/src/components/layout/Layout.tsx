@@ -1,14 +1,27 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
+import React, { ReactNode } from 'react';
+import Header from './Header';
 import Footer from './Footer';
+import NotificationBell from '../common/NotificationBell';
+import { useAuth } from '../../contexts/AuthContext';
 
-const Layout: React.FC = () => {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { user } = useAuth();
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
+    <div className="min-h-screen flex flex-col">
+      <Header>
+        {user && (
+          <div className="flex items-center space-x-4">
+            <NotificationBell />
+          </div>
+        )}
+      </Header>
       <main className="flex-grow">
-        <Outlet />
+        {children}
       </main>
       <Footer />
     </div>

@@ -11,9 +11,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // Form validation schema
 const signupSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name must be less than 50 characters'),
+  firstName: z.string()
+    .min(2, 'First name must be at least 2 characters')
+    .max(25, 'First name must be less than 25 characters'),
+  lastName: z.string()
+    .min(2, 'Last name must be at least 2 characters')
+    .max(25, 'Last name must be less than 25 characters'),
   email: z.string()
     .email('Please enter a valid email address')
     .min(1, 'Email is required'),
@@ -86,7 +89,7 @@ const SignupPage: React.FC = () => {
   const onSubmit = async (data: SignupFormData) => {
     try {
       setErrorMessage('');
-      const success = await signup(data.name, data.email, data.password);
+      const success = await signup(`${data.firstName} ${data.lastName}`, data.email, data.password);
       if (success) {
         navigate('/dashboard');
       }
@@ -157,17 +160,17 @@ const SignupPage: React.FC = () => {
                 className="flex items-center gap-3 mb-4 relative"
                 animate={floatingAnimation}
               >
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl" />
-                <Code className="h-12 w-12 text-blue-400" strokeWidth={1.5} />
-                <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  CodeSphere
+                <div className="absolute -inset-4 bg-gradient-to-r from-red-500/20 to-red-500/20 rounded-full blur-xl" />
+                <Code className="h-12 w-12 text-red-400" strokeWidth={1.5} />
+                <span className="text-3xl font-bold bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
+                  Le Wagon
                 </span>
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   className="absolute -top-1 -right-6"
                 >
-                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  <Sparkles className="w-5 h-5 text-red-400" />
                 </motion.div>
               </motion.div>
               
@@ -191,41 +194,79 @@ const SignupPage: React.FC = () => {
 
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               {/* Name Input */}
-              <motion.div variants={inputVariants} className="group">
-                <label className="block text-sm font-medium text-gray-200 mb-2">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-400" />
-                  <input
-                    {...register('name')}
-                    type="text"
-                    placeholder="John Doe"
-                    className={`
-                      w-full pl-10 pr-4 py-3 bg-gray-700/50 border rounded-lg 
-                      text-white placeholder-gray-400 
-                      focus:ring-2 focus:ring-blue-400 focus:border-transparent
-                      transition-all duration-300 ease-in-out
-                      ${errors.name ? 'border-red-500/50 focus:ring-red-500' : 'border-gray-600 hover:border-gray-500'}
-                    `}
-                  />
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-                </div>
-                <AnimatePresence>
-                  {errors.name && (
-                    <motion.p
-                      variants={inputVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                      className="text-sm text-red-400 mt-1 flex items-center gap-1"
-                    >
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.name.message}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+              <div className="grid grid-cols-2 gap-4">
+                <motion.div variants={inputVariants} className="group">
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    First Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-400" />
+                    <input
+                      {...register('firstName')}
+                      type="text"
+                      placeholder="John"
+                      className={`
+                        w-full pl-10 pr-4 py-3 bg-gray-700/50 border rounded-lg 
+                        text-white placeholder-gray-400 
+                        focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                        transition-all duration-300 ease-in-out
+                        ${errors.firstName ? 'border-red-500/50 focus:ring-red-500' : 'border-gray-600 hover:border-gray-500'}
+                      `}
+                    />
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+                  </div>
+                  <AnimatePresence>
+                    {errors.firstName && (
+                      <motion.p
+                        variants={inputVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        className="text-sm text-red-400 mt-1 flex items-center gap-1"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.firstName.message}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                <motion.div variants={inputVariants} className="group">
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Last Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-400" />
+                    <input
+                      {...register('lastName')}
+                      type="text"
+                      placeholder="Doe"
+                      className={`
+                        w-full pl-10 pr-4 py-3 bg-gray-700/50 border rounded-lg 
+                        text-white placeholder-gray-400 
+                        focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                        transition-all duration-300 ease-in-out
+                        ${errors.lastName ? 'border-red-500/50 focus:ring-red-500' : 'border-gray-600 hover:border-gray-500'}
+                      `}
+                    />
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+                  </div>
+                  <AnimatePresence>
+                    {errors.lastName && (
+                      <motion.p
+                        variants={inputVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        className="text-sm text-red-400 mt-1 flex items-center gap-1"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.lastName.message}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              </div>
 
               {/* Email Input */}
               <motion.div variants={inputVariants} className="group">

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { User } from '../types';
+import { User, ProfileUpdateData, PasswordChangeData } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +8,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  updateProfile: (data: ProfileUpdateData) => Promise<boolean>;
+  updatePassword: (data: PasswordChangeData) => Promise<boolean>;
   isAuthenticated: boolean;
 }
 
@@ -62,15 +64,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
-        toast.success('تم تسجيل الدخول كمسؤول');
+        toast.success('Successfully logged in as admin');
         return true;
-      } else if (email === 'user@test.com' && password === 'User@123') {
+      } else if (email === 'instructor@test.com' && password === 'Instructor@123') {
         const userData: User = {
-          id: 'user-1',
-          name: 'Regular User',
-          email: 'user@test.com',
-          role: 'user',
-          avatar: '/images/avatars/user.jpg',
+          id: 'instructor-1',
+          name: 'Instructor User',
+          email: 'instructor@test.com',
+          role: 'instructor',
+          avatar: '/images/avatars/instructor.jpg',
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),
           isActive: true,
@@ -83,14 +85,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
-        toast.success('تم تسجيل الدخول بنجاح!');
+        toast.success('Successfully logged in as instructor');
+        return true;
+      } else if (email === 'student@test.com' && password === 'Student@123') {
+        const userData: User = {
+          id: 'student-1',
+          name: 'Student User',
+          email: 'student@test.com',
+          role: 'student',
+          avatar: '/images/avatars/student.jpg',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          preferences: {
+            notifications: true,
+            emailUpdates: true,
+            theme: 'light'
+          }
+        };
+        
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        toast.success('Successfully logged in as student');
         return true;
       } else {
-        toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        toast.error('Invalid email or password');
         return false;
       }
     } catch (error) {
-      toast.error('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+      toast.error('Login failed. Please try again.');
       return false;
     } finally {
       setLoading(false);
@@ -110,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: Math.random().toString(36).substring(2, 9),
         name,
         email,
-        role: 'user',
+        role: 'student',
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
         isActive: true,
@@ -123,13 +146,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-      toast.success('تم إنشاء الحساب بنجاح!');
+      toast.success('Account created successfully!');
       return true;
     } catch (error) {
-      toast.error('فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.');
+      toast.error('Failed to create account. Please try again.');
       return false;
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Update profile function - simulated
+  const updateProfile = async (data: ProfileUpdateData): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, this would be a backend API call
+      const updatedUser: User = {
+        ...user,
+        name: data.name,
+        email: data.email,
+        avatar: data.avatar ? URL.createObjectURL(data.avatar) : user.avatar,
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Update password function - simulated
+  const updatePassword = async (data: PasswordChangeData): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, this would validate the current password and update it on the backend
+      // For demo purposes, we'll just simulate success
+      return true;
+    } catch (error) {
+      return false;
     }
   };
 
@@ -137,7 +200,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
-    toast.info('تم تسجيل الخروج');
+    toast.info('Successfully logged out');
   };
 
   const value = {
@@ -146,6 +209,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     signup,
     logout,
+    updateProfile,
+    updatePassword,
     isAuthenticated: !!user,
   };
 

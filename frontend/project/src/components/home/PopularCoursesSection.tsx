@@ -1,60 +1,66 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Clock, Users, ChevronRight, BookOpen } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const courses = [
   {
     id: 1,
-    title: 'Web Development Bootcamp',
-    description: 'Master modern web development with HTML, CSS, JavaScript, React, and Node.js.',
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    title: 'Complete React Developer Course',
+    description: 'Master React 18 with Redux, Hooks, and all the modern tools and best practices used by top companies.',
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-1.2.1&auto=format&fit=crop&w=1650&q=80',
     instructor: {
       name: 'Sarah Johnson',
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80',
       role: 'Senior Developer'
     },
     rating: 4.9,
     students: 15000,
-    duration: '12 weeks',
-    level: 'Beginner to Advanced',
-    price: '$599'
+    duration: '22h 30m',
+    level: 'Intermediate',
+    price: '$89.99'
   },
   {
     id: 2,
-    title: 'Data Science Fundamentals',
-    description: 'Learn data analysis, machine learning, and statistical modeling with Python.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    title: 'UI/UX Design Masterclass',
+    description: 'Learn UI/UX design from scratch with industry best practices and modern tools.',
+    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1650&q=80',
     instructor: {
       name: 'Michael Chen',
-      avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-      role: 'Data Scientist'
+      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80',
+      role: 'Design Lead'
     },
     rating: 4.8,
     students: 12000,
-    duration: '10 weeks',
-    level: 'Intermediate',
-    price: '$499'
+    duration: '18h 45m',
+    level: 'Beginner',
+    price: '$79.99'
   },
   {
     id: 3,
-    title: 'UI/UX Design Masterclass',
-    description: 'Create beautiful user interfaces and enhance user experience with modern design principles.',
-    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    title: 'Advanced JavaScript Programming',
+    description: 'Take your JavaScript skills to the next level with advanced concepts and patterns.',
+    image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1650&q=80',
     instructor: {
-      name: 'Emma Davis',
-      avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-      role: 'Design Lead'
+      name: 'David Wilson',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80',
+      role: 'Senior Developer'
     },
     rating: 4.7,
     students: 8000,
-    duration: '8 weeks',
-    level: 'All Levels',
-    price: '$399'
+    duration: '25h',
+    level: 'Advanced',
+    price: '$94.99'
   }
 ];
 
 const PopularCoursesSection: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleCourseClick = (courseId: number) => {
+    navigate(`/courses/${courseId}`);
+  };
+
   return (
     <section className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,7 +104,8 @@ const PopularCoursesSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+              className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+              onClick={() => handleCourseClick(course.id)}
             >
               {/* Course Image */}
               <div className="relative h-48 overflow-hidden">
@@ -167,13 +174,16 @@ const PopularCoursesSection: React.FC = () => {
                 </div>
 
                 {/* CTA Button */}
-                <Link
-                  to={`/courses/${course.id}`}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCourseClick(course.id);
+                  }}
                   className="mt-4 w-full inline-flex items-center justify-center px-6 py-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors group"
                 >
                   <span>Learn More</span>
                   <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </button>
               </div>
             </motion.div>
           ))}

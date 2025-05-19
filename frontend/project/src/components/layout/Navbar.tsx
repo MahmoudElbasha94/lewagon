@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronDown, Globe, Menu, X, Search } from "lucide-react";
+import { ChevronDown, Globe, Menu, X, Search, ChevronUp, User, LogOut, Settings, BookOpen, Users, Tag, Gift, CheckSquare, MessageCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from '../../contexts/AuthContext';
 
 interface NavItem {
   label: string;
-  submenu: {
-    label: string;
-    to: string;
-  }[];
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+  auth: boolean;
 }
 
 interface NavLinkProps {
@@ -35,29 +35,61 @@ interface SignUpButtonProps {
 const navItems: NavItem[] = [
   {
     label: "Courses",
-    submenu: [
-      { label: "All Courses", to: "/courses" },
-      { label: "Course Details", to: "/courses/detail" },
-      { label: "Instructors", to: "/instructors" },
-      { label: "Dashboard", to: "/dashboard" },
-    ],
+    path: "/courses",
+    icon: BookOpen,
+    auth: false
   },
   {
-    label: "Resources",
-    submenu: [
-      { label: "Blog", to: "/blog" },
-      { label: "FAQ", to: "/faq" },
-      { label: "Contact", to: "/contact" },
-      { label: "About Us", to: "/about" },
-    ],
+    label: "Dashboard",
+    path: "/dashboard",
+    icon: User,
+    auth: true
   },
   {
-    label: "Legal",
-    submenu: [
-      { label: "Privacy Policy", to: "/privacy-policy" },
-      { label: "Terms of Service", to: "/terms-of-service" },
-    ],
+    label: "Support",
+    path: "/support",
+    icon: MessageCircle,
+    auth: true
+  }
+];
+
+const adminItems: NavItem[] = [
+  {
+    label: "Users",
+    path: "/admin/users",
+    icon: Users,
+    auth: true
   },
+  {
+    label: "Courses",
+    path: "/admin/courses",
+    icon: BookOpen,
+    auth: true
+  },
+  {
+    label: "Categories",
+    path: "/admin/categories",
+    icon: Tag,
+    auth: true
+  },
+  {
+    label: "Course Review",
+    path: "/admin/course-review",
+    icon: CheckSquare,
+    auth: true
+  },
+  {
+    label: "Coupons",
+    path: "/admin/coupons",
+    icon: Gift,
+    auth: true
+  },
+  {
+    label: "Settings",
+    path: "/admin/settings",
+    icon: Settings,
+    auth: true
+  }
 ];
 
 const languages = [
@@ -68,12 +100,13 @@ const languages = [
   { code: "DE", name: "Deutsch", flag: "" },
 ];
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
+  const location = useLocation();
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const location = useLocation();
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -94,6 +127,11 @@ const Navbar = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsSearchOpen(false);
+  }, [location.pathname]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -117,39 +155,34 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link
               to="/"
-              className="bg-red-600 p-2 rounded-lg transform transition-all duration-300 hover:scale-105 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="flex items-center transform transition-all duration-300 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
               <img
                 src="https://raw.githubusercontent.com/lewagon/fullstack-images/master/uikit/logo.png"
                 alt="Le Wagon"
-                className="h-6 w-auto"
+                className="h-8 w-auto"
               />
+              <span className="ml-3 text-xl font-bold text-gray-900">Le Wagon</span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center ml-8 space-x-6">
               {navItems.map((item) => (
-                <DesktopDropdownItem
-                  key={item.label}
-                  item={item}
-                  activeDropdown={activeDropdown}
-                  setActiveDropdown={setActiveDropdown}
-                />
+                (!item.auth || (item.auth && user)) && (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center px-3 py-2 text-sm font-medium ${
+                      location.pathname === item.path
+                        ? "text-red-600 bg-red-50"
+                        : "text-gray-700 hover:bg-red-50"
+                    } rounded-md transition-all duration-200`}
+                  >
+                    <item.icon className="w-5 h-5 mr-2" />
+                    {item.label}
+                  </Link>
+                )
               ))}
-              <NavLink 
-                to="/events" 
-                label="Events" 
-                isButton={false} 
-                mobile={false}
-                isActive={location.pathname === "/events"}
-              />
-              <NavLink 
-                to="/enterprise" 
-                label="Enterprise" 
-                isButton={false} 
-                mobile={false}
-                isActive={location.pathname === "/enterprise"}
-              />
             </div>
           </div>
 
@@ -166,14 +199,77 @@ const Navbar = () => {
             </button>
 
             <LanguageDropdown mobile={false} />
-            <NavLink 
-              to="/login" 
-              label="Log In" 
-              isButton={true} 
-              mobile={false}
-              isActive={location.pathname === "/login"}
-            />
-            <SignUpButton mobile={false} />
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="flex items-center space-x-2 text-gray-500 hover:text-gray-700"
+                >
+                  <span>{user.name}</span>
+                  {isMobileMenuOpen ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+
+                {/* Profile Dropdown */}
+                {isMobileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Profile
+                    </Link>
+
+                    {user.role === 'admin' && (
+                      <>
+                        <div className="border-t border-gray-100 my-1"></div>
+                        {adminItems.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <item.icon className="w-4 h-4 mr-2" />
+                              {item.label}
+                            </div>
+                          </Link>
+                        ))}
+                        <div className="border-t border-gray-100 my-1"></div>
+                      </>
+                    )}
+
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <div className="flex items-center">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link
+                  to="/login"
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -217,8 +313,8 @@ const Navbar = () => {
                       <div className="space-y-2">
                         {navItems.map((item) => (
                           <Link
-                            key={item.label}
-                            to={item.submenu[0].to}
+                            key={item.path}
+                            to={item.path}
                             className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-200"
                             onClick={() => setIsSearchOpen(false)}
                           >
@@ -272,141 +368,89 @@ const Navbar = () => {
             </div>
 
             {navItems.map((item) => (
-              <MobileDropdownItem
-                key={item.label}
-                item={item}
-                activeDropdown={activeDropdown}
-                setActiveDropdown={setActiveDropdown}
-              />
+              (!item.auth || (item.auth && user)) && (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center px-4 py-2.5 text-sm ${
+                    location.pathname === item.path
+                      ? "text-red-600 bg-red-50"
+                      : "text-gray-700 hover:bg-gray-50"
+                  } rounded-lg transition-all duration-200`}
+                >
+                  <item.icon className="w-5 h-5 mr-2" />
+                  {item.label}
+                </Link>
+              )
             ))}
-            <NavLink 
-              to="/events" 
-              label="Events" 
-              isButton={false} 
-              mobile={true}
-              isActive={location.pathname === "/events"}
-            />
-            <NavLink 
-              to="/enterprise" 
-              label="Enterprise" 
-              isButton={false} 
-              mobile={true}
-              isActive={location.pathname === "/enterprise"}
-            />
-            <div className="pt-4 border-t border-gray-100">
-              <LanguageDropdown mobile={true} />
-              <div className="mt-4 space-y-2">
-                <NavLink 
-                  to="/login" 
-                  label="Log In" 
-                  isButton={true} 
-                  mobile={true}
-                  isActive={location.pathname === "/login"}
-                />
-                <SignUpButton mobile={true} />
+
+            {user ? (
+              <>
+                <div className="border-t border-gray-200 pt-4">
+                  <div className="px-4">
+                    <p className="text-base font-medium text-gray-500">{user.name}</p>
+                    <p className="text-sm font-medium text-gray-500">{user.email}</p>
+                  </div>
+                  <div className="mt-3 space-y-1">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                    >
+                      Profile
+                    </Link>
+
+                    {user.role === 'admin' && (
+                      <>
+                        <div className="border-t border-gray-100 my-1"></div>
+                        {adminItems.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <item.icon className="w-5 h-5 mr-2" />
+                              {item.label}
+                            </div>
+                          </Link>
+                        ))}
+                      </>
+                    )}
+
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                    >
+                      <div className="flex items-center">
+                        <LogOut className="w-5 h-5 mr-2" />
+                        Logout
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="pt-4 pb-3 border-t border-gray-200">
+                <div className="space-y-1">
+                  <Link
+                    to="/login"
+                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="block px-4 py-2 text-base font-medium text-indigo-600 hover:text-indigo-800 hover:bg-gray-100"
+                  >
+                    Sign up
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
     </nav>
-  );
-};
-
-// Desktop Dropdown Component
-const DesktopDropdownItem: React.FC<DropdownItemProps> = ({ item, activeDropdown, setActiveDropdown }) => {
-  const location = useLocation();
-  
-  return (
-    <div
-      className="relative group"
-      onMouseEnter={() => setActiveDropdown(item.label)}
-      onMouseLeave={() => setActiveDropdown(null)}
-    >
-      <button 
-        className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-red-600 transition-all duration-200"
-        aria-expanded={activeDropdown === item.label}
-      >
-        {item.label}
-        <ChevronDown
-          size={14}
-          className={`ml-1 transform transition-all duration-200 ${
-            activeDropdown === item.label ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-
-      <div
-        className={`absolute top-full left-0 w-56 bg-white shadow-xl rounded-lg transition-all duration-200 origin-top-left ${
-          activeDropdown === item.label
-            ? "opacity-100 scale-100 translate-y-0"
-            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-        }`}
-      >
-        <div className="p-2 space-y-1">
-          {item.submenu.map((subItem) => (
-            <Link
-              key={subItem.label}
-              to={subItem.to}
-              className={`flex items-center px-4 py-2.5 text-sm ${
-                location.pathname === subItem.to
-                  ? "text-red-600 bg-red-50"
-                  : "text-gray-700 hover:bg-red-50"
-              } rounded-md transition-all duration-200 hover:pl-6`}
-            >
-              {subItem.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Mobile Dropdown Component
-const MobileDropdownItem: React.FC<DropdownItemProps> = ({ item, activeDropdown, setActiveDropdown }) => {
-  const location = useLocation();
-  
-  return (
-    <div className="border-b border-gray-100 pb-2">
-      <button
-        onClick={() =>
-          setActiveDropdown(activeDropdown === item.label ? null : item.label)
-        }
-        className="w-full flex justify-between items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200"
-        aria-expanded={activeDropdown === item.label}
-      >
-        <span className="font-medium">{item.label}</span>
-        <ChevronDown
-          size={16}
-          className={`transform transition-all duration-200 ${
-            activeDropdown === item.label ? "rotate-180 text-red-600" : ""
-          }`}
-        />
-      </button>
-
-      <div
-        className={`overflow-hidden transition-all duration-200 ${
-          activeDropdown === item.label ? "max-h-96" : "max-h-0"
-        }`}
-      >
-        <div className="ml-4 mt-2 space-y-2">
-          {item.submenu.map((subItem) => (
-            <Link
-              key={subItem.label}
-              to={subItem.to}
-              className={`block px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${
-                location.pathname === subItem.to
-                  ? "text-red-600 bg-red-50"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {subItem.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -507,55 +551,6 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({ mobile }) => {
         </div>
       </div>
     </div>
-  );
-};
-
-// Reusable NavLink Component
-const NavLink: React.FC<NavLinkProps> = ({ to, label, isButton = false, mobile = false, isActive = false }) => {
-  return (
-    <Link
-      to={to}
-      className={`${
-        isButton
-          ? "text-gray-600 hover:text-red-600 font-medium"
-          : "text-gray-600 hover:text-red-600 font-medium"
-      } ${
-        mobile
-          ? "block px-4 py-3 hover:bg-gray-50 rounded-lg"
-          : "px-3 py-2 text-sm transition-all duration-200 relative group"
-      } ${isActive ? "text-red-600" : ""}`}
-    >
-      {label}
-      {!mobile && !isButton && (
-        <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-red-600 transform origin-left transition-transform duration-200 ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
-      )}
-    </Link>
-  );
-};
-
-// SignUp Button Component
-const SignUpButton: React.FC<SignUpButtonProps> = ({ mobile = false }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <Link
-      to="/signup"
-      className={`relative overflow-hidden bg-red-600 text-white font-medium transition-all transform ${
-        mobile
-          ? "block w-full text-center px-6 py-3 rounded-lg"
-          : "px-5 py-2.5 text-sm rounded-lg"
-      } ${isHovered ? "shadow-lg scale-[1.02]" : "shadow-sm hover:shadow-lg hover:scale-[1.02]"}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <span className="relative z-10">Sign Up</span>
-      <span
-        className={`absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 transition-transform duration-300 ${
-          isHovered ? "scale-x-100" : "scale-x-0"
-        }`}
-        style={{ transformOrigin: "left" }}
-      />
-    </Link>
   );
 };
 

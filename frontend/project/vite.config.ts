@@ -11,12 +11,31 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['zod', '@hookform/resolvers/zod'],
-    exclude: ['lucide-react'],
+    include: ['zod', '@hookform/resolvers/zod', 'lucide-react'],
   },
   server: {
     watch: {
       usePolling: true,
+    },
+    port: 5173,
+    host: '0.0.0.0',
+    strictPort: true,
+    hmr: {
+      clientPort: 5173,
+      host: 'localhost',
+    },
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui': ['lucide-react', 'framer-motion', 'react-hook-form'],
+        },
+      },
     },
   },
 });

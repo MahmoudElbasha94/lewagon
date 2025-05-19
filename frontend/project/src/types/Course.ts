@@ -4,16 +4,31 @@ export interface Course {
   description: string;
   price: number;
   duration: string;
-  level: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
   thumbnail: string;
   image?: string;
+  previewVideo?: string;
   discount?: number;
   category?: string;
   rating?: number;
   students?: number;
   tags?: string[];
   isFeatured?: boolean;
-  certification: {
+  stats?: {
+    totalHours: number;
+    totalLectures: number;
+    totalQuizzes: number;
+    certificateOffered: boolean;
+    lastUpdated: string;
+    language: string;
+    totalAssignments: number;
+    totalProjects: number;
+    completionRate: number;
+    avgCompletionTime: string;
+    difficulty: number;
+    successRate: number;
+  };
+  certification?: {
     type: string;
     validity: string;
     validityPeriod?: string;
@@ -29,26 +44,26 @@ export interface Course {
     totalStudents?: number;
     totalCourses?: number;
   };
-  lessons: {
-    id: string | number;
+  sections: {
+    id: string;
     title: string;
-    duration: string;
-    videoUrl?: string;
+    description: string;
+    order: number;
+    lessons: {
+      id: string;
+      title: string;
+      description: string;
+      duration: string;
+      videoUrl: string;
+      uploadStatus: 'pending' | 'uploading' | 'completed' | 'error';
+      attachments?: {
+        id: string;
+        name: string;
+        url: string;
+        size: string;
+      }[];
+    }[];
   }[];
-  stats?: {
-    totalHours: number;
-    totalLectures: number;
-    totalQuizzes: number;
-    certificateOffered: boolean;
-    lastUpdated: string;
-    language: string;
-    totalAssignments: number;
-    totalProjects: number;
-    completionRate: number;
-    avgCompletionTime: string;
-    difficulty: number;
-    successRate: number;
-  };
   whatYouWillLearn?: string[];
   requirements?: string[];
   topics?: string[];

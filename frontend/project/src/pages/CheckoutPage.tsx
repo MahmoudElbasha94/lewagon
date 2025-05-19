@@ -24,7 +24,7 @@ import {
 const CheckoutPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const { courses } = useCourses();
+  const { courses, enrollInCourse } = useCourses();
   const { user } = useAuth();
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank' | 'wallet'>('card');
@@ -86,10 +86,26 @@ const CheckoutPage: React.FC = () => {
     try {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 2000));
-      toast.success('Payment successful! You are now enrolled in the course.');
-      navigate(`/courses/${courseId}`);
+      
+      // After successful payment, enroll the user
+      if (user && course) {
+        const success = await enrollInCourse(user.id, String(course.id));
+        if (success) {
+          toast.success('Payment successful! You are now enrolled in the course.');
+          // Navigate to the course's first lesson
+          const firstLesson = course.sections[0]?.lessons[0];
+          if (firstLesson) {
+            navigate(`/courses/${course.id}/lessons/${firstLesson.id}`);
+          } else {
+            navigate(`/courses/${course.id}`);
+          }
+        } else {
+          throw new Error('Failed to enroll in course');
+        }
+      }
     } catch (error) {
       toast.error('Payment failed. Please try again.');
+      console.error('Payment or enrollment error:', error);
     } finally {
       setIsProcessing(false);
     }
@@ -162,7 +178,7 @@ const CheckoutPage: React.FC = () => {
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Award className="h-4 w-4 mr-2 text-gray-400" />
-                      {course.certification.type}
+                      {course.certification?.type || 'Course Certificate'}
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Calendar className="h-4 w-4 mr-2 text-gray-400" />

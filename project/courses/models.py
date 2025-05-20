@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-from users.models import User
+from project.users.models import User
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile',null=True, blank=True)

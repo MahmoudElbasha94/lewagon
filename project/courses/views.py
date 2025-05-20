@@ -9,7 +9,7 @@ from rest_framework.generics import UpdateAPIView, DestroyAPIView, ListAPIView
 from django.utils.timezone import now
 from .models import Course, Enrollment, Student, Review, Payment
 from .serializers import CourseSerializer, ReviewCreateSerializer, PaymentSerializer
-from users.permissions import IsStudent, IsInstructor, IsAdmin
+from project.users.permissions import IsStudent, IsInstructor, IsAdmin
 
 class AllCoursesView(APIView):
     permission_classes = []

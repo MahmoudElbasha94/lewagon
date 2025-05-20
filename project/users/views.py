@@ -11,11 +11,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.generics import CreateAPIView
 from django.core.mail import send_mail
 from django.shortcuts import reverse
-from users.utils import generate_password_reset_token, verify_password_reset_token
-from courses.models import Course, Enrollment, Payment, Student, Instructor
+from .utils import generate_password_reset_token, verify_password_reset_token
+from project.courses.models import Course, Enrollment, Payment, Student, Instructor
+
 class RegisterView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -29,6 +31,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['is_student'] = self.user.is_student
         data['is_instructor'] = self.user.is_instructor
         return data
+
 class AdminDashboardView(APIView):
     permission_classes = [IsAuthenticated, IsAdmin]
 
@@ -70,6 +73,7 @@ class InstructorOnlyView(APIView):
 
     def get(self, request):
         return Response({"message": "welcome instructor!"})
+
 class LogoutView(APIView):
     def post(self, request):
         try:
@@ -79,12 +83,14 @@ class LogoutView(APIView):
             return Response({"message": "Successfully logged out"}, status=200)
         except Exception as e:
             return Response({"error": str(e)}, status=400)        
+
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
 class UserProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     def put(self, request):
@@ -94,6 +100,7 @@ class UserProfileUpdateView(APIView):
             serializer.save()
             return Response({'message': 'Profile updated successfully.', 'data': serializer.data}, status=200)
         return Response(serializer.errors, status=400)
+
 class PasswordResetRequestView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -110,6 +117,7 @@ class PasswordResetRequestView(APIView):
             return Response({'message': 'A reset link has been sent to your email.'}, status=200)
         except User.DoesNotExist:
             return Response({'error': 'There is no user with this email.'}, status=404)
+
 class PasswordResetConfirmView(APIView):
     def post(self, request):
         uid = request.query_params.get('uid')
@@ -124,6 +132,7 @@ class PasswordResetConfirmView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({'message': 'Your password has been changed successfully.'})
+
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
     def put(self, request):

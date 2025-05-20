@@ -8,6 +8,8 @@ import Button from '../components/common/Button';
 import PageTransition from '../components/common/PageTransition';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+
 
 // Form validation schema
 const loginSchema = z.object({
@@ -82,21 +84,29 @@ const LoginPage: React.FC = () => {
   
   const onSubmit = async (data: LoginFormData) => {
     if (isLocked) return;
-    
+
     try {
       setIsLoading(true);
       setErrorMessage('');
-      const success = await login(data.email, data.password);
-      
-      if (success) {
+
+      const response = await axios.post('http://localhost:8000/users/api/token/', {
+        email: data.email,
+        password: data.password,
+      });
+
+      if (response.status === 200) {
+        const { access, refresh } = response.data;
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
         navigate(from, { replace: true });
       } else {
         handleLoginAttempt();
         setErrorMessage('Invalid credentials. Please try again.');
       }
-    } catch (error) {
+    } catch (error: any) {
       handleLoginAttempt();
-      setErrorMessage('An error occurred. Please try again later.');
+      console.log("Login Error:", error.response?.data || error.message);
+      setErrorMessage('Invalid email or password');
     } finally {
       setIsLoading(false);
     }

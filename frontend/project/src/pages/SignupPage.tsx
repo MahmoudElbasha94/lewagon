@@ -8,6 +8,7 @@ import Button from '../components/common/Button';
 import PageTransition from '../components/common/PageTransition';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 
 // Form validation schema
 const signupSchema = z.object({
@@ -39,7 +40,6 @@ type SignupFormData = z.infer<typeof signupSchema>;
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signup } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -88,12 +88,21 @@ const SignupPage: React.FC = () => {
   
   const onSubmit = async (data: SignupFormData) => {
     try {
-      setErrorMessage('');
-      const success = await signup(`${data.firstName} ${data.lastName}`, data.email, data.password);
-      if (success) {
-        navigate('/dashboard');
+      const response = await axios.post('http://localhost:8000/users/api/register/',{
+        email: data.email,
+        first_name: data.firstName, 
+        last_name: data.lastName, 
+        password: data.password,
+        confirm_password: data.confirmPassword,
+        is_student: true,         
+        is_instructor: false,        
+      });
+
+      if (response.status === 201) {
+        navigate('/login');
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error.response?.data || error.message);
       setErrorMessage('An error occurred during signup. Please try again.');
     }
   };

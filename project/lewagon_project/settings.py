@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,18 +34,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-     'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'courses.apps.CoursesConfig',
-    'users.apps.UsersConfig',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'project.courses',
+    'project.users',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +59,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-ROOT_URLCONF = 'lewagon_project.urls'
+ROOT_URLCONF = 'project.lewagon_project.urls'
 
 TEMPLATES = [
     {
@@ -74,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'lewagon_project.wsgi.application'
+WSGI_APPLICATION = 'project.lewagon_project.wsgi.application'
 
 
 # Database
@@ -84,7 +86,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL backend
         'NAME': 'Le_Wagon',  # Replace with your database name
-        'USER': 'Le_Wagon',  # Replace with your PostgreSQL username
+        'USER': 'le_wagon',  # Replace with your PostgreSQL username
         'PASSWORD': '123456',  # Replace with your PostgreSQL password
         'HOST': 'localhost',  # Assuming PostgreSQL is running locally
         'PORT': '5432',  # Default PostgreSQL port

@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from rest_framework.generics import UpdateAPIView, DestroyAPIView, ListAPIView
 from django.utils.timezone import now
 from rest_framework import permissions
-from .models import Course, Enrollment, Student, Review, Payment, Transaction, CourseVideo
+from .models import Course, Enrollment, Student, Review, Payment, Transaction, CourseVideo, VideoCompletion, Certificate
 from .serializers import CourseSerializer, ReviewCreateSerializer, PaymentSerializer, ReviewSerializer, TransactionSerializer, EnrolledCourseSerializer
 from users.permissions import IsStudent, IsInstructor, IsAdmin
 from django.db.models import Q
@@ -16,6 +16,10 @@ from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Prefetch
+from reportlab.pdfgen import canvas
+from django.core.files.base import ContentFile
+import os
+
 
 
 class AllCoursesView(APIView):
@@ -107,8 +111,7 @@ class CourseDetailView(APIView):
             # - تقدم المستخدم إذا كان مسجلاً
             course = Course.objects.annotate(
                 students_count=Count('enrollment')
-           
-                ).prefetch_related(
+            ).prefetch_related(
                 'videos'  # استخدم هذا بدلاً من Prefetch إذا لم تكن بحاجة لترتيب مخصص
             ).get(slug=slug)
 
@@ -156,15 +159,20 @@ class CourseDetailView(APIView):
                 'video_url': video.video_url,
                 'is_completed': self._check_lesson_completion(course, video)
             }
-            for video in getattr(course, 'ordered_videos', [])
+            for video in course.lessons  # استخدام course.lessons بدلاً من ordered_videos
         ]
 
     def _check_lesson_completion(self, course, video):
         """
-        التحقق من إكمال الدرس (يمكن تطويره حسب نظام التتبع)
+        التحقق من إكمال الدرس
         """
-        # هنا يمكنك إضافة منطق التحقق من إكمال الدرس
-        return False
+        if not hasattr(self.request.user, 'student_profile'):
+            return False
+        return VideoCompletion.objects.filter(
+            enrollment__student=self.request.user.student_profile,
+            enrollment__course=course,
+            video=video
+        ).exists()
 
 class CourseVideoView(APIView):
     """
@@ -207,8 +215,12 @@ class CourseVideoView(APIView):
             )
 
     def _check_access(self, user, course):
-        """التحقق من أن المستخدم مسجل في الكورس"""
-        if user.is_staff:
+        """
+        التحقق من أن المستخدم مسجل في الكورس أو إن الكورس مجاني
+        """
+        if user.is_staff:  # الإداريين يقدروا يشوفوا كل الفيديوهات
+            return True
+        if course.courseType == 'Free':  # السماح لأي مستخدم مسجل بالوصول للكورسات المجانية
             return True
         return Enrollment.objects.filter(
             student=user.student_profile,
@@ -216,14 +228,18 @@ class CourseVideoView(APIView):
         ).exists()
 
     def _get_next_video(self, course, current_order):
-        """الحصول على بيانات الفيديو التالي"""
+        """
+        الحصول على بيانات الفيديو التالي
+        """
         next_video = course.videos.filter(
             order__gt=current_order
         ).order_by('order').first()
         return next_video.id if next_video else None
 
     def _get_prev_video(self, course, current_order):
-        """الحصول على بيانات الفيديو السابق"""
+        """
+        الحصول على بيانات الفيديو السابق
+        """
         prev_video = course.videos.filter(
             order__lt=current_order
         ).order_by('-order').first()
@@ -413,3 +429,130 @@ def admin_transactions(request):
     transactions = Transaction.objects.all()
     serializer = TransactionSerializer(transactions, many=True)
     return Response(serializer.data)
+
+class MarkLessonCompletedView(APIView):
+    permission_classes = [IsAuthenticated, IsStudent]
+    
+    def post(self, request):
+        lesson_id = request.data.get('lesson_id')
+        course_id = request.data.get('course_id')
+        try:
+            student = request.user.student_profile
+            enrollment = Enrollment.objects.get(student=student, course_id=course_id)
+            video = CourseVideo.objects.get(id=lesson_id, courses=enrollment.course)
+            
+            # Mark video as completed
+            VideoCompletion.objects.get_or_create(enrollment=enrollment, video=video)
+            
+            # Calculate progress
+            total_videos = enrollment.course.videos.count()
+            completed_videos = enrollment.video_completions.count()
+            enrollment.progress = (completed_videos / total_videos) * 100 if total_videos > 0 else 0
+            enrollment.save()
+            
+            return Response({'status': 'success', 'progress': enrollment.progress})
+        except (Enrollment.DoesNotExist, CourseVideo.DoesNotExist):
+            return Response({'error': 'Invalid course or video'}, status=404)
+        
+class CertificateView(APIView):
+    permission_classes = [IsAuthenticated, IsStudent]
+
+    def get(self, request, course_id):
+        try:
+            student = request.user.student_profile
+            enrollment = Enrollment.objects.get(student=student, course_id=course_id)
+
+            if enrollment.progress < 100:
+                return Response({'error': 'Course is not completed yet.'}, status=400)
+
+            full_name = f"{request.user.first_name} {request.user.last_name}"
+            course_title = enrollment.course.title
+            date = enrollment.date.strftime("%Y-%m-%d")
+
+            # إنشاء ملف PDF
+            buffer = io.BytesIO()
+            p = canvas.Canvas(buffer)
+            p.drawString(100, 750, f"Certificate of Completion")
+            p.drawString(100, 700, f"Name: {full_name}")
+            p.drawString(100, 650, f"Course: {course_title}")
+            p.drawString(100, 600, f"Date: {date}")
+            p.showPage()
+            p.save()
+
+            # حفظ ملف PDF
+            pdf_file = ContentFile(buffer.getvalue(), name=f"certificate_{course_id}_{student.id}.pdf")
+            certificate, created = Certificate.objects.get_or_create(
+                enrollment=enrollment,
+                defaults={'certificate_file': pdf_file}
+            )
+
+            return Response({
+                "message": "Certificate generated successfully.",
+                "name": full_name,
+                "course": course_title,
+                "completion_date": date,
+                "certificate_url": certificate.certificate_file.url
+            })
+
+        except Enrollment.DoesNotExist:
+            return Response({'error': 'Enrollment not found'}, status=404)
+
+
+class EnrollCourseView(APIView):
+    permission_classes = [IsAuthenticated, IsStudent]
+
+    def post(self, request):
+        course_id = request.data.get('course_id')
+        try:
+            student = request.user.student_profile
+            course = Course.objects.get(id=course_id)
+
+            # التحقق مما إذا كان الطالب مسجلاً بالفعل
+            if Enrollment.objects.filter(student=student, course=course).exists():
+                return Response(
+                    {'error': 'You are already enrolled in this course'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # إنشاء سجل التسجيل
+            enrollment = Enrollment.objects.create(
+                student=student,
+                course=course,
+                date=now().date(),
+                progress=0.0,
+                status='Enrolled'
+            )
+
+            # إذا كان الكورس مدفوعًا، قد تحتاج إلى التحقق من الدفع هنا
+            if course.courseType == 'Paid':
+    # افتراض: استدعاء بوابة دفع (مثل Stripe)
+                payment_intent = create_payment_intent(course.price, 'usd') # وظيفة وهمية
+                if payment_intent['status'] == 'succeeded':
+                    Payment.objects.create(
+                        enrollment=enrollment,
+                        price=course.price,
+                        currency='USD',
+                        date=now().date()
+                    )
+                else:
+                    enrollment.delete() # حذف التسجيل إذا فشل الدفع
+                    return Response(
+                        {'error': 'Payment failed'},
+                        status=status.HTTP_402_PAYMENT_REQUIRED
+                    )
+
+            return Response(
+                {'message': 'Successfully enrolled in the course'},
+                status=status.HTTP_201_CREATED
+            )
+
+        except Course.DoesNotExist:
+            return Response(
+                {'error': 'Course not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

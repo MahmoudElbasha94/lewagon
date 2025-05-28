@@ -11,6 +11,7 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -26,7 +27,9 @@ const CourseDetail = () => {
           }
         );
         setCourse(response.data);
+        setIsEnrolled(response.data.progress > 0); // افتراض: التقدم > 0 يعني التسجيل
         setLoading(false);
+        console.log('Course lessons:', response.data.lessons);
       } catch (err) {
         console.error('Error fetching course:', err);
         setError(err.response?.data?.detail || 'Failed to load course details');
@@ -37,19 +40,69 @@ const CourseDetail = () => {
     fetchCourse();
   }, [slug]);
 
+  const enrollInCourse = async () => {
+    try {
+      const token = localStorage.getItem('access');
+      const response = await axios.post(
+        `${API_BASE_URL}/courses/student/enroll/`,
+        { course_id: course.id },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      setIsEnrolled(true);
+      alert(response.data.message);
+    } catch (err) {
+      console.error('Error enrolling in course:', err);
+      setError(err.response?.data?.error || 'Failed to enroll in course');
+    }
+  };
+
+  const markLessonCompleted = async () => {
+    if (!course?.lessons || !course.lessons[activeVideoIndex]) return;
+
+    try {
+      const token = localStorage.getItem('access');
+      const response = await axios.post(
+        `${API_BASE_URL}/courses/student/mark-lesson-completed/`,
+        {
+          lesson_id: course.lessons[activeVideoIndex].id,
+          course_id: course.id
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      console.log('Lesson marked as completed:', response.data);
+      setCourse(prev => ({
+        ...prev,
+        lessons: prev.lessons.map((lesson, index) =>
+          index === activeVideoIndex ? { ...lesson, is_completed: true } : lesson
+        ),
+        progress: response.data.progress
+      }));
+    } catch (err) {
+      console.error('Error marking lesson as completed:', err);
+      setError(err.response?.data?.error || 'Failed to mark lesson as completed');
+    }
+  };
+
   if (loading) return <div className="container mt-5 text-center"><div className="spinner-border" role="status"></div></div>;
   if (error) return <div className="container mt-5"><div className="alert alert-danger">{error}</div></div>;
   if (!course) return <div className="container mt-5"><div className="alert alert-warning">Course not found</div></div>;
 
-  const currentVideo = course.videos[activeVideoIndex];
-  const instructorName = course.instructor?.first_name && course.instructor?.last_name 
-    ? `${course.instructor.first_name} ${course.instructor.last_name}`
-    : course.instructor?.name || 'Unknown Instructor';
+  const currentVideo = course.lessons[activeVideoIndex];
+  const instructorName = course.instructor || 'Unknown Instructor';
 
   return (
     <div className="container py-5">
       <div className="row">
-        {/* Course Header */}
         <div className="col-12 mb-4">
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
@@ -60,16 +113,29 @@ const CourseDetail = () => {
                 <span className="badge bg-secondary">{course.category}</span>
                 <span className="badge bg-info">{course.courseType}</span>
               </div>
+              <div>
+                <strong>Progress:</strong> {course.progress ? `${course.progress.toFixed(2)}%` : '0%'}
+              </div>
+              {!isEnrolled && (
+                <button 
+                  className="btn btn-primary mt-3"
+                  onClick={enrollInCourse}
+                >
+                  Enroll in Course
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Video Player */}
         <div className="col-lg-8">
           <div className="card border-0 shadow-sm mb-4">
             <div className="card-body p-4">
               <h3 className="mb-4">
-                {currentVideo ? `Lesson ${activeVideoIndex + 1}: ${currentVideo.lesson_name}` : 'Course Video'}
+                {currentVideo ? `Lesson ${activeVideoIndex + 1}: ${currentVideo.title}` : 'Course Video'}
+                {currentVideo && currentVideo.is_completed && (
+                  <span className="badge bg-success ms-2">Completed</span>
+                )}
               </h3>
               
               <div className="course-video-wrapper mb-4">
@@ -89,7 +155,6 @@ const CourseDetail = () => {
                 )}
               </div>
 
-              {/* Navigation Buttons */}
               <div className="d-flex justify-content-between mt-3">
                 <button 
                   className="btn btn-outline-primary"
@@ -98,11 +163,20 @@ const CourseDetail = () => {
                 >
                   Previous
                 </button>
-                
+
+                {currentVideo && !currentVideo.is_completed && (
+                  <button 
+                    className="btn btn-success"
+                    onClick={markLessonCompleted}
+                  >
+                    Mark as Completed
+                  </button>
+                )}
+
                 <button 
                   className="btn btn-outline-primary"
-                  onClick={() => setActiveVideoIndex(prev => Math.min(course.videos.length - 1, prev + 1))}
-                  disabled={activeVideoIndex === course.videos.length - 1}
+                  onClick={() => setActiveVideoIndex(prev => Math.min(course.lessons.length - 1, prev + 1))}
+                  disabled={activeVideoIndex === course.lessons.length - 1}
                 >
                   Next
                 </button>
@@ -111,7 +185,6 @@ const CourseDetail = () => {
           </div>
         </div>
 
-        {/* Course Info Sidebar */}
         <div className="col-lg-4">
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
@@ -133,6 +206,23 @@ const CourseDetail = () => {
 
               <h5 className="mt-4 mb-3">Requirements</h5>
               <p className="text-muted">{course.requirements}</p>
+
+              <h5 className="mt-4 mb-3">Lessons</h5>
+              <ul className="list-group">
+                {course.lessons.map((lesson, index) => (
+                  <li 
+                    key={lesson.id}
+                    className={`list-group-item ${index === activeVideoIndex ? 'active' : ''}`}
+                    onClick={() => setActiveVideoIndex(index)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {`Lesson ${index + 1}: ${lesson.title}`}
+                    {lesson.is_completed && (
+                      <span className="badge bg-success ms-2">Completed</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

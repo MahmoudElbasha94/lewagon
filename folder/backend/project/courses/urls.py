@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import CourseDetailView,InstructorCourseListView, CourseCreateView, AllCoursesView, CourseUpdateView, CourseDeleteView, StudentEnrolledCoursesView, SubmitReviewView, CourseAdminViewSet, PaymentAdminViewSet, UpdateProgressView, CertificateView, PaymentViewSet, ReviewViewSet, get_categorized_courses
+from .views import CourseDetailView,InstructorCourseListView, CourseCreateView, AllCoursesView, CourseUpdateView, CourseDeleteView, StudentEnrolledCoursesView, SubmitReviewView, CourseAdminViewSet, PaymentAdminViewSet, UpdateProgressView, CertificateView, PaymentViewSet, ReviewViewSet, get_categorized_courses, MarkLessonCompletedView, EnrollCourseView
 urlpatterns = [
     path('api/courses/', get_categorized_courses, name='get_categorized_courses'),
     path('all/', AllCoursesView.as_view(), name='all_courses'),
@@ -13,7 +13,9 @@ urlpatterns = [
     path('student/enrolled-courses/', StudentEnrolledCoursesView.as_view(), name='enrolled_courses'),
     path('student/review/', SubmitReviewView.as_view(), name='submit-review'),
     path('student/update-progress/', UpdateProgressView.as_view(), name='update_progress'),
-    path('student/certificate/<int:course_id>/', CertificateView.as_view(), name='get_certificate'),   
+    path('student/certificate/<int:course_id>/', CertificateView.as_view(), name='get_certificate'),
+    path('student/mark-lesson-completed/', MarkLessonCompletedView.as_view(), name='mark_lesson_completed'), 
+    path('student/enroll/', EnrollCourseView.as_view(), name='enroll_course'),  
 ]
 
 router = DefaultRouter()

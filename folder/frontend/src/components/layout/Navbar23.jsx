@@ -135,7 +135,7 @@ function Navbar23() {
                   as={Link} 
                   to="/login" 
                   className="d-flex align-items-center px-3"
-                  style={{ color: '#FFFFFF', opacity: 0.8 }}
+                  style={{ color: 'dark', opacity: 0.8 }}
                 >
                   Login
                 </Nav.Link>

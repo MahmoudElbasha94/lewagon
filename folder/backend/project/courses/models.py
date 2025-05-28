@@ -62,7 +62,7 @@ class Course(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, null=True, blank=True, default='Programming')
     created_at = models.DateTimeField(default=timezone.now)
     slug = models.SlugField(max_length=200, blank=True, null=True)
-    videos = models.ManyToManyField('CourseVideo', related_name='courses', blank=True)
+    # videos = models.ManyToManyField('CourseVideo', related_name='courses', blank=True)
 
 
     @property
@@ -83,6 +83,7 @@ class Course(models.Model):
         return None
 
 class CourseVideo(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='videos', null=True, blank=True)
     lesson_name = models.CharField(max_length=255)
     video_url = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -93,6 +94,7 @@ class CourseVideo(models.Model):
         ordering = ['order']
     def __str__(self):
         return f"Video: {self.lesson_name}"
+    
 
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -106,6 +108,14 @@ class Enrollment(models.Model):
 
     class Meta:
         unique_together = ('student', 'course')
+        
+        
+class VideoCompletion(models.Model):
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name='video_completions')
+    video = models.ForeignKey(CourseVideo, on_delete=models.CASCADE)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = ('enrollment', 'video')
 
 class Review(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -136,3 +146,8 @@ class Transaction(models.Model):
     date = models.DateField()
     status = models.CharField(max_length=20, choices=[('Completed', 'Completed'), ('Pending', 'Pending')])
     
+
+class Certificate(models.Model):
+    enrollment = models.OneToOneField(Enrollment, on_delete=models.CASCADE)
+    issued_at = models.DateTimeField(auto_now_add=True)
+    certificate_file = models.FileField(upload_to='certificates/%Y/%m/%d')

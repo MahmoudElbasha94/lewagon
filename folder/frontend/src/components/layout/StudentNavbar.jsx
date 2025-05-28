@@ -40,7 +40,7 @@ function StudentNavbar() {
               e.target.src = 'https://www.lewagon.com/assets/v4/logo-lewagon-9c19fb39a748cd3b1f49059ce0dc6c0dfc4cc2447d5a9a3e01bd2d5a214faf3c.svg'
             }}
           />
-          LeWagon
+          
         </Navbar.Brand>
 
         <Navbar.Toggle 
@@ -76,7 +76,7 @@ function StudentNavbar() {
             </Nav.Link>
             <Nav.Link 
               as={Link} 
-              to="/student/certificates" 
+              to="/student/enrolled-courses/" 
               className="d-flex align-items-center px-3"
               style={{ color: '#FFFFFF', opacity: 0.8 }}
             >

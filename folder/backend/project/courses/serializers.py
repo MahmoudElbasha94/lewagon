@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Course, CourseVideo,Instructor, Review , Student , Payment, Transaction, Enrollment
+from .models import Course, CourseVideo,Instructor, Review , Student , Payment, Transaction, Enrollment, VideoCompletion
 
 class InstructorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,7 +9,7 @@ class InstructorSerializer(serializers.ModelSerializer):
 class CourseVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseVideo
-        fields = ['id', 'lesson_name', 'video_url', 'created_at', 'updated_at']
+        fields = ['id', 'lesson_name', 'video_url', 'duration', 'order', 'created_at', 'updated_at']
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,7 +28,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     videos = CourseVideoSerializer(many=True, read_only=True)
     courseImage = serializers.SerializerMethodField()
-
+    lessons = serializers.SerializerMethodField()
     class Meta:
         model = Course
         fields = '__all__'
@@ -94,6 +94,23 @@ class CourseSerializer(serializers.ModelSerializer):
             instance.videos.add(video)
         
         return instance
+    
+    def get_lessons(self, obj):
+        videos = obj.videos.order_by('order')
+        return [{
+            'id': video.id,
+            'title': video.lesson_name,
+            'order': video.order,
+            'created_at': video.created_at,
+            'updated_at': video.updated_at,
+            'duration': video.duration,
+            'video_url': video.video_url,
+            'is_completed': VideoCompletion.objects.filter(
+                enrollment__course=obj,
+                enrollment__student__user=self.context['request'].user,
+                video=video
+            ).exists()
+        } for video in videos]
 
 class EnrolledStudentSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.get_full_name')

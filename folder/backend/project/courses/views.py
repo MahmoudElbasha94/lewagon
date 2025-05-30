@@ -24,10 +24,21 @@ import os
 
 class AllCoursesView(APIView):
     permission_classes = []
-    def get(self, request):
-        courses = Course.objects.all()
-        serializer = CourseSerializer(courses, many=True)
-        return Response(serializer.data)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = Course.objects.all()
+            serializer = CourseSerializer(
+                queryset,
+                many=True,
+                context={'request': request}
+            )
+            return Response({'courses': serializer.data})  # لف البيانات تحت مفتاح 'courses'
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to retrieve courses: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @api_view(['GET'])
@@ -35,31 +46,35 @@ def get_categorized_courses(request):
     search_query = request.GET.get('search', '').lower()
     category = request.GET.get('category', 'All')
     min_price = request.GET.get('min_price', '0')
-    max_price = request.GET.get('max_price', '200')
+    max_price = request.GET.get('max_price', None)  # Remove default max_price
     level = request.GET.get('level', 'All')
     sort_by = request.GET.get('sort_by', 'popular')
 
     try:
         min_price = float(min_price)
-        max_price = float(max_price)
+        max_price = float(max_price) if max_price else None
     except ValueError:
         min_price = 0.0
-        max_price = 200.0
+        max_price = None
 
     courses = Course.objects.all()
+    print("Total courses before filtering:", courses.count())  # Debug
 
-    # فلترة حسب الفئة
+    # Filter by category
     if category != 'All':
         courses = courses.filter(category=category)
 
-    # فلترة حسب المستوى
+    # Filter by level
     if level != 'All':
         courses = courses.filter(level=level)
 
-    # فلترة حسب السعر
-    courses = courses.filter(price__gte=min_price, price__lte=max_price)
+    # Filter by price
+    courses = courses.filter(price__gte=min_price)
+    if max_price is not None:
+        courses = courses.filter(price__lte=max_price)
+    print("Courses after filtering:", courses.count(), list(courses.values_list('id', 'courseType', 'price', flat=False)))  # Debug
 
-    # البحث بالكلمات المفتاحية (في العنوان، اسم المحاضر، الفئة)
+    # Search by keywords
     if search_query:
         courses = courses.filter(
             Q(title__icontains=search_query) |
@@ -68,9 +83,9 @@ def get_categorized_courses(request):
             Q(category__icontains=search_query)
         ).distinct()
 
-    # الترتيب حسب الاختيار
+    # Sorting
     if sort_by == 'popular':
-        courses = courses.order_by('-price')  # مؤقتًا نرتب بالسعر تنازلي
+        courses = courses.order_by('-price')
     elif sort_by == 'newest':
         courses = courses.order_by('-id')
     elif sort_by == 'price-low':
@@ -78,7 +93,7 @@ def get_categorized_courses(request):
     elif sort_by == 'price-high':
         courses = courses.order_by('-price')
 
-    # تحويل الكورسات إلى مصفوفة مسطحة
+    # Prepare response
     courses_data = []
     for course in courses:
         course_data = {
@@ -91,6 +106,7 @@ def get_categorized_courses(request):
             'price': float(course.price),
             'level': course.level,
             'duration': course.duration,
+            'courseType': course.courseType,  # Add courseType for debugging
             'courseImage': course.courseImage.url if course.courseImage else None,
         }
         courses_data.append(course_data)

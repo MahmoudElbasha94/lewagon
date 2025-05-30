@@ -88,12 +88,20 @@ class CourseVideo(models.Model):
     video_url = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    duration = models.PositiveIntegerField(default=0, help_text="Duration in minutes")
+    duration = models.PositiveIntegerField(default=0, help_text="Duration in seconds")
     order = models.PositiveIntegerField(default=0)
+
     class Meta:
         ordering = ['order']
+        unique_together = ('course', 'order')  # ضمان أن يكون order فريدًا لكل كورس
+
     def __str__(self):
         return f"Video: {self.lesson_name}"
+    
+    def formatted_duration(self):
+        minutes = self.duration // 60
+        seconds = self.duration % 60
+        return f"{minutes:02d}:{seconds:02d}"
     
 
 class Enrollment(models.Model):

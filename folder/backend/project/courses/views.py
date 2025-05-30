@@ -191,9 +191,6 @@ class CourseDetailView(APIView):
         ).exists()
 
 class CourseVideoView(APIView):
-    """
-    عرض تفاصيل فيديو معين ضمن الكورس
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, course_slug, video_id):
@@ -204,7 +201,7 @@ class CourseVideoView(APIView):
             # التحقق من صلاحية الوصول
             if not self._check_access(request.user, course):
                 return Response(
-                    {'error': 'You are not enrolled in this course'},
+                    {'error': 'أنت غير مسجل في هذا الكورس'},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
@@ -214,29 +211,25 @@ class CourseVideoView(APIView):
                 'video_url': video.video_url,
                 'duration': video.duration,
                 'next_video': self._get_next_video(course, video.order),
-                'prev_video': self._get_prev_video(course, video.order)
+                'prev_video': self._get_prev_video(course, video.order),
+                'is_completed': self._check_lesson_completion(course, video)
             }
 
             return Response(response_data)
 
         except Course.DoesNotExist:
             return Response(
-                {'error': 'Course not found'},
+                {'error': 'الكورس غير موجود'},
                 status=status.HTTP_404_NOT_FOUND
             )
         except CourseVideo.DoesNotExist:
             return Response(
-                {'error': 'Video not found'},
+                {'error': 'الفيديو غير موجود'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
     def _check_access(self, user, course):
-        """
-        التحقق من أن المستخدم مسجل في الكورس أو إن الكورس مجاني
-        """
-        if user.is_staff:  # الإداريين يقدروا يشوفوا كل الفيديوهات
-            return True
-        if course.courseType == 'Free':  # السماح لأي مستخدم مسجل بالوصول للكورسات المجانية
+        if user.is_staff or course.courseType == 'Free':
             return True
         return Enrollment.objects.filter(
             student=user.student_profile,
@@ -244,30 +237,89 @@ class CourseVideoView(APIView):
         ).exists()
 
     def _get_next_video(self, course, current_order):
-        """
-        الحصول على بيانات الفيديو التالي
-        """
-        next_video = course.videos.filter(
-            order__gt=current_order
-        ).order_by('order').first()
+        next_video = course.videos.filter(order__gt=current_order).order_by('order').first()
         return next_video.id if next_video else None
 
     def _get_prev_video(self, course, current_order):
-        """
-        الحصول على بيانات الفيديو السابق
-        """
-        prev_video = course.videos.filter(
-            order__lt=current_order
-        ).order_by('-order').first()
+        prev_video = course.videos.filter(order__lt=current_order).order_by('-order').first()
         return prev_video.id if prev_video else None
 
+    def _check_lesson_completion(self, course, video):
+        if not hasattr(self.request.user, 'student_profile'):
+            return False
+        return VideoCompletion.objects.filter(
+            enrollment__student=self.request.user.student_profile,
+            enrollment__course=course,
+            video=video
+        ).exists()
+
 class MarkLessonCompletedView(APIView):
-    permission_classes = [IsAuthenticated, IsStudent]
-    
     def post(self, request):
         lesson_id = request.data.get('lesson_id')
-        # ... منطق تسجيل إكمال الدرس ...
-        return Response({'status': 'success'})
+        course_id = request.data.get('course_id')
+        user = request.user
+
+        print(f"Received: lesson_id={lesson_id}, course_id={course_id}, user={user}")
+
+        try:
+            course = Course.objects.get(id=course_id)
+            lesson = CourseVideo.objects.get(id=lesson_id, course=course)
+            print(f"Found lesson: id={lesson.id}, title={lesson.title}")
+
+            student_course, created = StudentCourse.objects.get_or_create(
+                student=user, course=course, defaults={'status': 'Enrolled'}
+            )
+
+            # Mark lesson as completed
+            progress, created = StudentVideoProgress.objects.get_or_create(
+                student=user, video=lesson, defaults={'is_completed': True}
+            )
+            print(f"Progress: created={created}, is_completed={progress.is_completed}")
+            if not created and not progress.is_completed:
+                progress.is_completed = True
+                progress.save()
+                print(f"Updated progress for lesson_id={lesson_id}")
+
+            # Calculate progress
+            total_videos = course.videos.count()
+            completed_videos = StudentVideoProgress.objects.filter(
+                student=user, video__course=course, is_completed=True
+            ).count()
+            progress_percentage = (completed_videos / total_videos) * 100 if total_videos > 0 else 0
+            print(f"Progress calculation: completed={completed_videos}, total={total_videos}, percentage={progress_percentage}")
+
+            # Update course status
+            student_course.progress = progress_percentage
+            if progress_percentage >= 100:
+                student_course.status = 'Completed'
+            student_course.save()
+
+            # Find next video
+            lessons = CourseVideo.objects.filter(course=course).order_by('order')
+            next_video = None
+            for i, vid in enumerate(lessons):
+                if vid.id == lesson.id and i < len(lessons) - 1:
+                    next_video = lessons[i + 1]
+                    break
+            print(f"Next video: {next_video.id if next_video else None}")
+
+            response_data = {
+                'status': 'success',
+                'progress': progress_percentage,
+                'course_status': student_course.status,
+                'next_video_id': next_video.id if next_video else None
+            }
+            print(f"Response: {response_data}")
+            return Response(response_data)
+        except Course.DoesNotExist:
+            print(f"Course not found: course_id={course_id}")
+            return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+        except CourseVideo.DoesNotExist:
+            print(f"Lesson not found: lesson_id={lesson_id}, course_id={course_id}")
+            return Response({'error': 'Lesson not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class InstructorCourseListView(APIView):
     permission_classes = [IsAuthenticated, IsInstructor]
@@ -448,27 +500,61 @@ def admin_transactions(request):
 
 class MarkLessonCompletedView(APIView):
     permission_classes = [IsAuthenticated, IsStudent]
-    
+
     def post(self, request):
         lesson_id = request.data.get('lesson_id')
         course_id = request.data.get('course_id')
+        
+        if not lesson_id or not course_id:
+            return Response(
+                {'error': 'lesson_id and course_id are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             student = request.user.student_profile
             enrollment = Enrollment.objects.get(student=student, course_id=course_id)
-            video = CourseVideo.objects.get(id=lesson_id, courses=enrollment.course)
-            
+            video = CourseVideo.objects.get(id=lesson_id, course_id=course_id)
+
             # Mark video as completed
-            VideoCompletion.objects.get_or_create(enrollment=enrollment, video=video)
+            completion, created = VideoCompletion.objects.get_or_create(
+                enrollment=enrollment,
+                video=video,
+                defaults={'completed_at': now()}
+            )
             
             # Calculate progress
             total_videos = enrollment.course.videos.count()
             completed_videos = enrollment.video_completions.count()
-            enrollment.progress = (completed_videos / total_videos) * 100 if total_videos > 0 else 0
-            enrollment.save()
+            enrollment.progress = (completed_videos / total_videos * 100) if total_videos > 0 else 0
             
-            return Response({'status': 'success', 'progress': enrollment.progress})
-        except (Enrollment.DoesNotExist, CourseVideo.DoesNotExist):
-            return Response({'error': 'Invalid course or video'}, status=404)
+            # Update status to 'Completed' if progress reaches 100%
+            if enrollment.progress >= 100:
+                enrollment.status = 'Completed'
+            
+            enrollment.save()
+
+            return Response({
+                'status': 'success',
+                'progress': enrollment.progress,
+                'course_status': enrollment.status
+            }, status=status.HTTP_200_OK)
+
+        except Enrollment.DoesNotExist:
+            return Response(
+                {'error': 'You are not enrolled in this course'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except CourseVideo.DoesNotExist:
+            return Response(
+                {'error': 'Video not found in this course'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Unexpected error: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         
 class CertificateView(APIView):
     permission_classes = [IsAuthenticated, IsStudent]
@@ -519,14 +605,30 @@ class EnrollCourseView(APIView):
 
     def post(self, request):
         course_id = request.data.get('course_id')
+        if not course_id:
+            return Response(
+                {'error': 'Course ID is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
-            student = request.user.student_profile
+            # التحقق من وجود الكورس
             course = Course.objects.get(id=course_id)
+
+            # التحقق من وجود ملف تعريف الطالب، وإنشاء واحد إذا لم يكن موجودًا
+            try:
+                student = request.user.student_profile
+            except (Student.DoesNotExist, AttributeError):
+                # إنشاء ملف تعريف طالب جديد
+                student = Student.objects.create(
+                    user=request.user,
+                    phone=''  # يمكنك طلب رقم الهاتف من المستخدم لاحقًا أو تركه فارغًا
+                )
 
             # التحقق مما إذا كان الطالب مسجلاً بالفعل
             if Enrollment.objects.filter(student=student, course=course).exists():
                 return Response(
-                    {'error': 'You are already enrolled in this course'},
+                    {'error': 'You are already registered for this course'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -539,36 +641,42 @@ class EnrollCourseView(APIView):
                 status='Enrolled'
             )
 
-            # إذا كان الكورس مدفوعًا، قد تحتاج إلى التحقق من الدفع هنا
+            # معالجة الدفع إذا كان الكورس مدفوعًا
             if course.courseType == 'Paid':
-    # افتراض: استدعاء بوابة دفع (مثل Stripe)
-                payment_intent = create_payment_intent(course.price, 'usd') # وظيفة وهمية
-                if payment_intent['status'] == 'succeeded':
+                try:
+                    # افتراض: استدعاء بوابة الدفع (مثل Stripe)
+                    payment_intent = create_payment_intent(course.price, 'usd')  # وظيفة وهمية
+                    if payment_intent['status'] != 'succeeded':
+                        enrollment.delete()
+                        return Response(
+                            {'error': 'Payment failed'},
+                            status=status.HTTP_402_PAYMENT_REQUIRED
+                        )
                     Payment.objects.create(
                         enrollment=enrollment,
                         price=course.price,
                         currency='USD',
                         date=now().date()
                     )
-                else:
-                    enrollment.delete() # حذف التسجيل إذا فشل الدفع
+                except Exception as e:
+                    enrollment.delete()
                     return Response(
-                        {'error': 'Payment failed'},
-                        status=status.HTTP_402_PAYMENT_REQUIRED
+                        {'error': f'Payment processing error: {str(e)}'},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
 
             return Response(
-                {'message': 'Successfully enrolled in the course'},
+                {'message': 'You have successfully registered for the course'},
                 status=status.HTTP_201_CREATED
             )
 
         except Course.DoesNotExist:
             return Response(
-                {'error': 'Course not found'},
+                {'error': 'The course does not exist'},
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {'error': str(e)},
+                {'error': f'Internal error: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

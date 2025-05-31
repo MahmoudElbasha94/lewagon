@@ -30,13 +30,15 @@ export default function ManageCourses() {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem('access');
+      console.log('Access Token:', token);
       const response = await axios.get('http://127.0.0.1:8000/users/admin/courses/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       console.log('API Response:', response.data);
-      setCourses(response.data.courses);
+      setCourses(response.data.courses || []);
     } catch (error) {
-      setError('Failed to fetch courses');
+      console.error('Error fetching courses:', error.response ? error.response.data : error.message);
+      setError(error.response?.data?.error || 'Failed to fetch courses');
     } finally {
       setLoading(false);
     }
@@ -48,8 +50,9 @@ export default function ManageCourses() {
       const response = await axios.get('http://127.0.0.1:8000/users/admin/instructors/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setInstructors(response.data.instructors);
+      setInstructors(response.data.instructors || []);
     } catch (error) {
+      console.error('Error fetching instructors:', error.response ? error.response.data : error.message);
       setError('Failed to fetch instructors');
     }
   };
@@ -60,10 +63,10 @@ export default function ManageCourses() {
       title: course.title,
       description: course.description,
       price: course.price,
-      instructor_id: instructors.find(i => i.first_name + ' ' + i.last_name === course.instructor)?.id || '',
+      instructor_id: course.instructor_id || instructors.find(i => i.first_name + ' ' + i.last_name === course.instructor)?.id || '',
       duration: course.duration || '',
       courseType: course.courseType || '',
-      what_you_will_learn: course.what_you_will_learn || '',
+      what_you_will_learn: course.what_you_willlearn || '',
       level: course.level || 'Beginner',
       category: course.category || 'Programming'
     });
@@ -78,7 +81,8 @@ export default function ManageCourses() {
       });
       fetchCourses();
     } catch (error) {
-      setError('Failed to delete course');
+      console.error('Error deleting course:', error.response ? error.response.data : error.message);
+      setError(error.response?.data?.error || 'Failed to delete course');
     }
   };
 
@@ -101,13 +105,8 @@ export default function ManageCourses() {
       fetchCourses();
       resetForm();
     } catch (error) {
-      console.error('Error saving course:', error);
-      if (error.response) {
-        console.log('Error response:', JSON.stringify(error.response.data, null, 2));
-        setError(error.response.data.error || 'Failed to save course');
-      } else {
-        setError('Failed to save course');
-      }
+      console.error('Error saving course:', error.response ? error.response.data : error.message);
+      setError(error.response?.data?.error || 'Failed to save course');
     } finally {
       setLoading(false);
     }
@@ -203,26 +202,38 @@ export default function ManageCourses() {
             <table className="table">
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Title</th>
                   <th>Description</th>
                   <th>Price</th>
                   <th>Instructor</th>
+                  <th>Duration</th>
+                  <th>Course Type</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {courses.map(course => (
-                  <tr key={course.id}>
-                    <td>{course.title}</td>
-                    <td>{course.description}</td>
-                    <td>{course.price}</td>
-                    <td>{course.instructor}</td>
-                    <td>
-                      <button className="btn btn-sm btn-primary me-2" onClick={() => handleEdit(course)}><FaEdit /></button>
-                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(course.id)}><FaTrash /></button>
-                    </td>
+                {courses.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center">No courses available</td>
                   </tr>
-                ))}
+                ) : (
+                  courses.map(course => (
+                    <tr key={course.id}>
+                      <td>{course.id}</td>
+                      <td>{course.title}</td>
+                      <td>{course.description}</td>
+                      <td>{course.price}</td>
+                      <td>{course.instructor}</td>
+                      <td>{course.duration || 'N/A'}</td>
+                      <td>{course.courseType || 'N/A'}</td>
+                      <td>
+                        <button className="btn btn-sm btn-primary me-2" onClick={() => handleEdit(course)}><FaEdit /></button>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(course.id)}><FaTrash /></button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -230,4 +241,4 @@ export default function ManageCourses() {
       </div>
     </div>
   );
-} 
+}

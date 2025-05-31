@@ -48,10 +48,76 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    current_password = serializers.CharField(write_only=True, required=False)
+    new_password = serializers.CharField(write_only=True, required=False)
+    confirm_password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'is_student', 'is_instructor', 'profile_picture']
+        fields = ['first_name', 'last_name', 'profile_picture', 'is_student', 'is_instructor', 
+                  'current_password', 'new_password', 'confirm_password']
         read_only_fields = ['is_student', 'is_instructor']
+
+    def validate_new_password(self, value):
+        # التحقق من قواعد كلمة المرور
+        if value and len(value) < 8:
+            raise serializers.ValidationError("كلمة المرور يجب أن تكون 8 أحرف على الأقل.")
+        if value and not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError("كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.")
+        if value and not re.search(r'[a-z]', value):
+            raise serializers.ValidationError("كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.")
+        if value and not re.search(r'\d', value):
+            raise serializers.ValidationError("كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.")
+        if value and not re.search(r'[^A-Za-z0-9]', value):
+            raise serializers.ValidationError("كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل.")
+        return value
+
+    def validate(self, data):
+        # التحقق من كلمات المرور إذا تم إرسالها
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+
+        if new_password or confirm_password or current_password:
+            # التأكد من إرسال جميع الحقول الثلاثة
+            if not (current_password and new_password and confirm_password):
+                raise serializers.ValidationError("يجب إدخال كلمة المرور الحالية، الجديدة، وتأكيد الجديدة.")
+            
+            # التحقق من تطابق كلمة المرور الجديدة وتأكيدها
+            if new_password != confirm_password:
+                raise serializers.ValidationError("كلمات المرور الجديدة غير متطابقة.")
+            
+            # التحقق من كلمة المرور الحالية
+            user = self.context['request'].user
+            if not user.check_password(current_password):
+                raise serializers.ValidationError({'current_password': 'كلمة المرور الحالية غير صحيحة.'})
+            
+            # التحقق من أن كلمة المرور الجديدة مختلفة عن الحالية
+            if current_password == new_password:
+                raise serializers.ValidationError("كلمة المرور الجديدة يجب أن تكون مختلفة عن الحالية.")
+            
+            # التحقق من قواعد كلمة المرور الجديدة
+            self.validate_new_password(new_password)
+
+        return data
+
+    def update(self, instance, validated_data):
+        # إزالة حقول كلمة المرور من البيانات قبل تحديث المستخدم
+        current_password = validated_data.pop('current_password', None)
+        new_password = validated_data.pop('new_password', None)
+        confirm_password = validated_data.pop('confirm_password', None)
+
+        # تحديث بقية الحقول
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # تحديث كلمة المرور إذا تم إرسالها
+        if new_password:
+            instance.set_password(new_password)
+            instance.save()
+
+        return instance
 
 class ChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)

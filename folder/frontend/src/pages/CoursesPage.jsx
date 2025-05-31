@@ -55,11 +55,9 @@ function CoursesPage() {
     if (!course.courseImage) {
       return 'https://via.placeholder.com/300x200?text=No+Image'
     }
-    // If the image URL is already a full URL, return it as is
     if (course.courseImage.startsWith('http')) {
       return course.courseImage
     }
-    // Otherwise, prepend the backend URL
     return `http://127.0.0.1:8000${course.courseImage}`
   }
 
@@ -151,7 +149,6 @@ function CoursesPage() {
                             e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'
                           }}
                         />
-
                         <div className="card-body">
                           <h5 className="card-title">{course.title}</h5>
                           <p className="card-text text-muted">
@@ -168,7 +165,7 @@ function CoursesPage() {
                             </small>
                           </div>
                           <div className="d-flex justify-content-between align-items-center">
-                            <span className="h5 mb-0">${course.price}</span>
+                            <span className="h5 mb-0">{course.price === 0 ? 'Free' : `$${course.price}`}</span>
                             <Link to={`/courses/${course.slug}`} className="btn btn-danger">
                               Enroll Now
                             </Link>

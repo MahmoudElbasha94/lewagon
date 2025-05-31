@@ -34,19 +34,27 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-     'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'courses.apps.CoursesConfig',
     'users.apps.UsersConfig',
     'contact.apps.ContactConfig',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'lewagon_project.urls'
@@ -138,6 +147,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # rest framework setting
+
+REST_USE_JWT = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # use JWT for Auth
@@ -145,6 +157,13 @@ REST_FRAMEWORK = {
     
 }
 
+SITE_ID = 1
+
+LOGIN_REDIRECT_URL = '/'
+
+
+REST_USE_JWT = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # time for access token
@@ -156,6 +175,36 @@ SIMPLE_JWT = {
 
 
 AUTH_USER_MODEL = 'users.User'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# 👇 بدل "email" بـ {'email'} لو كنت بتستخدم إيميل فقط لتسجيل الدخول
+ACCOUNT_LOGIN_METHODS = {'email'}
+
+# 👇 الحقول المطلوبة عند التسجيل، * معناها "مطلوب"
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+
+
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'dj_rest_auth.registration.serializers.RegisterSerializer',
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'OAUTH_PKCE_ENABLED': True,
+        'APP': {
+            'client_id': '917470419321-l0l90k2hnic8ctmsu2qemgs567pqdsna.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
+
+
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins during development
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [

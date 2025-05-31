@@ -19,8 +19,21 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from dj_rest_auth.utils import jwt_encode
+from django.contrib.auth import get_user_model
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+
 
 User = get_user_model()
+
+class GoogleLoginAPIView(SocialLoginView):
+
+    adapter_class = GoogleOAuth2Adapter
+
+
 
 class RegisterView(CreateAPIView):
     queryset = User.objects.all()
@@ -699,4 +712,3 @@ class AdminProfileView(APIView):
                 {'error': str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-

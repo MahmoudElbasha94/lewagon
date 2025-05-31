@@ -1,6 +1,8 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from .views import (
     AdminDashboardView,
     UserAdminViewSet,
@@ -31,7 +33,11 @@ from .views import (
     InstructorProfileView,
     StudentProfileView,
     AdminProfileView,
+    GoogleLoginAPIView,
 )
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
 
 urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -40,6 +46,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', CustomLoginView.as_view(), name='custom_login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('google-login/', GoogleLoginAPIView.as_view(), name='google-login'),
     
     # Profile endpoints
     path('profile/', UserProfileView.as_view(), name='user_profile'),

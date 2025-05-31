@@ -13,11 +13,12 @@ const StudentProfile = () => {
       last_name: '',
       email: '',
       phone: '',
-      profile_picture: ''
+      profile_picture: '',
+      current_password: '',
+      new_password: '',
+      confirm_password: ''
     },
-    phone_number: '',
-    interests: '',
-    education_level: '',
+    phone: '',
     profile_pic: ''
   });
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,7 @@ const StudentProfile = () => {
     try {
       const token = localStorage.getItem('access');
       if (!token) {
-        throw new Error('No access token found');
+        throw new Error('لا يوجد رمز وصول');
       }
 
       const response = await axios.get(
@@ -45,17 +46,22 @@ const StudentProfile = () => {
         }
       );
 
+      console.log('بيانات الملف الشخصي:', response.data);
+
       setProfile({
         ...response.data,
         user: {
           ...response.data.user,
-          profile_picture: response.data.user.profile_picture || DEFAULT_AVATAR
+          profile_picture: response.data.user.profile_picture || DEFAULT_AVATAR,
+          current_password: '',
+          new_password: '',
+          confirm_password: ''
         },
         profile_pic: response.data.profile_pic || DEFAULT_AVATAR
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      setError('Failed to load profile data');
+      console.error('خطأ في جلب بيانات الملف الشخصي:', error);
+      setError('فشل في تحميل بيانات الملف الشخصي');
     } finally {
       setLoading(false);
     }
@@ -94,26 +100,30 @@ const StudentProfile = () => {
     try {
       const token = localStorage.getItem('access');
       if (!token) {
-        throw new Error('No access token found');
+        throw new Error('لا يوجد رمز وصول');
       }
 
       const formData = new FormData();
       
-      // Add user fields
-      Object.keys(profile.user).forEach(key => {
-        if (profile.user[key] !== null && profile.user[key] !== undefined && profile.user[key] !== DEFAULT_AVATAR) {
+      const userFields = ['first_name', 'last_name', 'profile_picture', 'current_password', 'new_password', 'confirm_password'];
+      userFields.forEach(key => {
+        if (profile.user[key] && profile.user[key] !== DEFAULT_AVATAR) {
           formData.append(`user.${key}`, profile.user[key]);
         }
       });
 
-      // Add student fields
-      Object.keys(profile).forEach(key => {
-        if (key !== 'user' && profile[key] !== null && profile[key] !== undefined && profile[key] !== DEFAULT_AVATAR) {
+      const studentFields = ['phone', 'profile_pic'];
+      studentFields.forEach(key => {
+        if (profile[key] && profile[key] !== DEFAULT_AVATAR) {
           formData.append(key, profile[key]);
         }
       });
 
-      await axios.put(
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      const response = await axios.put(
         `${API_BASE_URL}/users/student/profile/update/`,
         formData,
         {
@@ -124,20 +134,27 @@ const StudentProfile = () => {
         }
       );
 
-      setSuccess('Profile updated successfully');
-      Swal.fire(
-        'Success!',
-        'Your profile has been updated successfully.',
-        'success'
-      );
+      setSuccess('تم تحديث الملف الشخصي بنجاح');
+      Swal.fire({
+        title: 'نجاح!',
+        text: 'تم تحديث الملف الشخصي بنجاح.' + (profile.user.new_password ? ' يرجى إعادة تسجيل الدخول.' : ''),
+        icon: 'success',
+        confirmButtonText: 'حسنًا'
+      }).then(() => {
+        if (profile.user.new_password) {
+          localStorage.removeItem('access');
+          localStorage.removeItem('refresh');
+          window.location.href = '/login';
+        }
+      });
+
+      await fetchProfile();
     } catch (error) {
-      console.error('Error updating profile:', error);
-      setError(error.response?.data?.message || 'Failed to update profile');
-      Swal.fire(
-        'Error!',
-        error.response?.data?.message || 'Failed to update profile',
-        'error'
-      );
+      console.error('خطأ في تحديث الملف الشخصي:', error);
+      const errorMessage = error.response?.data || 'فشل في تحديث الملف الشخصي';
+      console.log('تفاصيل الخطأ:', errorMessage);
+      setError(errorMessage);
+      Swal.fire('خطأ!', JSON.stringify(errorMessage), 'error');
     } finally {
       setLoading(false);
     }
@@ -146,7 +163,7 @@ const StudentProfile = () => {
   if (loading) {
     return (
       <Container className="mt-4">
-        <div>Loading...</div>
+        <div>جارٍ التحميل...</div>
       </Container>
     );
   }
@@ -158,28 +175,32 @@ const StudentProfile = () => {
           <Card className="mb-4">
             <Card.Body className="text-center">
               <img
-                src={profile.profile_pic || profile.user.profile_picture || DEFAULT_AVATAR}
+                src={
+                  profile.profile_pic ? `${API_BASE_URL}${profile.profile_pic}` :
+                  profile.user.profile_picture ? `${API_BASE_URL}${profile.user.profile_picture}` :
+                  DEFAULT_AVATAR
+                }
                 alt="Profile"
                 className="rounded-circle mb-3"
                 style={{ width: '150px', height: '150px', objectFit: 'cover' }}
               />
               <h3>{profile.user.first_name} {profile.user.last_name}</h3>
-              <p className="text-muted">Student</p>
+              <p className="text-muted">طالب</p>
             </Card.Body>
           </Card>
         </Col>
         <Col md={8}>
           <Card>
             <Card.Body>
-              <Card.Title>Profile Information</Card.Title>
-              {error && <Alert variant="danger">{error}</Alert>}
+              <Card.Title>معلومات الملف الشخصي</Card.Title>
+              {error && <Alert variant="danger">{JSON.stringify(error)}</Alert>}
               {success && <Alert variant="success">{success}</Alert>}
               
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>First Name</Form.Label>
+                      <Form.Label>الاسم الأول</Form.Label>
                       <Form.Control
                         type="text"
                         name="user.first_name"
@@ -190,7 +211,7 @@ const StudentProfile = () => {
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Last Name</Form.Label>
+                      <Form.Label>الاسم الأخير</Form.Label>
                       <Form.Control
                         type="text"
                         name="user.last_name"
@@ -202,48 +223,27 @@ const StudentProfile = () => {
                 </Row>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>البريد الإلكتروني</Form.Label>
                   <Form.Control
                     type="email"
                     name="user.email"
                     value={profile.user.email || ''}
-                    onChange={handleChange}
                     disabled
                   />
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Phone Number</Form.Label>
+                  <Form.Label>رقم الهاتف</Form.Label>
                   <Form.Control
                     type="tel"
-                    name="phone_number"
-                    value={profile.phone_number || ''}
+                    name="phone"
+                    value={profile.phone || ''}
                     onChange={handleChange}
                   />
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Interests</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="interests"
-                    value={profile.interests || ''}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Education Level</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="education_level"
-                    value={profile.education_level || ''}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Profile Image</Form.Label>
+                  <Form.Label>صورة الملف الشخصي</Form.Label>
                   <Form.Control
                     type="file"
                     name="profile_pic"
@@ -252,12 +252,42 @@ const StudentProfile = () => {
                   />
                 </Form.Group>
 
+                <Form.Group className="mb-3">
+                  <Form.Label>كلمة المرور الحالية</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="user.current_password"
+                    value={profile.user.current_password || ''}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>كلمة المرور الجديدة</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="user.new_password"
+                    value={profile.user.new_password || ''}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>تأكيد كلمة المرور الجديدة</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="user.confirm_password"
+                    value={profile.user.confirm_password || ''}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
                 <Button 
                   variant="primary" 
                   type="submit" 
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loading ? 'جارٍ الحفظ...' : 'حفظ التغييرات'}
                 </Button>
               </Form>
             </Card.Body>
@@ -268,4 +298,4 @@ const StudentProfile = () => {
   );
 };
 
-export default StudentProfile; 
+export default StudentProfile;

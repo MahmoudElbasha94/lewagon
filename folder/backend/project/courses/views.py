@@ -2,23 +2,25 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Count
 from django.core.exceptions import PermissionDenied
 from rest_framework.generics import UpdateAPIView, DestroyAPIView, ListAPIView
 from django.utils.timezone import now
 from rest_framework import permissions
+
+from backend.project.users import serializers
 from .models import Course, Enrollment, Student, Review, Payment, Transaction, CourseVideo, VideoCompletion, Certificate
 from .serializers import CourseSerializer, ReviewCreateSerializer, PaymentSerializer, ReviewSerializer, TransactionSerializer, EnrolledCourseSerializer
 from users.permissions import IsStudent, IsInstructor, IsAdmin
 from django.db.models import Q
-from rest_framework.decorators import api_view
-from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
+from django.http import JsonResponse
 from django.db.models import Prefetch
 from reportlab.pdfgen import canvas
 from django.core.files.base import ContentFile
 import os
+import io
 
 
 
@@ -201,7 +203,7 @@ class CourseVideoView(APIView):
             # التحقق من صلاحية الوصول
             if not self._check_access(request.user, course):
                 return Response(
-                    {'error': 'أنت غير مسجل في هذا الكورس'},
+                    {'error': 'You are not enrolled in this course'},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
@@ -219,12 +221,12 @@ class CourseVideoView(APIView):
 
         except Course.DoesNotExist:
             return Response(
-                {'error': 'الكورس غير موجود'},
+                {'error': 'Course not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
         except CourseVideo.DoesNotExist:
             return Response(
-                {'error': 'الفيديو غير موجود'},
+                {'error': 'Video not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -266,7 +268,7 @@ class MarkLessonCompletedView(APIView):
             lesson = CourseVideo.objects.get(id=lesson_id, course=course)
             print(f"Found lesson: id={lesson.id}, title={lesson.title}")
 
-            student_course, created = StudentCourse.objects.get_or_create(
+            student_course, created = student_course.objects.get_or_create(
                 student=user, course=course, defaults={'status': 'Enrolled'}
             )
 
@@ -677,6 +679,45 @@ class EnrollCourseView(APIView):
             )
         except Exception as e:
             return Response(
-                {'error': f'Internal error: {str(e)}'},
+                {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def deals(request):
+    try:
+        courses = Course.objects.filter(courseType='Paid').order_by('price')[:5]
+        serializer = CourseSerializer(courses, many=True)
+        return Response({'deals': serializer.data})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def learning_paths(request):
+    try:
+        courses = Course.objects.all()
+        paths = []
+        categories = set(course.category for course in courses)
+        
+        for category in categories:
+            category_courses = courses.filter(category=category)
+            paths.append({
+                'category': category,
+                'courses': CourseSerializer(category_courses, many=True).data
+            })
+        
+        return Response({'paths': paths})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def recommendations(request):
+    try:
+        courses = Course.objects.all().order_by('-rating')[:5]
+        serializer = CourseSerializer(courses, many=True)
+        return Response({'recommendations': serializer.data})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

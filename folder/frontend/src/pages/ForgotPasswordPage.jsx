@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { HiMail } from 'react-icons/hi';
+import { BsChatDots, BsGlobe } from 'react-icons/bs';
+import { FiPhone } from 'react-icons/fi';
+import '../styles/Login.css';
 
-function ForgotPasswordPage() {
+const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -11,43 +15,90 @@ function ForgotPasswordPage() {
     setError('');
     setMessage('');
     if (!email) {
-      setError('يرجى إدخال البريد الإلكتروني');
+      setError('Please enter your email');
       return;
     }
-    // نجاح وهمي
-    setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني (تجريبي).');
+    // Success message
+    setMessage('Password reset link has been sent to your email');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12">
-      <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700 p-8">
-        <div className="flex flex-col items-center mb-6">
-          <img src="https://raw.githubusercontent.com/lewagon/fullstack-images/master/uikit/logo.png" alt="Le Wagon" className="h-12 mb-2" />
-          <h2 className="text-2xl font-bold text-white mb-2">Forgot Password</h2>
-          <p className="text-gray-300 mb-4 text-center">Enter your email address and we'll send you a link to reset your password.</p>
-        </div>
-        {error && <div className="mb-4 text-red-400 text-center">{error}</div>}
-        {message && <div className="mb-4 text-green-400 text-center">{message}</div>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-200 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              placeholder="name@email.com"
-              required
-            />
+    <div className="login-container">
+      <div className="login-content">
+        <div className="login-form-section">
+          <div className="brand">
+            <Link to="/" className="logo-link">
+              <img 
+                src="/lewagon-logo.png" 
+                alt="Le Wagon" 
+                className="logo"
+                onError={(e) => {
+                  console.error('Logo failed to load');
+                  e.target.src = 'https://www.lewagon.com/assets/v4/logo-lewagon-9c19fb39a748cd3b1f49059ce0dc6c0dfc4cc2447d5a9a3e01bd2d5a214faf3c.svg';
+                }} 
+              />
+            </Link>
           </div>
-          <button type="submit" className="w-full py-3 rounded-lg bg-red-600 text-white font-bold hover:bg-red-700 transition-colors">Send Reset Link</button>
-        </form>
-        <div className="mt-6 text-center">
-          <Link to="/login" className="text-red-400 hover:underline">Back to Login</Link>
+
+          <div className="login-form">
+            <h1>Reset Password</h1>
+            <p className="subtitle">
+              Enter your email to reset your password
+            </p>
+
+            {error && <div className="error-message">{error}</div>}
+            {message && <div className="success-message">{message}</div>}
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              <button type="submit" className="sign-in-button">
+                Send Reset Link
+              </button>
+
+              <p className="signup-prompt">
+                Remember your password?{' '}
+                <Link to="/login" className="signup-link">
+                  Back to Login
+                </Link>
+              </p>
+            </form>
+          </div>
+        </div>
+
+        <div className="illustration-section">
+          <div className="floating-icons">
+            <HiMail className="icon mail" />
+            <BsChatDots className="icon chat" />
+            <BsGlobe className="icon globe" />
+            <FiPhone className="icon phone" />
+          </div>
+          <div className="illustration">
+            <svg className="woman-illustration" viewBox="0 0 500 500">
+              {/* Simple abstract person illustration */}
+              <circle cx="250" cy="150" r="50" className="head" />
+              <path d="M200 200 Q250 300 300 200" className="body" />
+              <path d="M250 250 L200 350" className="left-arm" />
+              <path d="M250 250 L300 300 L320 280" className="right-arm" />
+              {/* OK gesture */}
+              <circle cx="320" cy="280" r="15" className="ok-gesture" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default ForgotPasswordPage; 

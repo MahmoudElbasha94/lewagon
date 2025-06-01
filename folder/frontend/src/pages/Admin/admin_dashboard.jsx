@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+<<<<<<< HEAD
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAuth } from '../../context/AuthContext';
@@ -7,6 +8,27 @@ import { FaUsers, FaChalkboardTeacher, FaBook, FaStar, FaGraduationCap, FaCommen
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+=======
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  FaUsers, 
+  FaChalkboardTeacher, 
+  FaBook, 
+  FaStar, 
+  FaGraduationCap, 
+  FaComments, 
+  FaPlus, 
+  FaUserPlus, 
+  FaDollarSign,
+  FaChartLine
+} from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+import '../../../src/styles/AdminDashboard.css';
+
+export default function AdminDashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+>>>>>>> 5a1a88e (adding mohamed design)
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStudents: 0,
@@ -33,8 +55,11 @@ export default function AdminDashboard() {
           throw new Error('No authentication token found');
         }
 
+<<<<<<< HEAD
         console.log('Fetching stats with token:', token);
 
+=======
+>>>>>>> 5a1a88e (adding mohamed design)
         const response = await axios.get('http://127.0.0.1:8000/users/admin/dashboard/', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -42,11 +67,16 @@ export default function AdminDashboard() {
           }
         });
 
+<<<<<<< HEAD
         console.log('Raw API Response:', response);
         console.log('API Response Data:', response.data);
 
         if (response.data) {
           const newStats = {
+=======
+        if (response.data) {
+          setStats({
+>>>>>>> 5a1a88e (adding mohamed design)
             totalUsers: response.data.stats.total_users || 0,
             totalStudents: response.data.stats.total_students || 0,
             totalInstructors: response.data.stats.total_instructors || 0,
@@ -55,9 +85,13 @@ export default function AdminDashboard() {
             totalEnrollments: response.data.stats.total_enrollments || 0,
             totalRevenue: response.data.stats.total_payments || 0,
             activeInstructors: response.data.stats.active_instructors || 0
+<<<<<<< HEAD
           };
           console.log('Processed Stats:', newStats);
           setStats(newStats);
+=======
+          });
+>>>>>>> 5a1a88e (adding mohamed design)
           
           if (response.data.recent_users) {
             setRecentUsers(response.data.recent_users);
@@ -68,6 +102,7 @@ export default function AdminDashboard() {
         }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
+<<<<<<< HEAD
         console.error('Error details:', {
           message: error.message,
           response: error.response?.data,
@@ -75,25 +110,43 @@ export default function AdminDashboard() {
           headers: error.response?.headers
         });
         setError(error.response?.data?.detail || 'Failed to fetch dashboard data');
+=======
+        setError('Failed to fetch dashboard data');
+>>>>>>> 5a1a88e (adding mohamed design)
       } finally {
         setLoading(false);
       }
     };
 
     if (user?.is_superuser) {
+<<<<<<< HEAD
       console.log('User is superuser, fetching data...');
       fetchStats();
     } else {
       console.log('User is not superuser:', user);
+=======
+      fetchStats();
+    } else {
+>>>>>>> 5a1a88e (adding mohamed design)
       setError('You do not have permission to access this page');
     }
   }, [user]);
 
   if (loading) {
     return (
+<<<<<<< HEAD
       <div className="container mt-5 text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
+=======
+      <div className="admin-dashboard">
+        <div className="container">
+          <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+            <div className="spinner-border text-light" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+>>>>>>> 5a1a88e (adding mohamed design)
         </div>
       </div>
     );
@@ -101,15 +154,24 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
+<<<<<<< HEAD
       <div className="container mt-5">
         <div className="alert alert-danger" role="alert">
           {error}
+=======
+      <div className="admin-dashboard">
+        <div className="container">
+          <div className="alert alert-danger mt-4" role="alert">
+            {error}
+          </div>
+>>>>>>> 5a1a88e (adding mohamed design)
         </div>
       </div>
     );
   }
 
   return (
+<<<<<<< HEAD
     <div className="bg-light min-vh-100">
       {/* Removed internal Admin Navigation Bar here */}
       <div className="container py-4">
@@ -124,11 +186,32 @@ export default function AdminDashboard() {
             <FaPlus className="me-2" />
             Add New Instructor
           </Link>
+=======
+    <div className="admin-dashboard">
+      <div className="container py-4">
+        <div className="dashboard-header">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 className="mb-1">Admin Dashboard</h2>
+              <p className="text-light opacity-75 mb-0">Welcome back, {user?.email}</p>
+            </div>
+            <div>
+              <button className="action-button me-2" onClick={() => navigate('/admin/manage-instructors')}>
+                <FaUserPlus className="me-2" />
+                Add Instructor
+              </button>
+              <button className="action-button secondary" onClick={() => navigate('/admin/manage-courses')}>
+                <FaBook className="me-2" />
+                Manage Courses
+              </button>
+            </div>
+>>>>>>> 5a1a88e (adding mohamed design)
           </div>
         </div>
 
         <div className="row g-4 mb-4">
           <div className="col-md-3">
+<<<<<<< HEAD
             <div className="card text-center shadow-sm h-100 border-0">
               <div className="card-body">
                 <FaUsers className="text-primary mb-3" size={24} />
@@ -166,11 +249,51 @@ export default function AdminDashboard() {
                 <h3>{stats.totalCourses}</h3>
                 <p className="text-muted mb-0">Available courses</p>
               </div>
+=======
+            <div className="stats-card">
+              <div className="icon">
+                <FaUsers />
+              </div>
+              <h5>Total Users</h5>
+              <div className="value">{stats.totalUsers}</div>
+              <div className="subtitle">Active platform users</div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaGraduationCap />
+              </div>
+              <h5>Students</h5>
+              <div className="value">{stats.totalStudents}</div>
+              <div className="subtitle">Enrolled learners</div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaChalkboardTeacher />
+              </div>
+              <h5>Instructors</h5>
+              <div className="value">{stats.totalInstructors}</div>
+              <div className="subtitle">Teaching experts</div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaBook />
+              </div>
+              <h5>Courses</h5>
+              <div className="value">{stats.totalCourses}</div>
+              <div className="subtitle">Available courses</div>
+>>>>>>> 5a1a88e (adding mohamed design)
             </div>
           </div>
         </div>
 
         <div className="row">
+<<<<<<< HEAD
           <div className="col-md-6 mb-4">
             <div className="card shadow-sm border-0">
               <div className="card-header bg-white">
@@ -232,6 +355,90 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+=======
+          <div className="col-md-8">
+            <div className="data-card">
+              <div className="card-header">
+                <h5>Recent Users</h5>
+              </div>
+              <div className="card-body">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Name</th>
+                      <th>Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentUsers.map((user, index) => (
+                      <tr key={index}>
+                        <td>{user.email}</td>
+                        <td>{`${user.first_name} ${user.last_name}`}</td>
+                        <td>
+                          <span className={`badge ${user.is_instructor ? 'badge-primary' : 'badge-success'}`}>
+                            {user.is_instructor ? 'Instructor' : 'Student'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div className="col-md-4">
+            <div className="data-card">
+              <div className="card-header">
+                <h5>Quick Actions</h5>
+              </div>
+              <div className="card-body">
+                <div className="quick-actions">
+                  <button className="action-button mb-2" onClick={() => navigate('/admin/manage-students')}>
+                    <FaUsers className="me-2" />
+                    Manage Students
+                  </button>
+                  <button className="action-button mb-2" onClick={() => navigate('/admin/manage-courses')}>
+                    <FaBook className="me-2" />
+                    Manage Courses
+                  </button>
+                  <button className="action-button mb-2" onClick={() => navigate('/admin/manage-instructors')}>
+                    <FaChalkboardTeacher className="me-2" />
+                    Manage Instructors
+                  </button>
+                  <button className="action-button secondary">
+                    <FaChartLine className="me-2" />
+                    View Reports
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="data-card">
+              <div className="card-header">
+                <h5>Recent Courses</h5>
+              </div>
+              <div className="card-body">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Instructor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentCourses.map((course, index) => (
+                      <tr key={index}>
+                        <td>{course.title}</td>
+                        <td>{course.instructor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+>>>>>>> 5a1a88e (adding mohamed design)
           </div>
         </div>
       </div>

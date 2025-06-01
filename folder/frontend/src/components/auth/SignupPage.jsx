@@ -1,7 +1,11 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { HiMail } from 'react-icons/hi';
+import { BsChatDots, BsGlobe } from 'react-icons/bs';
+import { FiPhone } from 'react-icons/fi';
+import '../styles/Login.css';
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -32,7 +36,7 @@ function SignupPage() {
     if (formData.password !== formData.confirm_password) {
       setMessage({
         text: "Passwords do not match",
-        type: "danger",
+        type: "error",
       });
       setLoading(false);
       return;
@@ -53,7 +57,7 @@ function SignupPage() {
     } catch (error) {
       setMessage({
         text: error.response?.data?.detail || "Registration failed",
-        type: "danger",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -61,152 +65,151 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dark py-5" style={{ marginTop: '0px' }}>
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-12 col-md-8 col-lg-6 col-xl-5">
-            <div className="card border-0 shadow-lg" style={{
-              background: 'linear-gradient(145deg, #1f1f2e, #2a2a40)',
-              borderRadius: '1rem',
-            }}>
-              <div className="card-body p-4 p-md-5">
-                <div className="text-center mb-4">
-                  <i className="bi bi-code-slash text-danger display-4"></i>
-                  <h4 className="text-danger fw-bold mt-3">Le Wagon</h4>
-                  <h5 className="text-white fw-semibold mt-2">Create Account</h5>
-                  <p className="text-muted">Join our community</p>
+    <div className="login-container">
+      <div className="login-content">
+        <div className="login-form-section">
+          <div className="brand">
+            <Link to="/" className="logo-link">
+              <img 
+                src="/lewagon-logo.png" 
+                alt="Le Wagon" 
+                className="logo"
+                onError={(e) => {
+                  console.error('Logo failed to load');
+                  e.target.src = 'https://www.lewagon.com/assets/v4/logo-lewagon-9c19fb39a748cd3b1f49059ce0dc6c0dfc4cc2447d5a9a3e01bd2d5a214faf3c.svg';
+                }} 
+              />
+            </Link>
+          </div>
+
+          <div className="login-form">
+            <h1>Create Account</h1>
+            <p className="subtitle">Join our coding community</p>
+
+            {message.text && (
+              <div className={`${message.type === 'error' ? 'error-message' : 'success-message'}`}>
+                {message.text}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label htmlFor="first_name">First Name</label>
+                  <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    placeholder="Enter your first name"
+                    required
+                    className="form-input"
+                  />
                 </div>
-
-                {message.text && (
-                  <div className={`alert alert-${message.type}`} role="alert">
-                    <i className={`bi bi-${message.type === 'success' ? 'check-circle' : 'exclamation-triangle'}-fill me-2`}></i>
-                    {message.text}
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit}>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <div className="form-floating">
-                        <input
-                          type="text"
-                          className="form-control bg-dark text-white border-secondary"
-                          id="first_name"
-                          name="first_name"
-                          value={formData.first_name}
-                          onChange={handleChange}
-                          placeholder="First Name"
-                          required
-                        />
-                        <label htmlFor="first_name" className="text-secondary">First Name</label>
-                      </div>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <div className="form-floating">
-                        <input
-                          type="text"
-                          className="form-control bg-dark text-white border-secondary"
-                          id="last_name"
-                          name="last_name"
-                          value={formData.last_name}
-                          onChange={handleChange}
-                          placeholder="Last Name"
-                          required
-                        />
-                        <label htmlFor="last_name" className="text-secondary">Last Name</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="form-floating mb-3">
-                    <input
-                      type="email"
-                      className="form-control bg-dark text-white border-secondary"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="name@company.com"
-                      required
-                    />
-                    <label htmlFor="email" className="text-secondary">Email Address</label>
-                  </div>
-
-                  <div className="form-floating mb-3">
-                    <input
-                      type="password"
-                      className="form-control bg-dark text-white border-secondary"
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Password"
-                      required
-                    />
-                    <label htmlFor="password" className="text-secondary">Password</label>
-                  </div>
-
-                  <div className="form-floating mb-4">
-                    <input
-                      type="password"
-                      className="form-control bg-dark text-white border-secondary"
-                      id="confirm_password"
-                      name="confirm_password"
-                      value={formData.confirm_password}
-                      onChange={handleChange}
-                      placeholder="Confirm Password"
-                      required
-                    />
-                    <label htmlFor="confirm_password" className="text-secondary">Confirm Password</label>
-                  </div>
-
-                  <div className="form-check mb-4">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id="agree_to_terms"
-                      name="agree_to_terms"
-                      checked={formData.agree_to_terms}
-                      onChange={handleChange}
-                      required
-                    />
-                    <label className="form-check-label text-secondary" htmlFor="agree_to_terms">
-                      I agree to the <a href="#" className="text-info text-decoration-none">Terms of Service</a>
-                    </label>
-                  </div>
-
-                  <div className="d-grid">
-                    <button
-                      type="submit"
-                      className="btn btn-primary py-3 fw-bold"
-                      disabled={loading}
-                      style={{
-                        background: 'linear-gradient(to right, #6a11cb, #2575fc)',
-                        border: 'none'
-                      }}
-                    >
-                      {loading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                          Creating Account...
-                        </>
-                      ) : (
-                        <>
-                          Create Account <i className="bi bi-arrow-right ms-2"></i>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-
-                <div className="text-center mt-4">
-                  <p className="text-secondary mb-0">
-                    Already have an account?{' '}
-                    <a href="/login" className="text-info text-decoration-none">Sign in</a>
-                  </p>
+                <div className="form-group">
+                  <label htmlFor="last_name">Last Name</label>
+                  <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    placeholder="Enter your last name"
+                    required
+                    className="form-input"
+                  />
                 </div>
               </div>
-            </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirm_password">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirm_password"
+                  name="confirm_password"
+                  value={formData.confirm_password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-options">
+                <label className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    name="agree_to_terms"
+                    checked={formData.agree_to_terms}
+                    onChange={handleChange}
+                    required
+                  />
+                  <span className="checkbox-text">
+                    I agree to the <Link to="/terms" className="terms-link">Terms of Service</Link>
+                  </span>
+                </label>
+              </div>
+
+              <button type="submit" className="sign-in-button" disabled={loading}>
+                {loading ? "Creating Account..." : "Create Account"}
+              </button>
+
+              <p className="signup-prompt">
+                Already have an account?{' '}
+                <Link to="/login" className="signup-link">
+                  Sign in
+                </Link>
+              </p>
+            </form>
+          </div>
+        </div>
+
+        <div className="illustration-section">
+          <div className="floating-icons">
+            <HiMail className="icon mail" />
+            <BsChatDots className="icon chat" />
+            <BsGlobe className="icon globe" />
+            <FiPhone className="icon phone" />
+          </div>
+          <div className="illustration">
+            <svg className="woman-illustration" viewBox="0 0 500 500">
+              {/* Simple abstract person illustration */}
+              <circle cx="250" cy="150" r="50" className="head" />
+              <path d="M200 200 Q250 300 300 200" className="body" />
+              <path d="M250 250 L200 350" className="left-arm" />
+              <path d="M250 250 L300 300 L320 280" className="right-arm" />
+              {/* OK gesture */}
+              <circle cx="320" cy="280" r="15" className="ok-gesture" />
+            </svg>
           </div>
         </div>
       </div>

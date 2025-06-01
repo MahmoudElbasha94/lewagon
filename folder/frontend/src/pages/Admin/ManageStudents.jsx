@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+<<<<<<< HEAD
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+=======
+import { FaEdit, FaTrash, FaPlus, FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import '../../styles/ManageStudents.css';
+>>>>>>> 5a1a88e (adding mohamed design)
 
 export default function ManageStudents() {
   const [students, setStudents] = useState([]);
@@ -100,6 +106,7 @@ export default function ManageStudents() {
     setEditingStudent(null);
   };
 
+<<<<<<< HEAD
   if (loading) return <div className="text-center mt-5">Loading...</div>;
 
   return (
@@ -167,6 +174,182 @@ export default function ManageStudents() {
                 ))}
               </tbody>
             </table>
+=======
+  if (loading) {
+    return (
+      <div className="manage-students">
+        <div className="container">
+          <div className="loading-spinner">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="manage-students">
+      <div className="container">
+        <div className="page-header">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 className="mb-1">Manage Students</h2>
+              <p className="mb-0 opacity-75">Add, edit or remove students</p>
+            </div>
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate('/admin/dashboard')}
+            >
+              <FaArrowLeft className="me-2" />
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="card">
+          <div className="card-header d-flex justify-content-between align-items-center">
+            <h4 className="mb-0">{editingStudent ? 'Edit Student' : 'Add New Student'}</h4>
+            {editingStudent && (
+              <button className="btn btn-secondary" onClick={resetForm}>
+                Cancel Edit
+              </button>
+            )}
+          </div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">First Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {!editingStudent && (
+                <div className="mb-3">
+                  <label className="form-label">Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="mb-3">
+                <label className="form-label">Phone</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary">
+                {editingStudent ? (
+                  <>
+                    <FaEdit className="me-2" />
+                    Update Student
+                  </>
+                ) : (
+                  <>
+                    <FaPlus className="me-2" />
+                    Add Student
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h4 className="mb-0">Students List</h4>
+          </div>
+          <div className="card-body">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((student) => (
+                    <tr key={student.id}>
+                      <td>{`${student.first_name} ${student.last_name}`}</td>
+                      <td>{student.email}</td>
+                      <td>{student.phone}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <button
+                            className="btn btn-sm btn-primary"
+                            onClick={() => handleEdit(student)}
+                            title="Edit Student"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleDelete(student.id)}
+                            title="Delete Student"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+>>>>>>> 5a1a88e (adding mohamed design)
           </div>
         </div>
       </div>

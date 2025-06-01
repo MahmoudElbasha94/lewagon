@@ -14,23 +14,9 @@ function StudentNavbar() {
   }
 
   return (
-    <Navbar 
-      bg="dark" 
-      variant="dark" 
-      expand="lg" 
-      className="py-3"
-      style={{ 
-        backgroundColor: '#111111 !important',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
-      }}
-    >
+    <Navbar expand="lg" className="navbar-dark student-navbar">
       <Container>
-        <Navbar.Brand 
-          as={Link} 
-          to="/" 
-          className="d-flex align-items-center"
-          style={{ fontSize: '1.5rem', fontWeight: '700' }}
-        >
+        <Navbar.Brand as={Link} to="/">
           <img 
             src="/lewagon-logo.png" 
             alt="LeWagon" 
@@ -51,56 +37,28 @@ function StudentNavbar() {
           <FaBars />
         </Navbar.Toggle>
 
-        <Navbar.Collapse 
-          id="basic-navbar-nav" 
-          className={`justify-content-end ${isMenuOpen ? 'show' : ''}`}
-        >
-          <Nav className="align-items-center">
-            <Nav.Link 
-              as={Link} 
-              to="/student/dashboard" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          <Nav>
+            <Nav.Link as={Link} to="/student/dashboard" className="px-3">
               <FaHome className="me-2" />
               Dashboard
             </Nav.Link>
-            <Nav.Link 
-              as={Link} 
-              to="/student/courses" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
+            <Nav.Link as={Link} to="/student/courses" className="px-3">
               <FaBook className="me-2" />
               My Courses
             </Nav.Link>
-            <Nav.Link 
-              as={Link} 
-              to="/student/enrolled-courses/" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
+            <Nav.Link as={Link} to="/student/certificates" className="px-3">
               <FaGraduationCap className="me-2" />
               Certificates
             </Nav.Link>
-            <Nav.Link 
-              as={Link} 
-              to="/student/profile" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
+            <Nav.Link as={Link} to="/student/profile" className="px-3">
               <FaUser className="me-2" />
               Profile
             </Nav.Link>
             <Button 
-              variant="outline-light" 
-              className="ms-3 px-4"
+              variant="outline-danger"
+              className="ms-3"
               onClick={handleLogout}
-              style={{ 
-                borderColor: '#FD1015',
-                color: '#FD1015',
-                backgroundColor: 'transparent'
-              }}
             >
               <FaSignOutAlt className="me-2" />
               Logout

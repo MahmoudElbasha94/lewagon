@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Button, Card, Container, Alert, ListGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import axios from 'axios';
-
+import '../../styles/AddCourse.css';
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
 const AddCourse = () => {
@@ -100,7 +100,7 @@ const AddCourse = () => {
         }
       );
 
-      setSuccess('The course has been added successfully!');
+      setSuccess('Course added successfully!');
       setTimeout(() => {
         navigate('/instructor/dashboard');
       }, 2000);
@@ -114,209 +114,258 @@ const AddCourse = () => {
   };
 
   return (
-    <Container className="mt-4">
-      <Card>
-        <Card.Header>
-          <h2>Add New Course</h2>
-        </Card.Header>
-        <Card.Body>
-          {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
-          
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Course Title</Form.Label>
-              <Form.Control
+    <div className="add-course">
+      <div className="container">
+        <div className="page-header">
+          <div>
+            <h2>Add New Course</h2>
+            <p>Create a new course to share your knowledge</p>
+          </div>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate('/instructor/dashboard')}
+          >
+            <FaArrowLeft className="me-2" />
+            Back to Dashboard
+          </button>
+        </div>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+
+        <div className="form-card">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Course Title</label>
+              <input
                 type="text"
                 name="title"
+                className="form-control"
                 value={courseData.title}
                 onChange={handleChange}
                 required
-                maxLength={200}
+                placeholder="Enter course title"
               />
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Course Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
+            <div className="form-group">
+              <label className="form-label">Description</label>
+              <textarea
                 name="description"
+                className="form-control"
                 value={courseData.description}
                 onChange={handleChange}
                 required
+                placeholder="Enter course description"
               />
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Price</Form.Label>
-              <Form.Control
-                type="number"
-                name="price"
-                value={courseData.price}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label className="form-label">Price ($)</label>
+                  <input
+                    type="number"
+                    name="price"
+                    className="form-control"
+                    value={courseData.price}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter course price"
+                  />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label className="form-label">Duration (hours)</label>
+                  <input
+                    type="number"
+                    name="duration"
+                    className="form-control"
+                    value={courseData.duration}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                    placeholder="Enter course duration"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Duration (in hours)</Form.Label>
-              <Form.Control
-                type="number"
-                name="duration"
-                value={courseData.duration}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label className="form-label">Level</label>
+                  <select
+                    name="level"
+                    className="form-control"
+                    value={courseData.level}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label className="form-label">Category</label>
+                  <select
+                    name="category"
+                    className="form-control"
+                    value={courseData.category}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="Programming">Programming</option>
+                    <option value="Design">Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Business">Business</option>
+                    <option value="Data Science">Data Science</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Level</Form.Label>
-              <Form.Select
-                name="level"
-                value={courseData.level}
-                onChange={handleChange}
-                required
-              >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Category</Form.Label>
-              <Form.Select
-                name="category"
-                value={courseData.category}
-                onChange={handleChange}
-                required
-              >
-                <option value="Programming">Programming</option>
-                <option value="Design">Design</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Business">Business</option>
-                <option value="Data Science">Data Science</option>
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Course Type</Form.Label>
-              <Form.Select
+            <div className="form-group">
+              <label className="form-label">Course Type</label>
+              <select
                 name="courseType"
+                className="form-control"
                 value={courseData.courseType}
                 onChange={handleChange}
                 required
               >
                 <option value="Paid">Paid</option>
                 <option value="Free">Free</option>
-              </Form.Select>
-            </Form.Group>
+              </select>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Course Image</Form.Label>
-              <Form.Control
+            <div className="form-group">
+              <label className="form-label">Course Image</label>
+              <input
                 type="file"
                 name="courseImage"
+                className="form-control"
                 onChange={handleChange}
                 accept="image/*"
                 required
               />
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Requirements</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
+            <div className="form-group">
+              <label className="form-label">Requirements</label>
+              <textarea
                 name="requirements"
+                className="form-control"
                 value={courseData.requirements}
                 onChange={handleChange}
                 required
+                placeholder="Enter course requirements"
               />
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>What You Will Learn</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
+            <div className="form-group">
+              <label className="form-label">What You Will Learn</label>
+              <textarea
                 name="what_you_will_learn"
+                className="form-control"
                 value={courseData.what_you_will_learn}
                 onChange={handleChange}
                 required
+                placeholder="Enter what students will learn"
               />
-            </Form.Group>
+            </div>
 
-            <Card className="mb-3">
-              <Card.Header>
-                <h4>Course Videos</h4>
-              </Card.Header>
-              <Card.Body>
-                <Form.Group className="mb-3">
-                  <Form.Label>Lesson Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="lesson_name"
-                    value={videoData.lesson_name}
-                    onChange={handleVideoChange}
-                    maxLength={255}
-                  />
-                </Form.Group>
+            <div className="form-card">
+              <h4 className="mb-4">Course Videos</h4>
+              <div className="form-group">
+                <label className="form-label">Lesson Name</label>
+                <input
+                  type="text"
+                  name="lesson_name"
+                  className="form-control"
+                  value={videoData.lesson_name}
+                  onChange={handleVideoChange}
+                  placeholder="Enter lesson name"
+                />
+              </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Video URL</Form.Label>
-                  <Form.Control
-                    type="url"
-                    name="video_url"
-                    value={videoData.video_url}
-                    onChange={handleVideoChange}
-                    placeholder="https://example.com/video"
-                  />
-                </Form.Group>
+              <div className="form-group">
+                <label className="form-label">Video URL</label>
+                <input
+                  type="url"
+                  name="video_url"
+                  className="form-control"
+                  value={videoData.video_url}
+                  onChange={handleVideoChange}
+                  placeholder="https://example.com/video"
+                />
+              </div>
 
-                <Button 
-                  variant="secondary" 
-                  onClick={addVideo}
-                  disabled={!videoData.lesson_name || !videoData.video_url}
-                >
-                  Add Video
-                </Button>
+              <button 
+                type="button"
+                className="btn btn-secondary"
+                onClick={addVideo}
+                disabled={!videoData.lesson_name || !videoData.video_url}
+              >
+                Add Video
+              </button>
 
-                {videos.length > 0 && (
-                  <ListGroup className="mt-3">
-                    {videos.map((video, index) => (
-                      <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <strong>{video.lesson_name}</strong>
-                          <br />
-                          <small>{video.video_url}</small>
-                        </div>
-                        <Button 
-                          variant="danger" 
-                          size="sm"
-                          onClick={() => removeVideo(index)}
-                        >
-                          Remove
-                        </Button>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
+              {videos.length > 0 && (
+                <div className="videos-list mt-4">
+                  {videos.map((video, index) => (
+                    <div key={index} className="video-item">
+                      <div>
+                        <strong>{video.lesson_name}</strong>
+                        <br />
+                        <small>{video.video_url}</small>
+                      </div>
+                      <button 
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => removeVideo(index)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="btn-group">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate('/instructor/dashboard')}
+              >
+                <FaArrowLeft className="me-2" />
+                Back to Dashboard
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="spinner"></div>
+                ) : (
+                  <>
+                    <FaSave className="me-2" />
+                    Save Course
+                  </>
                 )}
-              </Card.Body>
-            </Card>
-
-            <Button 
-              variant="primary" 
-              type="submit" 
-              disabled={loading}
-            >
-              {loading ? 'Adding Course...' : 'Add Course'}
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
-    </Container>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

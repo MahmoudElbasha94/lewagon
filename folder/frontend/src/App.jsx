@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-// import Navbar from './components/layout/Navbar';
 import AdminNavbar from './components/layout/AdminNavbar';
 import InstructorNavbar from './components/layout/InstructorNavbar';
 import StudentNavbar from './components/layout/StudentNavbar';
@@ -10,8 +9,8 @@ import Home from './pages/Home';
 import Features from './pages/Features';
 import Pricing from './pages/Pricing';
 import Courses from './pages/CoursesPage';
-import LoginPage from './components/auth/LoginPage';
-import SignupPage from './components/auth/SignupPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -33,6 +32,12 @@ import AdminProfile from './components/profile/AdminProfile';
 import CourseDetail from './pages/CourseDetail';
 import FAQ from './pages/FAQ';
 import HelpCenter from './pages/HelpCenter';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import './styles/AdminDashboard.css';
+import AuthLayout from './components/layouts/AuthLayout';
+import StudentMyCourses from './pages/student/MyCourses';
+import Certificates from './pages/Certificates';
 
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,7 +45,8 @@ function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isInstructorRoute = location.pathname.startsWith('/instructor');
   const isStudentRoute = location.pathname.startsWith('/student');
-  const isPublicRoute = !isAdminRoute && !isInstructorRoute && !isStudentRoute;
+  const isAuthRoute = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
+  const isPublicRoute = !isAdminRoute && !isInstructorRoute && !isStudentRoute && !isAuthRoute;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,16 +59,18 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className="d-flex flex-column min-vh-100">
-        {isAdminRoute && <AdminNavbar />}
-        {isInstructorRoute && <InstructorNavbar />}
-        {isStudentRoute && <StudentNavbar />}
-        {isPublicRoute && <Navbar isScrolled={isScrolled} />}
-        
-        <main className="flex-grow-1">
+      <div className={isAdminRoute ? 'admin-layout' : ''}>
+        {!isAuthRoute && !isAdminRoute && (
+          <>
+            {isInstructorRoute && <InstructorNavbar />}
+            {isStudentRoute && <StudentNavbar />}
+            {isPublicRoute && <Navbar isScrolled={isScrolled} />}
+          </>
+        )}
+        <main className={isAdminRoute ? 'admin-main' : 'flex-grow-1'}>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<><Home /></>} />
             <Route path="/features" element={<Features />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/courses" element={<Courses />} />
@@ -72,6 +80,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
             
             {/* Protected Routes */}
             <Route path="/admin/dashboard" element={
@@ -107,6 +117,30 @@ function App() {
               </ProtectedRoute>
             } />
             
+            <Route path="/student/courses" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentMyCourses />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/student/certificates" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Certificates />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/student/profile" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentProfile />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/profile" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminProfile />
+              </ProtectedRoute>
+            } />
+            
             <Route path="/instructor/add-course" element={
               <ProtectedRoute allowedRoles={['instructor']}>
                 <AddCourse />
@@ -131,18 +165,6 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/student/profile" element={
-              <ProtectedRoute allowedRoles={['student']}>
-                <StudentProfile />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/admin/profile" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminProfile />
-              </ProtectedRoute>
-            } />
-            
             {/* Redirect based on user role */}
             <Route path="/dashboard" element={<HomeRedirect />} />
             
@@ -153,8 +175,29 @@ function App() {
             <Route path="/help" element={<HelpCenter />} />
           </Routes>
         </main>
-        {isPublicRoute && <Footer />}
+        {isPublicRoute && !isAuthRoute && <Footer />}
       </div>
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .admin-layout {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+          }
+          .admin-main {
+            flex: 1;
+            margin: 0;
+            padding: 0;
+          }
+          .auth-layout .navbar,
+          .auth-layout .footer {
+            display: none;
+          }
+        `
+      }} />
     </AuthProvider>
   );
 }

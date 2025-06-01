@@ -73,16 +73,10 @@ function Login() {
       setLoading(false);
     }
   };
+
   return (
-    <div className="bg-dark text-white d-flex align-items-center justify-content-center vh-100">
-      <div 
-        className="card p-4 rounded-4 shadow-lg" 
-        style={{ 
-          width: '100%', 
-          maxWidth: '400px', 
-          background: 'linear-gradient(135deg, #1e1e2f, #2e2e4d)' 
-        }}
-      >
+    <div className="login-container">
+      <div className="login-box">
         <div className="text-center mb-4">
           <h2 className="fw-bold text-danger">&lt;/&gt; Le Wagon</h2>
           <h5>Welcome Back</h5>
@@ -143,12 +137,14 @@ function Login() {
             <button 
               className="btn btn-danger w-100 me-2"
               disabled={loading}
+              type="button"
             >
               Google
             </button>
             <button 
               className="btn btn-dark w-100"
               disabled={loading}
+              type="button"
             >
               GitHub
             </button>
@@ -160,6 +156,102 @@ function Login() {
           </div>
         </form>
       </div>
+
+      <style jsx>{`
+        .login-container {
+          min-height: 100vh;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #1e1e2f, #2e2e4d);
+          overflow: hidden !important;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100vw;
+          margin: 0;
+          padding: 0;
+          -ms-overflow-style: none !important;  /* IE and Edge */
+          scrollbar-width: none !important;  /* Firefox */
+        }
+
+        .login-container::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+
+        .login-box {
+          width: 100%;
+          max-width: 400px;
+          padding: 2rem;
+          background: linear-gradient(145deg, #1e1e2f, #2e2e4d);
+          border-radius: 1rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          color: white;
+          overflow-y: auto;
+          max-height: 90vh;
+          margin: 1rem;
+          -ms-overflow-style: none !important;  /* IE and Edge */
+          scrollbar-width: none !important;  /* Firefox */
+        }
+
+        .login-box::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+
+        .form-control {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: #667eea;
+          box-shadow: none;
+          color: white;
+        }
+
+        .form-control::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+          padding: 0.75rem;
+          transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-check-input {
+          background-color: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-check-input:checked {
+          background-color: #667eea;
+          border-color: #667eea;
+        }
+
+        a {
+          transition: all 0.3s ease;
+        }
+
+        a:hover {
+          color: #667eea !important;
+          text-decoration: none;
+        }
+      `}</style>
     </div>
   );
 }

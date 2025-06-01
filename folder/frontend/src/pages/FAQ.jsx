@@ -1,199 +1,196 @@
-import React, { useState } from 'react'
-import { Container, Row, Col, Accordion, Card } from 'react-bootstrap'
-import { FaChevronDown, FaChevronUp, FaSearch } from 'react-icons/fa'
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Accordion } from 'react-bootstrap';
+import { FaChevronDown, FaGraduationCap, FaMoneyBillWave, FaCalendarAlt, FaLaptopCode } from 'react-icons/fa';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 function FAQ() {
-  const [activeKey, setActiveKey] = useState('0')
-  const [searchTerm, setSearchTerm] = useState('')
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+  }, []);
 
-  const faqData = [
+  const faqCategories = [
     {
-      category: "General Questions",
-      icon: "🎓",
+      icon: <FaGraduationCap size={40} />,
+      title: 'Educational Program',
       questions: [
         {
-          question: "What is Le Wagon?",
-          answer: "Le Wagon is a coding bootcamp that teaches web development and data science. We offer intensive, immersive programs designed to help you become a developer in just 9 weeks."
+          q: 'What are the basic requirements to join the program?',
+          a: 'Our program requires no prior programming experience. All you need is passion for learning and commitment to the intensive program.'
         },
         {
-          question: "How long are the bootcamps?",
-          answer: "Our full-time bootcamps are 9 weeks long, while our part-time programs run for 24 weeks. Both options provide the same comprehensive curriculum and learning outcomes."
+          q: 'How long is the program?',
+          a: 'The program runs for 9 weeks full-time, with 8-10 hours daily of practical and theoretical training.'
         },
         {
-          question: "Do I need prior coding experience?",
-          answer: "No prior coding experience is required! Our bootcamps are designed for beginners. However, we do recommend completing our free prep work before starting to ensure you're ready for the intensive learning experience."
+          q: 'What skills will I learn?',
+          a: 'You will learn HTML, CSS, JavaScript, React, Ruby on Rails, and more. We focus on the most in-demand skills in the job market.'
         }
       ]
     },
     {
-      category: "Admissions & Application",
-      icon: "📝",
+      icon: <FaMoneyBillWave size={40} />,
+      title: 'Fees & Payment',
       questions: [
         {
-          question: "What is the application process?",
-          answer: "The application process consists of three steps: 1) Fill out the online application form, 2) Complete a technical challenge, and 3) Have a final interview with our team. We'll guide you through each step."
+          q: 'How much does the program cost?',
+          a: 'The cost varies by location and chosen program. We offer flexible payment options and convenient installment plans.'
         },
         {
-          question: "What are the prerequisites?",
-          answer: "You need to be 18+ years old, have a high school diploma or equivalent, and be fluent in English. No prior coding experience is required, but you should be motivated and ready to learn!"
+          q: 'Are scholarships available?',
+          a: 'Yes, we offer scholarships for outstanding students and special cases. You can apply for scholarships through a special form.'
         },
         {
-          question: "How much does the bootcamp cost?",
-          answer: "The cost varies by location. Please check our website for the most up-to-date pricing in your region. We offer various payment options and financing solutions to make the bootcamp accessible."
+          q: 'What is the refund policy?',
+          a: 'We offer a full refund during the first week of the program if you decide not to continue.'
         }
       ]
     },
     {
-      category: "Career & Job Support",
-      icon: "💼",
+      icon: <FaCalendarAlt size={40} />,
+      title: 'Schedule',
       questions: [
         {
-          question: "What kind of jobs can I get after the bootcamp?",
-          answer: "Our graduates typically find jobs as Full-Stack Developers, Front-end Developers, Back-end Developers, or Product Managers. Some also become entrepreneurs and start their own tech companies."
+          q: 'When does the next batch start?',
+          a: 'We have batches starting every month. You can check available dates on the application page.'
         },
         {
-          question: "Do you offer job placement assistance?",
-          answer: "Yes! We provide comprehensive career support including: 1) Career coaching sessions, 2) CV and LinkedIn profile reviews, 3) Interview preparation, 4) Access to our employer network, and 5) Job search strategies."
+          q: 'Can I study part-time?',
+          a: 'Yes, we offer a part-time program that extends over 24 weeks, suitable for working professionals and students.'
         },
         {
-          question: "What is the job placement rate?",
-          answer: "Our job placement rate is consistently high, with over 90% of our graduates finding jobs in tech within 6 months of completing the bootcamp. However, success depends on your location, market conditions, and personal effort."
+          q: 'What does a typical day look like?',
+          a: 'The day starts at 9 AM and ends at 6 PM, with breaks, practical training, and review sessions.'
         }
       ]
     },
     {
-      category: "Learning Experience",
-      icon: "📚",
+      icon: <FaLaptopCode size={40} />,
+      title: 'Employment & Future',
       questions: [
         {
-          question: "What will I learn during the bootcamp?",
-          answer: "You'll learn both front-end and back-end development, including: HTML, CSS, JavaScript, Ruby, Ruby on Rails, SQL, Git, and more. You'll also learn how to work in teams and build real projects."
+          q: 'Do you help with job placement after graduation?',
+          a: 'Yes, our specialized career team helps graduates find job opportunities and prepares them for resumes and interviews.'
         },
         {
-          question: "What is the daily schedule like?",
-          answer: "A typical day starts at 9:00 AM with a lecture, followed by coding challenges and pair programming. After lunch, you'll work on projects and have access to teaching assistants. The day usually ends around 6:00 PM."
+          q: 'What is the employment rate for graduates?',
+          a: '95% of our graduates find jobs in the tech industry within 6 months of graduation.'
         },
         {
-          question: "How many students are in each batch?",
-          answer: "We keep our batches small to ensure quality education. Typically, there are 20-30 students per batch, with a student-to-teacher ratio of about 5:1."
+          q: 'Which companies do you partner with?',
+          a: 'We partner with major tech companies like Google and Facebook, as well as leading local and regional companies.'
         }
       ]
     }
-  ]
-
-  const filteredCategories = faqData.filter(category => 
-    category.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.questions.some(q => 
-      q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.answer.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  )
+  ];
 
   return (
-    <div className="bg-dark text-white min-vh-100">
+    <div className="bg-dark text-white py-5">
       {/* Hero Section */}
-      <div className="py-5 position-relative overflow-hidden" style={{ backgroundColor: '#111111' }}>
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ 
-          background: 'linear-gradient(45deg, rgba(255,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%)',
-          zIndex: 1
-        }}></div>
-        <Container className="position-relative" style={{ zIndex: 2 }}>
+      <div className="position-relative mb-5">
+        <div 
+          className="position-absolute top-0 start-0 w-100 h-100" 
+          style={{
+            backgroundImage: 'url(/images/faq-bg.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.1
+          }}
+        ></div>
+        <Container className="position-relative">
           <Row className="text-center py-5">
-            <Col>
+            <Col data-aos="fade-up">
               <h1 className="display-4 fw-bold mb-4">Frequently Asked Questions</h1>
-              <p className="lead mb-5" style={{ opacity: 0.8, maxWidth: '800px', margin: '0 auto' }}>
-                Find answers to the most common questions about our bootcamps, admissions process, and career support.
+              <p className="lead" style={{ opacity: 0.8 }}>
+                Everything you need to know about Le Wagon's training program
               </p>
-              
-              {/* Search Bar */}
-              <div className="position-relative mx-auto" style={{ maxWidth: '500px' }}>
-                <div className="input-group">
-                  <span className="input-group-text bg-dark border-secondary">
-                    <FaSearch className="text-white-50" />
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control bg-dark text-white border-secondary"
-                    placeholder="Search questions..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
             </Col>
           </Row>
         </Container>
       </div>
 
-      {/* FAQ Section */}
-      <div className="py-5" style={{ backgroundColor: '#1A1A1A' }}>
-        <Container>
-          {filteredCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="mb-5">
-              <div className="d-flex align-items-center mb-4">
-                <span className="display-6 me-3">{category.icon}</span>
-                <h2 className="h3 mb-0">{category.category}</h2>
-              </div>
-              <Accordion 
-                activeKey={activeKey} 
-                onSelect={(key) => setActiveKey(key)}
-                className="faq-accordion"
-              >
-                {category.questions.map((item, index) => (
-                  <Accordion.Item 
-                    key={index} 
-                    eventKey={index.toString()}
-                    className="bg-dark border-secondary mb-3 rounded-3 overflow-hidden"
-                  >
-                    <Accordion.Header className="text-white">
-                      <div className="d-flex align-items-center">
-                        <span className="me-3">{activeKey === index.toString() ? <FaChevronUp /> : <FaChevronDown />}</span>
-                        {item.question}
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body className="text-white-50 bg-dark">
-                      {item.answer}
-                    </Accordion.Body>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
+      {/* FAQ Categories */}
+      <Container>
+        {faqCategories.map((category, index) => (
+          <div key={index} className="mb-5" data-aos="fade-up">
+            <div className="d-flex align-items-center mb-4">
+              <div className="text-danger me-3">{category.icon}</div>
+              <h2 className="h3 mb-0">{category.title}</h2>
             </div>
-          ))}
-        </Container>
-      </div>
+            <Accordion flush>
+              {category.questions.map((item, qIndex) => (
+                <Accordion.Item 
+                  key={qIndex} 
+                  eventKey={qIndex.toString()}
+                  className="bg-transparent"
+                >
+                  <Accordion.Header className="faq-header">
+                    <span className="text-white">{item.q}</span>
+                  </Accordion.Header>
+                  <Accordion.Body className="faq-body">
+                    {item.a}
+                  </Accordion.Body>
+                </Accordion.Item>
+              ))}
+            </Accordion>
+          </div>
+        ))}
+      </Container>
 
       {/* Contact Section */}
-      <div className="py-5 position-relative" style={{ backgroundColor: '#111111' }}>
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ 
-          background: 'linear-gradient(45deg, rgba(255,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%)',
-          zIndex: 1
-        }}></div>
-        <Container className="position-relative" style={{ zIndex: 2 }}>
-          <Row className="text-center">
-            <Col>
-              <h2 className="h3 mb-4">Still have questions?</h2>
-              <p className="lead mb-4" style={{ opacity: 0.8 }}>
-                Our team is here to help! Contact us for more information about our bootcamps.
-              </p>
-              <a 
-                href="/contact" 
-                className="btn btn-danger btn-lg px-5 py-3 rounded-pill shadow-lg"
-                style={{ 
-                  transition: 'all 0.3s ease',
-                  ':hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 5px 15px rgba(255,0,0,0.3)'
-                  }
-                }}
-              >
-                Contact Us
-              </a>
-            </Col>
-          </Row>
-        </Container>
-      </div>
+      <Container className="mt-5">
+        <Row className="justify-content-center text-center">
+          <Col md={8} data-aos="fade-up">
+            <Card className="bg-danger text-white p-5">
+              <Card.Body>
+                <h3 className="mb-4">Haven't Found Your Answer?</h3>
+                <p className="mb-4">Our team is ready to answer all your questions</p>
+                <button className="btn btn-outline-light btn-lg">Contact Us</button>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+
+      <style jsx>{`
+        .faq-header button {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          color: white !important;
+          border: none !important;
+          border-radius: 8px !important;
+          padding: 1rem !important;
+          transition: all 0.3s ease !important;
+        }
+
+        .faq-header button:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .faq-header button:not(.collapsed) {
+          background-color: rgba(220, 53, 69, 0.1) !important;
+        }
+
+        .faq-body {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          color: rgba(255, 255, 255, 0.8) !important;
+          border-radius: 0 0 8px 8px !important;
+          padding: 1rem !important;
+        }
+
+        .accordion-button::after {
+          filter: invert(1) !important;
+        }
+
+        .btn-outline-light:hover {
+          background-color: white !important;
+          color: #dc3545 !important;
+        }
+      `}</style>
     </div>
-  )
+  );
 }
 
-export default FAQ 
+export default FAQ; 

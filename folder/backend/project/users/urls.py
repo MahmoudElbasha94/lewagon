@@ -47,6 +47,7 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='custom_login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('google-login/', GoogleLoginAPIView.as_view(), name='google-login'),
+
     
     # Profile endpoints
     path('profile/', UserProfileView.as_view(), name='user_profile'),
@@ -94,3 +95,4 @@ urlpatterns = [
 router = DefaultRouter()
 router.register(r'admin/users', UserAdminViewSet, basename='admin-users')
 urlpatterns += router.urls
+

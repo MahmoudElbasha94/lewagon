@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import { FaUser, FaCamera } from 'react-icons/fa';
+import '../../styles/StudentProfile.css';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
 const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
 
 const StudentProfile = () => {
@@ -162,140 +161,153 @@ const StudentProfile = () => {
 
   if (loading) {
     return (
-      <Container className="mt-4">
-        <div>جارٍ التحميل...</div>
-      </Container>
+      <div className="student-profile">
+        <div className="container">
+          <div className="loading-spinner">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container className="mt-4">
-      <Row>
-        <Col md={4}>
-          <Card className="mb-4">
-            <Card.Body className="text-center">
-              <img
-                src={
-                  profile.profile_pic ? `${API_BASE_URL}${profile.profile_pic}` :
-                  profile.user.profile_picture ? `${API_BASE_URL}${profile.user.profile_picture}` :
-                  DEFAULT_AVATAR
-                }
-                alt="Profile"
-                className="rounded-circle mb-3"
-                style={{ width: '150px', height: '150px', objectFit: 'cover' }}
-              />
-              <h3>{profile.user.first_name} {profile.user.last_name}</h3>
-              <p className="text-muted">طالب</p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={8}>
-          <Card>
-            <Card.Body>
-              <Card.Title>معلومات الملف الشخصي</Card.Title>
-              {error && <Alert variant="danger">{JSON.stringify(error)}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
-              
-              <Form onSubmit={handleSubmit}>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>الاسم الأول</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="user.first_name"
-                        value={profile.user.first_name || ''}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>الاسم الأخير</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="user.last_name"
-                        value={profile.user.last_name || ''}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+    <div className="student-profile">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-4">
+            <div className="profile-card">
+              <div className="profile-info">
+                <div className="position-relative d-inline-block">
+                  {profile.profile_pic ? (
+                    <img
+                      src={profile.profile_pic}
+                      alt="Profile"
+                      className="profile-avatar"
+                    />
+                  ) : (
+                    <div className="profile-avatar-placeholder">
+                      <FaUser size={50} />
+                    </div>
+                  )}
+                  <label className="position-absolute bottom-0 end-0 bg-primary rounded-circle p-2 cursor-pointer">
+                    <FaCamera className="text-white" />
+                    <input
+                      type="file"
+                      name="profile_pic"
+                      onChange={handleChange}
+                      accept="image/*"
+                      className="d-none"
+                    />
+                  </label>
+                </div>
+                <h3 className="profile-name">{profile.user.first_name} {profile.user.last_name}</h3>
+                <p className="profile-title">Student</p>
+              </div>
+            </div>
+          </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>البريد الإلكتروني</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="user.email"
-                    value={profile.user.email || ''}
-                    disabled
-                  />
-                </Form.Group>
+          <div className="col-md-8">
+            <div className="profile-card">
+              <div className="profile-info">
+                {error && <div className="alert alert-danger">{error}</div>}
+                {success && <div className="alert alert-success">{success}</div>}
+                
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group">
+                        <label className="form-label">First Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="user.first_name"
+                          value={profile.user.first_name || ''}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-group">
+                        <label className="form-label">Last Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="user.last_name"
+                          value={profile.user.last_name || ''}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>رقم الهاتف</Form.Label>
-                  <Form.Control
-                    type="tel"
-                    name="phone"
-                    value={profile.phone || ''}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
+                  <div className="form-group">
+                    <label className="form-label">Email</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      name="user.email"
+                      value={profile.user.email || ''}
+                      onChange={handleChange}
+                      disabled
+                    />
+                  </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>صورة الملف الشخصي</Form.Label>
-                  <Form.Control
-                    type="file"
-                    name="profile_pic"
-                    onChange={handleChange}
-                    accept="image/*"
-                  />
-                </Form.Group>
+                  <div className="form-group">
+                    <label className="form-label">Phone Number</label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      name="phone_number"
+                      value={profile.phone_number || ''}
+                      onChange={handleChange}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>كلمة المرور الحالية</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="user.current_password"
-                    value={profile.user.current_password || ''}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
+                  <div className="form-group">
+                    <label className="form-label">Interests</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="interests"
+                      value={profile.interests || ''}
+                      onChange={handleChange}
+                      placeholder="e.g., Web Development, Data Science"
+                    />
+                  </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>كلمة المرور الجديدة</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="user.new_password"
-                    value={profile.user.new_password || ''}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
+                  <div className="form-group">
+                    <label className="form-label">Education Level</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="education_level"
+                      value={profile.education_level || ''}
+                      onChange={handleChange}
+                      placeholder="e.g., Bachelor's Degree, High School"
+                    />
+                  </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>تأكيد كلمة المرور الجديدة</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="user.confirm_password"
-                    value={profile.user.confirm_password || ''}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-
-                <Button 
-                  variant="primary" 
-                  type="submit" 
-                  disabled={loading}
-                >
-                  {loading ? 'جارٍ الحفظ...' : 'حفظ التغييرات'}
-                </Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+                  <button 
+                    type="submit" 
+                    className="action-button"
+                    disabled={loading}
+                  >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default StudentProfile;
+export default StudentProfile; 

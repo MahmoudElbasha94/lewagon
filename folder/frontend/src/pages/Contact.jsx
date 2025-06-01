@@ -1,9 +1,19 @@
-import React, { useState } from 'react'
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap'
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaLinkedin, FaTwitter, FaFacebook } from 'react-icons/fa'
+
+import React, { useState, useEffect } from 'react'
+import { Container, Row, Col, Form, Button, Alert, Modal } from 'react-bootstrap'
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaLinkedin, FaTwitter, FaFacebook, FaWhatsapp } from 'react-icons/fa'
 import axios from 'axios'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 function Contact() {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true
+    })
+  }, [])
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,6 +23,8 @@ function Contact() {
   const [status, setStatus] = useState({ type: '', message: '' })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+
 
   const validateForm = () => {
     const newErrors = {}
@@ -71,6 +83,7 @@ function Contact() {
         type: 'success',
         message: response.data.message || 'Thank you for your message! We will get back to you soon.'
       })
+      setShowSuccessModal(true)
       setFormData({ name: '', email: '', subject: '', message: '' })
       setErrors({})
     } catch (error) {
@@ -84,17 +97,50 @@ function Contact() {
     }
   }
 
+  const quickLinks = [
+    { title: 'Program Details', link: '/faq#program' },
+    { title: 'Payment Options', link: '/faq#payment' },
+    { title: 'Schedule Info', link: '/faq#schedule' },
+    { title: 'Career Support', link: '/faq#career' }
+  ]
+
   return (
     <div className="bg-dark text-white">
       {/* Hero Section */}
-      <div className="py-5" style={{ backgroundColor: '#111111' }}>
-        <Container>
+      <div className="position-relative py-5" style={{ backgroundColor: '#111111' }}>
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{
+          background: 'linear-gradient(45deg, rgba(220, 53, 69, 0.1) 0%, rgba(0, 0, 0, 0) 100%)',
+          zIndex: 1
+        }}></div>
+        <Container className="position-relative" style={{ zIndex: 2 }}>
           <Row className="text-center py-5">
-            <Col>
+            <Col data-aos="fade-up">
               <h1 className="display-4 fw-bold mb-4">Get in Touch</h1>
               <p className="lead" style={{ opacity: 0.8, maxWidth: '800px', margin: '0 auto' }}>
                 Have questions about our bootcamp? We're here to help! Reach out to us and we'll get back to you as soon as possible.
               </p>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      {/* Quick Links */}
+      <div className="py-4" style={{ backgroundColor: '#151515' }}>
+        <Container>
+          <Row className="justify-content-center">
+            <Col lg={8}>
+              <div className="d-flex flex-wrap justify-content-center gap-3" data-aos="fade-up">
+                {quickLinks.map((link, index) => (
+                  <a
+                    key={index}
+                    href={link.link}
+                    className="btn btn-outline-danger"
+                    style={{ transition: 'all 0.3s ease' }}
+                  >
+                    {link.title}
+                  </a>
+                ))}
+              </div>
             </Col>
           </Row>
         </Container>
@@ -105,28 +151,35 @@ function Contact() {
         <Container>
           <Row className="g-5">
             {/* Contact Information */}
-            <Col lg={4}>
+            <Col lg={4} data-aos="fade-right">
               <div className="mb-5">
                 <h2 className="h3 mb-4">Contact Information</h2>
-                <div className="d-flex align-items-center mb-4">
+                <div className="contact-info-item d-flex align-items-center mb-4">
                   <FaMapMarkerAlt size={24} className="text-danger me-3" />
                   <div>
                     <h3 className="h6 mb-1">Address</h3>
                     <p style={{ opacity: 0.8 }}>123 Coding Street, Tech City, 12345</p>
                   </div>
                 </div>
-                <div className="d-flex align-items-center mb-4">
+                <div className="contact-info-item d-flex align-items-center mb-4">
                   <FaPhone size={24} className="text-danger me-3" />
                   <div>
                     <h3 className="h6 mb-1">Phone</h3>
                     <p style={{ opacity: 0.8 }}>+1 (555) 123-4567</p>
                   </div>
                 </div>
-                <div className="d-flex align-items-center mb-4">
+                <div className="contact-info-item d-flex align-items-center mb-4">
                   <FaEnvelope size={24} className="text-danger me-3" />
                   <div>
                     <h3 className="h6 mb-1">Email</h3>
                     <p style={{ opacity: 0.8 }}>contact@lewagon.com</p>
+                  </div>
+                </div>
+                <div className="contact-info-item d-flex align-items-center mb-4">
+                  <FaWhatsapp size={24} className="text-danger me-3" />
+                  <div>
+                    <h3 className="h6 mb-1">WhatsApp</h3>
+                    <p style={{ opacity: 0.8 }}>+1 (555) 987-6543</p>
                   </div>
                 </div>
               </div>
@@ -134,13 +187,13 @@ function Contact() {
               <div>
                 <h2 className="h3 mb-4">Follow Us</h2>
                 <div className="d-flex gap-3">
-                  <a href="#" className="text-white" style={{ opacity: 0.8 }}>
+                  <a href="#" className="social-link">
                     <FaLinkedin size={24} />
                   </a>
-                  <a href="#" className="text-white" style={{ opacity: 0.8 }}>
+                  <a href="#" className="social-link">
                     <FaTwitter size={24} />
                   </a>
-                  <a href="#" className="text-white" style={{ opacity: 0.8 }}>
+                  <a href="#" className="social-link">
                     <FaFacebook size={24} />
                   </a>
                 </div>
@@ -148,8 +201,11 @@ function Contact() {
             </Col>
 
             {/* Contact Form */}
-            <Col lg={8}>
-              <div className="bg-dark p-4 rounded">
+            <Col lg={8} data-aos="fade-left">
+              <div className="bg-dark p-4 rounded" style={{
+                background: 'linear-gradient(145deg, #1a1a1a 0%, #111111 100%)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+              }}>
                 <h2 className="h3 mb-4">Send us a Message</h2>
                 {status.message && (
                   <Alert variant={status.type} className="mb-4">
@@ -168,7 +224,7 @@ function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="Your name"
-                          className={`bg-dark text-white border-secondary ${errors.name ? 'border-danger' : ''}`}
+                          className={`form-control-custom ${errors.name ? 'border-danger' : ''}`}
                           isInvalid={!!errors.name}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -186,7 +242,7 @@ function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="Your email"
-                          className={`bg-dark text-white border-secondary ${errors.email ? 'border-danger' : ''}`}
+                          className={`form-control-custom ${errors.email ? 'border-danger' : ''}`}
                           isInvalid={!!errors.email}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -204,7 +260,7 @@ function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="Message subject"
-                          className={`bg-dark text-white border-secondary ${errors.subject ? 'border-danger' : ''}`}
+                          className={`form-control-custom ${errors.subject ? 'border-danger' : ''}`}
                           isInvalid={!!errors.subject}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -223,7 +279,7 @@ function Contact() {
                           required
                           rows={5}
                           placeholder="Your message"
-                          className={`bg-dark text-white border-secondary ${errors.message ? 'border-danger' : ''}`}
+                          className={`form-control-custom ${errors.message ? 'border-danger' : ''}`}
                           isInvalid={!!errors.message}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -236,7 +292,7 @@ function Contact() {
                         type="submit"
                         variant="danger"
                         size="lg"
-                        className="px-5"
+                        className="px-5 submit-btn"
                         disabled={loading}
                       >
                         {loading ? 'Sending...' : 'Send Message'}
@@ -254,19 +310,83 @@ function Contact() {
       <div className="py-5" style={{ backgroundColor: '#111111' }}>
         <Container>
           <Row>
-            <Col>
+            <Col data-aos="fade-up">
               <div className="ratio ratio-21x9">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2219901290355!2d-74.00369368400567!3d40.71312937933185!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a23e28c1191%3A0x49f75d3281df052a!2s150%20Park%20Row%2C%20New%20York%2C%20NY%2010007%2C%20USA!5e0!3m2!1sen!2s!4v1579767901424!5m2!1sen!2s"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.142047744348!2d2.3354330160472316!3d48.87456857928921!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e38f817b573%3A0x48d69c30470e7aeb!2sLe%20Wagon!5e0!3m2!1sen!2sus!4v1635517714619!5m2!1sen!2sus"
                   style={{ border: 0 }}
                   allowFullScreen=""
-                  title="Location Map"
-                />
+                  loading="lazy"
+                ></iframe>
               </div>
             </Col>
           </Row>
         </Container>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        show={showSuccessModal}
+        onHide={() => setShowSuccessModal(false)}
+        centered
+        className="text-dark"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Message Sent Successfully!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Thank you for reaching out! We've received your message and will get back to you as soon as possible.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => setShowSuccessModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <style jsx>{`
+        .contact-info-item {
+          transition: transform 0.3s ease;
+        }
+        
+        .contact-info-item:hover {
+          transform: translateX(10px);
+        }
+
+        .social-link {
+          color: white;
+          opacity: 0.8;
+          transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+          color: #dc3545;
+          opacity: 1;
+          transform: translateY(-3px);
+        }
+
+        .form-control-custom {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: white !important;
+          transition: all 0.3s ease !important;
+        }
+
+        .form-control-custom:focus {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          border-color: #dc3545 !important;
+          box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .submit-btn {
+          transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+      `}</style>
     </div>
   )
 }

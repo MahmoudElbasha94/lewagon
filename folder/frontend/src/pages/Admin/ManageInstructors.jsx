@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus, FaArrowLeft } from 'react-icons/fa';
+<<<<<<< HEAD
+=======
+import '../../styles/ManageInstructors.css';
+>>>>>>> 5a1a88e (adding mohamed design)
 
 export default function ManageInstructors() {
   const navigate = useNavigate();
@@ -161,6 +165,7 @@ export default function ManageInstructors() {
   };
 
   if (loading) {
+<<<<<<< HEAD
     return <div className="text-center mt-5">Loading...</div>;
   }
 
@@ -231,10 +236,71 @@ export default function ManageInstructors() {
                     id="email"
                     name="email"
                     value={formData.email}
+=======
+    return (
+      <div className="manage-instructors">
+        <div className="container">
+          <div className="loading-spinner">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="manage-instructors">
+      <div className="container">
+        <div className="page-header">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 className="mb-1">Manage Instructors</h2>
+              <p className="mb-0 opacity-75">Add, edit or remove instructors</p>
+            </div>
+            <button
+              className="back-button"
+              onClick={() => navigate('/admin/dashboard')}
+            >
+              <FaArrowLeft />
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="card">
+          <div className="card-header d-flex justify-content-between align-items-center">
+            <h4 className="mb-0">{editingInstructor ? 'Edit Instructor' : 'Add New Instructor'}</h4>
+            {editingInstructor && (
+              <button className="btn btn-secondary" onClick={resetForm}>
+                Cancel Edit
+              </button>
+            )}
+          </div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="first_name" className="form-label">First Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="first_name"
+                    name="first_name"
+                    value={formData.first_name}
+>>>>>>> 5a1a88e (adding mohamed design)
                     onChange={handleChange}
                     required
                   />
                 </div>
+<<<<<<< HEAD
 
                 {!editingInstructor && (
                   <div className="mb-3">
@@ -259,10 +325,21 @@ export default function ManageInstructors() {
                     id="phone_number"
                     name="phone_number"
                     value={formData.phone_number}
+=======
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="last_name" className="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="last_name"
+                    name="last_name"
+                    value={formData.last_name}
+>>>>>>> 5a1a88e (adding mohamed design)
                     onChange={handleChange}
                     required
                   />
                 </div>
+<<<<<<< HEAD
 
                 <div className="mb-3">
                   <label htmlFor="expertise" className="form-label">Expertise</label>
@@ -327,6 +404,125 @@ export default function ManageInstructors() {
                         <td>
                           <button
                             className="btn btn-sm btn-primary me-2"
+=======
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {!editingInstructor && (
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required={!editingInstructor}
+                  />
+                </div>
+              )}
+
+              <div className="mb-3">
+                <label htmlFor="phone_number" className="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="expertise" className="form-label">Expertise</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="expertise"
+                  name="expertise"
+                  value={formData.expertise}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g., Web Development, Data Science"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="bio" className="form-label">Bio</label>
+                <textarea
+                  className="form-control"
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  rows="4"
+                  required
+                  placeholder="Tell us about the instructor's experience and qualifications"
+                ></textarea>
+              </div>
+
+              <div className="d-grid">
+                <button type="submit" className="btn btn-primary">
+                  {editingInstructor ? (
+                    <>
+                      <FaEdit className="me-2" />
+                      Update Instructor
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus className="me-2" />
+                      Add Instructor
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h4 className="mb-0">Instructors List</h4>
+          </div>
+          <div className="card-body">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Expertise</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {instructors.map((instructor) => (
+                    <tr key={instructor.id}>
+                      <td>{`${instructor.first_name} ${instructor.last_name}`}</td>
+                      <td>{instructor.email}</td>
+                      <td>{instructor.phone_number}</td>
+                      <td>{instructor.expertise}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <button
+                            className="btn btn-sm btn-primary"
+>>>>>>> 5a1a88e (adding mohamed design)
                             onClick={() => handleEdit(instructor)}
                             title="Edit Instructor"
                           >
@@ -339,12 +535,21 @@ export default function ManageInstructors() {
                           >
                             <FaTrash />
                           </button>
+<<<<<<< HEAD
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+=======
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+>>>>>>> 5a1a88e (adding mohamed design)
             </div>
           </div>
         </div>

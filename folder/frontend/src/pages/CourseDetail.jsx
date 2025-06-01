@@ -172,6 +172,7 @@ const CourseDetail = () => {
     }
 
     try {
+      console.log('Attempting to enroll with course_id:', course.id);
       const response = await axios.post(
         `${API_BASE_URL}/courses/student/enroll/`,
         { course_id: course.id },
@@ -210,13 +211,12 @@ const CourseDetail = () => {
     }
   };
 
-  // Handle enroll button click
   const handleButtonClick = () => {
     if (course.courseType.toLowerCase() === 'paid') {
       Swal.fire({
         icon: 'info',
         title: 'Proceed to Payment',
-        text: `You are about to purchase ${course.title} for $${course.price}. Do you want to proceed?`,
+        text: `You are about to purchase ${course.title} for $${course.price}. Continue?`,
         showCancelButton: true,
         confirmButtonText: 'Proceed',
         cancelButtonText: 'Cancel',
@@ -464,7 +464,7 @@ const CourseDetail = () => {
         <div className="col-lg-4">
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
-              <h4 className="mb-3">Course Details</h4>
+              <h4 className="mb-3">Course Information</h4>
               <ul className="list-unstyled">
                 <li className="mb-2">
                   <strong>Duration:</strong> {course.duration} hours
@@ -476,40 +476,48 @@ const CourseDetail = () => {
                   <strong>Instructor:</strong> {instructorName}
                 </li>
               </ul>
-              <h5 className="mt-4 mb-3">What You'll Learn</h5>
+
+              <h5 className="mt-4 mb-3">What you'll learn</h5>
               <p className="text-muted">{course.what_you_will_learn}</p>
+
               <h5 className="mt-4 mb-3">Requirements</h5>
               <p className="text-muted">{course.requirements}</p>
+
               <h5 className="mt-4 mb-3">Lessons</h5>
               <ul className="list-group">
                 {course.lessons.map((lesson, index) => (
-                  <li
+                  <li 
                     key={lesson.id}
                     className={`list-group-item ${index === activeVideoIndex ? 'active' : ''}`}
                     onClick={() => {
-                      if (isAuthenticated && isEnrolled) {
+                      if (isAuthenticated && isEnrolled && (index === 0 || course.lessons[index - 1]?.is_completed)) {
                         setActiveVideoIndex(index);
                       } else if (!isAuthenticated) {
                         Swal.fire({
                           icon: 'warning',
                           title: 'Login Required',
-                          text: 'Please login to access this lesson',
+                          text: 'Please log in to access this lesson.',
                           confirmButtonText: 'Go to Login',
                         }).then(() => navigate('/login'));
-                      } else {
+                      } else if (!isEnrolled) {
                         Swal.fire({
                           icon: 'warning',
                           title: 'Enrollment Required',
-                          text: 'You need to enroll in the course to access lessons',
+                          text: 'You need to enroll in this course to access lessons.',
+                          confirmButtonText: 'OK',
+                        });
+                      } else {
+                        Swal.fire({
+                          icon: 'warning',
+                          title: 'Complete Previous Lesson',
+                          text: 'You must complete the previous lesson to access this one.',
                           confirmButtonText: 'OK',
                         });
                       }
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    {`Lesson ${index + 1}: ${lesson.title || 'Untitled lesson'} (${
-                      lesson.formatted_duration || 'Not available'
-                    })`}
+                    {`Lesson ${index + 1}: ${lesson.title}`}
                     {isAuthenticated && isEnrolled && lesson.is_completed && (
                       <span className="badge bg-success ms-2">Completed</span>
                     )}

@@ -1,8 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Home.css';
 
 function Home() {
   const [showDemo, setShowDemo] = useState(false);
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+
+  const heroTexts = [
+    "Transform Your Future",
+    "Master New Skills",
+    "Join Global Community"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const stats = [
     { icon: 'bi-people', label: 'Active Learners', value: '50K+' },
@@ -164,84 +181,258 @@ function Home() {
   ];
 
   const partners = [
-    { name: 'Google', logo: '/images/partners/google.png' },
-    { name: 'Microsoft', logo: '/images/partners/microsoft.png' },
-    { name: 'Amazon', logo: '/images/partners/amazon.png' },
-    { name: 'Apple', logo: '/images/partners/apple.png' },
-    { name: 'Meta', logo: '/images/partners/meta.png' },
-    { name: 'Netflix', logo: '/images/partners/netflix.png' }
+    { 
+      name: 'Google', 
+      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg'
+    },
+    { 
+      name: 'Microsoft', 
+      logo: 'https://www.microsoft.com/favicon.ico'
+    },
+    { 
+      name: 'Amazon', 
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg'
+    },
+    { 
+      name: 'Apple', 
+      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg'
+    },
+    { 
+      name: 'Meta', 
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Meta-Logo.png'
+    },
+    { 
+      name: 'Netflix', 
+      logo: 'https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png'
+    }
   ];
 
   return (
-    <div className="bg-dark text-white">
-      {/* Hero Section */}
-      <section className="position-relative py-5">
-        <div className="container py-5">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="bg-dark bg-opacity-75 p-4 rounded-3 border border-secondary">
-                <h1 className="display-4 fw-bold mb-4">
-                  <span className="d-block text-danger">Transform Your</span>
-                  <span className="d-block mt-2 text-danger">Future with Us</span>
-                </h1>
-                <p className="lead mb-4 text-secondary">
-                  Unlock your potential with our expert-led courses. Join a community of learners and start your journey to success today.
-                </p>
-                <div className="d-flex gap-3">
-                  <button className="btn btn-light btn-lg rounded-pill px-4">
-                    Explore Courses
+    <div className="bg-dark">
+      {/* Enhanced Hero Section */}
+      <section className="hero-section position-relative overflow-hidden">
+        {/* Video Background */}
+        <div className="video-background">
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline
+            poster="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+          >
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-programming-code-closeup-1107-large.mp4" type="video/mp4" />
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-programming-code-closeup-1107-large.webm" type="video/webm" />
+          </video>
+        </div>
+        
+        {/* Dark Overlay with Gradient */}
+        <div className="video-overlay"></div>
+        
+        <div className="container position-relative z-index-2 py-7">
+          <div className="row align-items-center min-vh-95">
+            <div className="col-lg-6 mb-5 mb-lg-0">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="hero-content"
+              >
+                <motion.span 
+                  className="badge bg-danger px-3 py-2 mb-4 rounded-pill d-inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  Le Wagon Bootcamp
+                </motion.span>
+                
+                <motion.h1 
+                  className="hero-title display-3 fw-bold mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <span className="text-gradient">
+                    {heroTexts[currentTextIndex]}
+                  </span>
+                  <span className="d-block mt-2">
+                    Learn to code with experts
+                  </span>
+                </motion.h1>
+
+                <motion.p 
+                  className="lead mb-5 text-light-gray"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  Join our intensive coding bootcamp and learn from industry experts. 
+                  Build real projects, gain practical skills, and launch your tech career.
+                </motion.p>
+
+                <motion.div 
+                  className="hero-cta d-flex flex-wrap gap-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <Link 
+                    to="/courses" 
+                    className="btn btn-gradient-primary btn-lg rounded-pill px-5 py-3"
+                  >
+                    Start Learning
                     <i className="bi bi-arrow-right ms-2"></i>
-                  </button>
+                  </Link>
+                  
                   <button 
-                    className="btn btn-outline-light btn-lg rounded-pill px-4"
+                    className="btn btn-outline-light btn-lg rounded-pill px-5 py-3"
                     onClick={() => setShowDemo(true)}
                   >
                     <i className="bi bi-play-circle me-2"></i>
                     Watch Demo
                   </button>
-                </div>
-              </div>
+                </motion.div>
 
-              {/* Stats */}
-              <div className="row mt-5 g-4">
-                {stats.map((stat, index) => (
-                  <div key={index} className="col-4">
-                    <div className="bg-dark bg-opacity-75 p-3 rounded-3 text-center border border-secondary">
-                      <i className={`bi ${stat.icon} fs-1 text-danger mb-2`}></i>
-                      <div className="h4 text-white mb-0">{stat.value}</div>
-                      <div className="small text-secondary">{stat.label}</div>
+                {/* Trust Indicators */}
+                <motion.div 
+                  className="hero-trust-indicators mt-5 pt-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <div className="row g-4">
+                    <div className="col-6 col-md-4">
+                      <div className="d-flex align-items-center">
+                        <div className="icon-box me-3">
+                          <i className="bi bi-people students-icon"></i>
+                        </div>
+                        <div>
+                          <h4 className="h6 mb-1">50K+ Students</h4>
+                          <p className="small mb-0">Worldwide</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-6 col-md-4">
+                      <div className="d-flex align-items-center">
+                        <div className="icon-box me-3">
+                          <i className="bi bi-star rating-icon"></i>
+                        </div>
+                        <div>
+                          <h4 className="h6 mb-1">4.9/5 Rating</h4>
+                          <p className="small mb-0">By Students</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-6 col-md-4">
+                      <div className="d-flex align-items-center">
+                        <div className="icon-box me-3">
+                          <i className="bi bi-briefcase success-icon"></i>
+                        </div>
+                        <div>
+                          <h4 className="h6 mb-1">93% Success</h4>
+                          <p className="small mb-0">Job Placement</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
-            <div className="col-lg-6 position-relative">
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1471&q=80"
-                alt="Students learning" 
-                className="img-fluid rounded-3 shadow border border-secondary"
-              />
-              {/* Floating Cards */}
-              <div className="position-absolute top-25 start-0 translate-middle-x bg-white rounded-3 shadow p-3">
-                <div className="d-flex align-items-center gap-3">
-                  <div className="bg-danger bg-opacity-10 rounded-circle p-2">
-                    <i className="bi bi-book text-danger"></i>
+
+            <div className="col-lg-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8 }}
+                className="hero-image-wrapper position-relative"
+              >
+                {/* Floating Elements */}
+                <motion.div
+                  animate={{ y: [0, -20, 0] }}
+                  transition={{ repeat: Infinity, duration: 3 }}
+                  className="floating-card p-3 position-absolute top-0 end-0"
+                >
+                  <div className="d-flex align-items-center">
+                    <img 
+                      src="https://randomuser.me/api/portraits/women/1.jpg" 
+                      alt="" 
+                      className="rounded-circle me-3" 
+                      width="48" 
+                      height="48" 
+                    />
+                    <div>
+                      <p className="text-dark mb-0 fw-medium">New Achievement!</p>
+                      <small className="text-muted">Completed React Course</small>
+                    </div>
                   </div>
-                  <div>
-                    <p className="mb-0 fw-medium text-dark">300+ Courses</p>
-                    <small className="text-secondary">Learn at your pace</small>
+                </motion.div>
+
+                <motion.div
+                  animate={{ y: [0, 20, 0] }}
+                  transition={{ repeat: Infinity, duration: 4 }}
+                  className="floating-stats p-3 position-absolute bottom-0 start-0"
+                >
+                  <div className="d-flex align-items-center">
+                    <div className="me-3">
+                      <div className="chart-circle"></div>
+                    </div>
+                    <div>
+                      <h4 className="h6 mb-1 text-dark">Learning Progress</h4>
+                      <p className="small text-primary mb-0">+64% this week</p>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tech Stack Logos */}
+        <div className="tech-stack-wrapper position-absolute bottom-0 start-0 w-100">
+          <div className="container">
+            <div className="row align-items-center">
+              <div className="col-12 col-lg-3 mb-3 mb-lg-0">
+                <p className="text-light-gray mb-0 text-center text-lg-start fw-medium">
+                  Technologies you'll master:
+                </p>
               </div>
-              <div className="position-absolute bottom-25 end-0 translate-middle-x bg-white rounded-3 shadow p-3">
-                <div className="d-flex align-items-center gap-3">
-                  <div className="bg-danger bg-opacity-10 rounded-circle p-2">
-                    <i className="bi bi-people text-danger"></i>
-                  </div>
-                  <div>
-                    <p className="mb-0 fw-medium text-dark">50K+ Students</p>
-                    <small className="text-secondary">Join our community</small>
-                  </div>
+              <div className="col-12 col-lg-9">
+                <div className="tech-logos d-flex justify-content-center justify-content-lg-between align-items-center gap-4">
+                  <motion.img 
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" 
+                    alt="React"
+                    className="react-logo"
+                  />
+                  <motion.img 
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" 
+                    alt="Vue"
+                    className="vue-logo"
+                  />
+                  <motion.img 
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg" 
+                    alt="Angular"
+                    className="angular-logo"
+                  />
+                  <motion.img 
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" 
+                    alt="Node.js"
+                    className="node-logo"
+                  />
+                  <motion.img 
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" 
+                    alt="Python"
+                    className="python-logo"
+                  />
+                  <motion.img 
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original.svg" 
+                    alt="Ruby"
+                    className="ruby-logo"
+                  />
                 </div>
               </div>
             </div>
@@ -250,252 +441,584 @@ function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-5">
+      <section className="categories-section">
         <div className="container">
-          <h2 className="text-center mb-5">Explore Categories</h2>
+          <div className="section-title">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Our Course Categories
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Explore Our Popular Categories
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              Choose from a wide range of courses designed to help you master the skills you need for your career
+            </motion.p>
+          </div>
+
           <div className="row g-4">
             {categories.map((category, index) => (
-              <div key={index} className="col-md-6 col-lg-3">
-                <div className={`card bg-dark border-${category.color} h-100`}>
-                  <div className="card-body">
-                    <div className={`text-${category.color} mb-3`}>
-                      <i className={`bi ${category.icon} fs-1`}></i>
-                    </div>
-                    <h5 className="card-title text-white">{category.title}</h5>
-                    <p className="card-text text-secondary">{category.description}</p>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="text-white">{category.courses} Courses</span>
-                      <button className={`btn btn-outline-${category.color}`}>
-                        Explore
-                      </button>
+              <motion.div
+                key={index}
+                className="col-md-6 col-lg-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className={`category-card category-${category.title.toLowerCase().replace(/\s+/g, '')}`}>
+                  <div className="category-icon">
+                    <i className={`bi ${category.icon}`}></i>
+                  </div>
+                  <h3>{category.title}</h3>
+                  <p>{category.description}</p>
+                  <div className="category-stats">
+                    <div className="courses-count">
+                      <i className="bi bi-play-circle"></i>
+                      <span>{category.courses} Courses</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-5 bg-dark bg-opacity-75">
+      <section className="features-section">
         <div className="container">
-          <h2 className="text-center mb-5">Why Choose Us</h2>
+          <div className="features-title">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Why Choose Us
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              What Makes Us Different
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              Discover why thousands of students choose our platform for their learning journey
+            </motion.p>
+          </div>
+
           <div className="row g-4">
             {features.map((feature, index) => (
-              <div key={index} className="col-md-6 col-lg-3">
-                <div className="card bg-dark border-secondary h-100">
-                  <div className="card-body text-center">
-                    <div className="text-danger mb-3">
-                      <i className={`bi ${feature.icon} fs-1`}></i>
-                    </div>
-                    <h5 className="card-title text-white">{feature.title}</h5>
-                    <p className="card-text text-secondary">{feature.description}</p>
+              <motion.div
+                key={index}
+                className="col-md-6 col-lg-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className={`feature-card feature-${feature.title.toLowerCase().replace(/\s+/g, '')}`}>
+                  <div className="feature-icon">
+                    <i className={`bi ${feature.icon}`}></i>
                   </div>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.description}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Popular Courses Section */}
-      <section className="popular-courses py-24 bg-gray-50">
+      <section className="popular-courses">
         <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-red-600 fw-semibold text-sm text-uppercase tracking-wider">Featured Courses</span>
-            <h2 className="mt-3 display-4 fw-bold text-gray-900">Most Popular Courses</h2>
-            <p className="mt-4 lead text-gray-600">
+          <div className="courses-header">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Featured Courses
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Most Popular Courses
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               Start your learning journey with our top-rated courses
-            </p>
+            </motion.p>
           </div>
 
           <div className="row g-4">
             {courses.map((course, index) => (
-              <div key={index} className="col-md-4">
-                <div className="card h-100 border-0 shadow-lg hover-shadow-xl transition-all bg-white overflow-hidden">
-                  <div className="position-relative h-48 overflow-hidden">
-                    <img src={course.image} alt={course.title} className="w-100 h-100 object-fit-cover" />
-                    <div className="position-absolute top-4 end-4 bg-white bg-opacity-90 px-3 py-1 rounded-pill text-red-600 fw-semibold">
-                      {course.price}
-                    </div>
+              <motion.div
+                key={index}
+                className="col-md-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="course-card">
+                  <div className="course-image-wrapper">
+                    <img src={course.image} alt={course.title} className="course-image" />
+                    <div className="course-price-tag">{course.price}</div>
                   </div>
-                  <div className="card-body p-6">
-                    <div className="d-flex align-items-center gap-2 mb-4">
-                      <span className="px-3 py-1 bg-red-100 text-red-600 rounded-pill text-sm fw-medium">
-                        {course.level}
-                      </span>
-                    </div>
-                    <h3 className="h5 mb-2 text-gray-900">{course.title}</h3>
-                    <p className="text-gray-600 mb-4">{course.description}</p>
-                    <div className="d-flex align-items-center mb-4">
-                      <img src={course.instructor.avatar} alt={course.instructor.name} className="rounded-circle me-3" width="40" height="40" />
-                      <div>
-                        <p className="mb-0 fw-semibold text-gray-900">{course.instructor.name}</p>
-                        <p className="mb-0 small text-gray-600">{course.instructor.role}</p>
+                  <div className="course-content">
+                    <h3 className="course-title">{course.title}</h3>
+                    <p className="course-description">{course.description}</p>
+                    
+                    <div className="instructor-info">
+                      <img 
+                        src={course.instructor.avatar} 
+                        alt={course.instructor.name} 
+                        className="instructor-avatar"
+                      />
+                      <div className="instructor-details">
+                        <h4>{course.instructor.name}</h4>
+                        <p>{course.instructor.role}</p>
                       </div>
                     </div>
-                    <div className="row g-4 py-4 border-top">
-                      <div className="col-4 text-center">
-                        <div className="d-flex align-items-center justify-content-center text-warning mb-1">
+
+                    <div className="course-stats">
+                      <div className="stat-item">
+                        <div className="stat-value">
                           <i className="bi bi-star-fill"></i>
-                          <span className="ms-1 small fw-semibold text-gray-900">{course.rating}</span>
+                          {course.rating}
                         </div>
-                        <p className="small text-gray-600 mb-0">Rating</p>
+                        <div className="stat-label">Rating</div>
                       </div>
-                      <div className="col-4 text-center">
-                        <div className="d-flex align-items-center justify-content-center text-gray-900 mb-1">
+                      <div className="stat-item">
+                        <div className="stat-value">
                           <i className="bi bi-people"></i>
-                          <span className="ms-1 small fw-semibold">{(course.students / 1000).toFixed(1)}k</span>
+                          {(course.students / 1000).toFixed(1)}k
                         </div>
-                        <p className="small text-gray-600 mb-0">Students</p>
+                        <div className="stat-label">Students</div>
                       </div>
-                      <div className="col-4 text-center">
-                        <div className="d-flex align-items-center justify-content-center text-gray-900 mb-1">
+                      <div className="stat-item">
+                        <div className="stat-value">
                           <i className="bi bi-clock"></i>
-                          <span className="ms-1 small fw-semibold">{course.duration}</span>
+                          {course.duration}
                         </div>
-                        <p className="small text-gray-600 mb-0">Duration</p>
+                        <div className="stat-label">Duration</div>
                       </div>
                     </div>
-                    <button className="btn w-100 d-flex align-items-center justify-content-center px-4 py-3 rounded-3 bg-red-600 text-white hover:bg-red-700 transition-all">
-                      <span>Learn More</span>
-                      <i className="bi bi-arrow-right ms-2"></i>
-                    </button>
+
+                    <div className="course-action">
+                      <button className="btn-learn-more">
+                        Learn More
+                        <i className="bi bi-arrow-right ms-2"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-5">
-            <button className="btn btn-lg rounded-pill px-5 bg-gradient-to-r from-red-600 to-red-700 text-white border-0 hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl">
+          <div className="view-all-courses">
+            <motion.button
+              className="btn-view-all"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               View All Courses
-              <i className="bi bi-book ms-2"></i>
-            </button>
+              <i className="bi bi-arrow-right ms-2"></i>
+            </motion.button>
           </div>
         </div>
       </section>
 
       {/* Partners Section */}
-      <section className="partners py-24 bg-white">
+      <section className="partners-section">
         <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-red-600 fw-semibold text-sm text-uppercase tracking-wider">Our Partners</span>
-            <h2 className="mt-3 display-4 fw-bold text-gray-900">Trusted by Industry Leaders</h2>
-            <p className="mt-4 lead text-gray-600">
-              We partner with leading companies to provide the best learning experience
-            </p>
+          <div className="partners-header">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Our Partners
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Trusted by Industry Leaders
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              We collaborate with leading companies to provide you with the best learning experience and career opportunities
+            </motion.p>
           </div>
 
-          <div className="row align-items-center justify-content-center g-4">
+          <div className="row g-4">
             {partners.map((partner, index) => (
-              <div key={index} className="col-6 col-md-4 col-lg-2">
-                <div className="d-flex align-items-center justify-content-center p-4">
-                  <img src={partner.logo} alt={partner.name} className="img-fluid opacity-75 hover-opacity-100 transition-all" />
+              <motion.div
+                key={index}
+                className="col-6 col-md-4 col-lg-2"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="partner-card">
+                  <img 
+                    src={partner.logo} 
+                    alt={partner.name} 
+                    className="partner-logo" 
+                  />
                 </div>
-              </div>
+              </motion.div>
             ))}
+          </div>
+
+          <div className="partner-stats">
+            <div className="row g-4">
+              <motion.div
+                className="col-md-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="stat-card">
+                  <i className="bi bi-building stat-icon"></i>
+                  <div className="stat-number">500+</div>
+                  <div className="stat-label">Partner Companies</div>
+                </div>
+              </motion.div>
+              <motion.div
+                className="col-md-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="stat-card">
+                  <i className="bi bi-person-workspace stat-icon"></i>
+                  <div className="stat-number">10K+</div>
+                  <div className="stat-label">Job Opportunities</div>
+                </div>
+              </motion.div>
+              <motion.div
+                className="col-md-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <div className="stat-card">
+                  <i className="bi bi-globe stat-icon"></i>
+                  <div className="stat-number">50+</div>
+                  <div className="stat-label">Countries</div>
+                </div>
+              </motion.div>
+              <motion.div
+                className="col-md-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <div className="stat-card">
+                  <i className="bi bi-graph-up-arrow stat-icon"></i>
+                  <div className="stat-number">95%</div>
+                  <div className="stat-label">Success Rate</div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="testimonials py-24 bg-gray-900">
+      <section className="testimonials">
         <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="display-4 fw-bold mb-6 text-white">What Our Students Say</h2>
-            <p className="lead text-gray-400">
-              Hear from our graduates about their learning experience
-            </p>
+          <div className="text-center mb-16">
+            <h2 className="display-4">What Our Students Say</h2>
+            <p className="lead">Real success stories from our graduates who transformed their careers through our programs</p>
           </div>
-
+          
           <div className="row g-4">
-            <div className="col-md-4">
-              <div className="card h-100 border-0 shadow-lg bg-gray-800 border border-gray-700">
-                <div className="card-body p-4">
+            {/* Testimonial 1 */}
+            <motion.div 
+              className="col-lg-4 col-md-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="card h-100">
+                <div className="card-body">
                   <div className="d-flex align-items-center mb-4">
-                    <img src="/images/student1.jpg" alt="Student" className="rounded-circle me-3" width="60" height="60" />
+                    <img
+                      src="https://randomuser.me/api/portraits/women/1.jpg"
+                      alt="Sarah Johnson"
+                      className="rounded-circle me-3"
+                      width="64"
+                      height="64"
+                    />
                     <div>
-                      <h4 className="h6 mb-0 text-white">Sarah Johnson</h4>
-                      <small className="text-gray-400">Web Development Graduate</small>
+                      <h6 className="text-white mb-0">Sarah Johnson</h6>
+                      <p className="text-gray-400 mb-0">Full Stack Developer at Google</p>
                     </div>
                   </div>
-                  <p className="card-text text-gray-300">
-                    "Le Wagon gave me the skills and confidence to start my career in tech. The hands-on approach and supportive community made all the difference."
+                  <p className="text-gray-300 mb-4">
+                    "The comprehensive curriculum and hands-on projects at Le Wagon completely transformed my career. I went from a marketing background to landing my dream job as a developer at Google. The instructors were exceptional and the community support was invaluable."
                   </p>
-                  <div className="text-yellow-400">
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
+                  <div className="testimonial-rating">
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                  </div>
+                  <div className="testimonial-company">
+                    <div className="d-flex align-items-center">
+                      <img 
+                        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3MiIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDcyIDI0Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTcuNDMgMi4xNWMzLjgyIDAgNi45NyAyLjkzIDYuOTcgNi41NCAwIDIuNi0xLjMgNC44My0zLjM3IDUuOThsNS41NyA4LjE4aC0zLjlsLTUuMDItNy42N2gtMi4wOHY3LjY3aC0zLjI4VjIuMTVoNS4xMXptLTEuODMgMi43N3Y3LjUyaDEuODNjMi4wNyAwIDMuNjgtMS42NyAzLjY4LTMuNzYgMC0yLjEtMS42MS0zLjc2LTMuNjgtMy43NmgtMS44M3ptMTYuODUgMTcuOTNWMi4xNWgxMS4xOHYyLjc3aC03Ljl2NS4zM2g3LjA4djIuNzdoLTcuMDh2Ny4wNmg3Ljl2Mi43N0gzMi40NXptMTkuMjUgMGwtNi4xNC04LjM1LTEuMjMgMS40NHY2LjkxaC0zLjI4VjIuMTVoMy4yOHY4LjI2bDYuODctOC4yNmgzLjk3bC03LjE3IDguNDQgNy43IDExLjQ5aC00WiIvPjwvc3ZnPg==" 
+                        alt="Google" 
+                        style={{ filter: 'brightness(0) invert(1)', width: '80px', height: 'auto' }}
+                      />
+                      <span className="text-gray-400 ms-2">Verified Graduate</span>
+                    </div>
+                    <div className="testimonial-date">
+                      <i className="far fa-calendar-alt"></i>
+                      <span>2023</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card h-100 border-0 shadow-lg bg-gray-800 border border-gray-700">
-                <div className="card-body p-4">
+            </motion.div>
+
+            {/* Testimonial 2 */}
+            <motion.div 
+              className="col-lg-4 col-md-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="card h-100">
+                <div className="card-body">
                   <div className="d-flex align-items-center mb-4">
-                    <img src="/images/student2.jpg" alt="Student" className="rounded-circle me-3" width="60" height="60" />
+                    <img
+                      src="https://randomuser.me/api/portraits/men/2.jpg"
+                      alt="David Chen"
+                      className="rounded-circle me-3"
+                      width="64"
+                      height="64"
+                    />
                     <div>
-                      <h4 className="h6 mb-0 text-white">Michael Chen</h4>
-                      <small className="text-gray-400">Data Science Graduate</small>
+                      <h6 className="text-white mb-0">David Chen</h6>
+                      <p className="text-gray-400 mb-0">Software Engineer at Microsoft</p>
                     </div>
                   </div>
-                  <p className="card-text text-gray-300">
-                    "The bootcamp was intense but worth every minute. I learned more in 9 weeks than I did in 4 years of college."
+                  <p className="text-gray-300 mb-4">
+                    "Le Wagon's bootcamp exceeded all my expectations. The project-based learning approach gave me real-world experience, and the career support helped me land multiple job offers. I'm now working on exciting projects at Microsoft."
                   </p>
-                  <div className="text-yellow-400">
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star"></i>
+                  <div className="testimonial-rating">
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                  </div>
+                  <div className="testimonial-company">
+                    <div className="d-flex align-items-center">
+                      <img 
+                        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTEuNCAwaDQuNnY0LjZoLTQuNlYwem0wIDYuOWg0LjZ2NC42aC00LjZWNi45em02LjkgMGg0LjZ2NC42aC00LjZWNi45em0tMTMuOCA2LjloNC42djQuNkg0LjV2LTQuNnptNi45IDBoNC42djQuNmgtNC42di00LjZ6bTYuOSAwaDQuNnY0LjZoLTQuNnYtNC42eiIvPjwvc3ZnPg==" 
+                        alt="Microsoft" 
+                        style={{ filter: 'brightness(0) invert(1)', width: '32px', height: 'auto' }}
+                      />
+                      <span className="text-gray-400 ms-2">Verified Graduate</span>
+                    </div>
+                    <div className="testimonial-date">
+                      <i className="far fa-calendar-alt"></i>
+                      <span>2023</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card h-100 border-0 shadow-lg bg-gray-800 border border-gray-700">
-                <div className="card-body p-4">
+            </motion.div>
+
+            {/* Testimonial 3 */}
+            <motion.div 
+              className="col-lg-4 col-md-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <div className="card h-100">
+                <div className="card-body">
                   <div className="d-flex align-items-center mb-4">
-                    <img src="/images/student3.jpg" alt="Student" className="rounded-circle me-3" width="60" height="60" />
+                    <img
+                      src="https://randomuser.me/api/portraits/women/3.jpg"
+                      alt="Emma Rodriguez"
+                      className="rounded-circle me-3"
+                      width="64"
+                      height="64"
+                    />
                     <div>
-                      <h4 className="h6 mb-0 text-white">Emma Wilson</h4>
-                      <small className="text-gray-400">UX/UI Design Graduate</small>
+                      <h6 className="text-white mb-0">Emma Rodriguez</h6>
+                      <p className="text-gray-400 mb-0">Frontend Developer at Amazon</p>
                     </div>
                   </div>
-                  <p className="card-text text-gray-300">
-                    "The instructors were amazing and the curriculum was perfectly structured. I got a job offer before I even graduated!"
+                  <p className="text-gray-300 mb-4">
+                    "The supportive environment and practical curriculum at Le Wagon gave me the confidence to switch careers. The emphasis on modern technologies and best practices prepared me well for my role at Amazon. It was an incredible journey!"
                   </p>
-                  <div className="text-yellow-400">
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-half"></i>
+                  <div className="testimonial-rating">
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                    <i className="fas fa-star text-yellow-400"></i>
+                  </div>
+                  <div className="testimonial-company">
+                    <div className="d-flex align-items-center">
+                      <img 
+                        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTQuMTggMTMuMDhsLTIuNTEtMS4xNS0yLjUgMS4xNWEuODUuODUgMCAwIDEtMS4xLS40LjgzLjgzIDAgMCAxIC4zOC0xLjEybDIuNTEtMS4xNVY4LjI4YS44NS44NSAwIDAgMSAxLjctMHYyLjEzbDIuNSAxLjE1Yy40LjE4LjU3LjY1LjM5IDEuMDVhLjg1Ljg1IDAgMCAxLTEuMTEuNHptNy4zMi0uMjNhMTIuMDQgMTIuMDQgMCAwIDEtMTkgMCAxLjggMS44IDAgMCAxIDAtMi41NyAxMi4wNCAxMi4wNCAwIDAgMSAxOSAwIDEuOCAxLjggMCAwIDEgMCAyLjU3eiIvPjwvc3ZnPg==" 
+                        alt="Amazon" 
+                        style={{ filter: 'brightness(0) invert(1)', width: '32px', height: 'auto' }}
+                      />
+                      <span className="text-gray-400 ms-2">Verified Graduate</span>
+                    </div>
+                    <div className="testimonial-date">
+                      <i className="far fa-calendar-alt"></i>
+                      <span>2023</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Newsletter Section */}
-      <section className="newsletter py-24 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container">
+      <section className="newsletter py-5 position-relative overflow-hidden" 
+        style={{
+          background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
+          boxShadow: 'inset 0 0 50px rgba(0,0,0,0.3)'
+        }}>
+        {/* Decorative Elements */}
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ opacity: '0.05' }}>
+          <div className="position-absolute" style={{ 
+            width: '300px', 
+            height: '300px', 
+            background: 'radial-gradient(circle, #dc3545 0%, rgba(220, 53, 69, 0) 70%)',
+            top: '-150px',
+            left: '-150px'
+          }}></div>
+          <div className="position-absolute" style={{ 
+            width: '200px', 
+            height: '200px', 
+            background: 'radial-gradient(circle, #dc3545 0%, rgba(220, 53, 69, 0) 70%)',
+            bottom: '-100px',
+            right: '-100px'
+          }}></div>
+        </div>
+
+        <div className="container position-relative">
           <div className="row justify-content-center">
             <div className="col-md-8 text-center">
-              <h2 className="display-4 fw-bold mb-4 text-white">Stay Updated</h2>
-              <p className="lead mb-4 text-white">Subscribe to our newsletter for the latest updates and offers</p>
-              <div className="input-group mb-3">
-                <input type="email" className="form-control form-control-lg" placeholder="Enter your email" />
-                <button className="btn btn-light btn-lg">Subscribe</button>
+              <div className="newsletter-badge mb-4">
+                <span className="badge bg-danger px-4 py-2 rounded-pill fs-6 shadow-sm">
+                  <i className="bi bi-envelope-paper-heart me-2"></i>
+                  Newsletter
+                </span>
               </div>
-              <small className="text-white-50">We respect your privacy. Unsubscribe at any time.</small>
+              
+              <h2 className="display-4 fw-bold mb-4 text-white" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+                Stay Updated
+              </h2>
+              
+              <p className="lead mb-5 text-white" style={{ opacity: '0.9' }}>
+                Join our community and get the latest updates about courses, tech trends, and special offers
+              </p>
+              
+              <div className="newsletter-form">
+                <div className="input-group input-group-lg mb-4 shadow-lg">
+                  <input 
+                    type="email" 
+                    className="form-control border-0 ps-4" 
+                    placeholder="Enter your email address"
+                    style={{ 
+                      height: '65px',
+                      fontSize: '1.1rem',
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      color: '#495057'
+                    }}
+                  />
+                  <button 
+                    className="btn btn-danger btn-lg px-5 d-flex align-items-center fw-bold"
+                    style={{ 
+                      height: '65px',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateX(5px)';
+                      e.target.style.backgroundColor = '#c82333';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateX(0)';
+                      e.target.style.backgroundColor = '#dc3545';
+                    }}
+                  >
+                    Subscribe
+                    <i className="bi bi-arrow-right-circle-fill ms-2 fs-5"></i>
+                  </button>
+                </div>
+                
+                <div className="newsletter-features row mt-5">
+                  <div className="col-md-4 mb-3 mb-md-0">
+                    <div className="d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-pill py-2 px-3">
+                      <i className="bi bi-shield-check text-danger me-2 fs-5"></i>
+                      <span className="text-white">No Spam</span>
+                    </div>
+                  </div>
+                  <div className="col-md-4 mb-3 mb-md-0">
+                    <div className="d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-pill py-2 px-3">
+                      <i className="bi bi-clock text-danger me-2 fs-5"></i>
+                      <span className="text-white">Weekly Updates</span>
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <div className="d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-pill py-2 px-3">
+                      <i className="bi bi-envelope text-danger me-2 fs-5"></i>
+                      <span className="text-white">Cancel Anytime</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <small className="text-white-50">
+                    By subscribing, you agree to our Privacy Policy and Terms of Service
+                  </small>
+                </div>
+              </div>
             </div>
           </div>
         </div>

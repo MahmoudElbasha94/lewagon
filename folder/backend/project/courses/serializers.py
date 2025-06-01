@@ -8,7 +8,9 @@ class InstructorSerializer(serializers.ModelSerializer):
 class CourseVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseVideo
+
         fields = ['id', 'lesson_name', 'video_url', 'duration','formatted_duration', 'order', 'created_at', 'updated_at']
+
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,6 +31,7 @@ class CourseSerializer(serializers.ModelSerializer):
     courseImage = serializers.SerializerMethodField()
     lessons = serializers.SerializerMethodField()
     is_enrolled = serializers.SerializerMethodField()  # إضافة حقل is_enrolled
+
     instructor_name = serializers.SerializerMethodField()  # إضافة حقل instructor_name
     class Meta:
         model = Course
@@ -41,6 +44,7 @@ class CourseSerializer(serializers.ModelSerializer):
         if obj.instructor:
             return obj.instructor.get_full_name() or obj.instructor.username or 'Unknown Instructor'
         return 'Unknown Instructor'
+
     def get_courseImage(self, obj):
         return obj.get_image_url()
 

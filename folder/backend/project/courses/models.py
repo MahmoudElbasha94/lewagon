@@ -88,6 +88,7 @@ class CourseVideo(models.Model):
     video_url = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     duration = models.PositiveIntegerField(default=0, help_text="Duration in seconds")
     order = models.PositiveIntegerField(default=0)
 
@@ -103,6 +104,7 @@ class CourseVideo(models.Model):
         seconds = self.duration % 60
         return f"{minutes:02d}:{seconds:02d}"
     
+
 
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

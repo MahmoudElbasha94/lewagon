@@ -1,58 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Row, Col, Table, Container, ProgressBar, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-
-// إضافة عنوان API الأساسي
-const API_BASE_URL = 'http://127.0.0.1:8000';
+import { 
+  FaGraduationCap, 
+  FaBook, 
+  FaDollarSign, 
+  FaStar, 
+  FaPlus, 
+  FaChartLine,
+  FaUsers
+} from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+import '../../styles/InstructorDashboard.css';
 
 const InstructorDashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalCourses: 0,
     totalStudents: 0,
     totalRevenue: 0,
+    averageRating: 0,
     courses: [],
     recentStudents: []
   });
-  
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('access');
         if (!token) {
-          console.error('No access token found');
-          return;
+          throw new Error('No authentication token found');
         }
 
         const headers = {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         };
 
-        console.log('Making API requests with token:', token);
-
-        // تحديث المسارات لتتوافق مع المسارات في الخادم
-        const coursesRes = await axios.get(`${API_BASE_URL}/courses/instructor/courses/`, { headers });
-        console.log('Raw Courses Response:', coursesRes);
-
+        const response = await axios.get('http://127.0.0.1:8000/courses/instructor/courses/', { headers });
+        
         let courses = [];
-        if (Array.isArray(coursesRes.data)) {
-          courses = coursesRes.data;
-        } else if (coursesRes.data && Array.isArray(coursesRes.data.courses)) {
-          courses = coursesRes.data.courses;
-        } else if (coursesRes.data && typeof coursesRes.data === 'object') {
-          courses = Object.values(coursesRes.data);
+        if (Array.isArray(response.data)) {
+          courses = response.data;
+        } else if (response.data && Array.isArray(response.data.courses)) {
+          courses = response.data.courses;
+        } else if (response.data && typeof response.data === 'object') {
+          courses = Object.values(response.data);
         }
 
-        // تجميع جميع الطلاب من جميع الدورات
         const allStudents = [];
-        const coursesWithStudents = courses.map(course => {
-          // إضافة معلومات الطلاب من البيانات المتوفرة
+        const coursesWithStats = courses.map(course => {
           const enrolledStudents = course.enrolled_students || [];
           allStudents.push(...enrolledStudents);
           
@@ -65,200 +65,208 @@ const InstructorDashboard = () => {
           };
         });
 
-        console.log('Processed Courses:', coursesWithStudents);
-        console.log('All Students:', allStudents);
-        
-        const totalRevenue = coursesWithStudents.reduce((sum, course) => {
-          const revenue = parseFloat(course.total_revenue) || 0;
-          return sum + revenue;
+        const totalRevenue = coursesWithStats.reduce((sum, course) => {
+          return sum + (parseFloat(course.total_revenue) || 0);
         }, 0);
-        
+
+        const averageRating = coursesWithStats.reduce((sum, course) => {
+          return sum + (parseFloat(course.average_rating) || 0);
+        }, 0) / (coursesWithStats.length || 1);
+
         setStats({
           totalCourses: courses.length,
           totalStudents: allStudents.length,
           totalRevenue,
-          courses: coursesWithStudents,
+          averageRating,
+          courses: coursesWithStats,
           recentStudents: allStudents.slice(0, 5)
         });
       } catch (error) {
         console.error('Error fetching data:', error);
-        console.error('Error details:', error.response?.data);
-        console.error('Error status:', error.response?.status);
-        console.error('Error headers:', error.response?.headers);
+        if (error.response?.status === 401) {
+          setError('Your session has expired. Please log in again.');
+          navigate('/login');
+        } else {
+          setError('Failed to fetch dashboard data. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchData();
-  }, []);
 
-  if (loading) return <div>Loading...</div>;
+    fetchData();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="instructor-dashboard">
+        <div className="loading-spinner">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Container className="mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Instructor Dashboard</h2>
-        <Button 
-          variant="primary" 
-          onClick={() => navigate('/instructor/add-course')}
-        >
-          Add New Course
-        </Button>
-      </div>
-      
-      <Row className="mb-4">
-        <Col md={4}>
-          <Card className="text-center">
-            <Card.Body>
-              <Card.Title>Total Courses</Card.Title>
-              <Card.Text className="display-6">{stats.totalCourses}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        
-        <Col md={4}>
-          <Card className="text-center">
-            <Card.Body>
-              <Card.Title>Total Students</Card.Title>
-              <Card.Text className="display-6">{stats.totalStudents}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        
-        <Col md={4}>
-          <Card className="text-center">
-            <Card.Body>
-              <Card.Title>Total Revenue</Card.Title>
-              <Card.Text className="display-6">${stats.totalRevenue.toFixed(2)}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-      
-      <Row className="mb-4">
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Your Courses</Card.Title>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Students</th>
-                    <th>Revenue</th>
-                    <th>Rating</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.courses.map((course) => (
-                    <tr key={course.id}>
-                      <td>{course.title}</td>
-                      <td>{course.students_count}</td>
-                      <td>${(course.total_revenue || 0).toFixed(2)}</td>
-                      <td>
-                        {course.average_rating ? (
-                          <ProgressBar now={course.average_rating * 20} label={`${course.average_rating}/5`} />
-                        ) : 'No ratings'}
-                      </td>
-                      <td>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          className="me-2"
-                          onClick={() => navigate(`/instructor/edit-course/${course.id}`)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={async () => {
-                            const result = await Swal.fire({
-                              title: 'Are you sure?',
-                              text: "You won't be able to revert this!",
-                              icon: 'warning',
-                              showCancelButton: true,
-                              confirmButtonColor: '#3085d6',
-                              cancelButtonColor: '#d33',
-                              confirmButtonText: 'Yes, delete the course',
-                              cancelButtonText: 'Cancel'
-                            });
+    <div className="instructor-dashboard">
+      <div className="container">
+        <div className="dashboard-header">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 className="mb-1">Instructor Dashboard</h2>
+              <p className="text-light opacity-75 mb-0">Welcome back, {user?.email}</p>
+            </div>
+            <div>
+              <button className="action-button me-2" onClick={() => navigate('/instructor/add-course')}>
+                <FaPlus className="me-2" />
+                Add New Course
+              </button>
+              <button className="action-button secondary" onClick={() => navigate('/instructor/courses')}>
+                <FaBook className="me-2" />
+                Manage Courses
+              </button>
+            </div>
+          </div>
+        </div>
 
-                            if (result.isConfirmed) {
-                              try {
-                                const token = localStorage.getItem('access');
-                                await axios.delete(
-                                  `${API_BASE_URL}/courses/instructor/delete-course/${course.id}/`,
-                                  {
-                                    headers: {
-                                      'Authorization': `Bearer ${token}`,
-                                      'Content-Type': 'application/json',
-                                    }
-                                  }
-                                );
-                                
-                                await Swal.fire(
-                                  'Deleted!',
-                                  'The course has been deleted successfully.',
-                                  'success'
-                                );
-                                
-                                // تحديث القائمة بعد الحذف
-                                setStats(prev => ({
-                                  ...prev,
-                                  courses: prev.courses.filter(c => c.id !== course.id)
-                                }));
-                              } catch (error) {
-                                console.error('Error deleting course:', error);
-                                Swal.fire(
-                                  'Error!',
-                                  error.response?.data?.message || 'An error occurred while deleting the course',
-                                  'error'
-                                );
-                              }
-                            }
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </td>
+        <div className="row g-4 mb-4">
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaBook />
+              </div>
+              <h5>Total Courses</h5>
+              <div className="value">{stats.totalCourses}</div>
+              <div className="subtitle">Published courses</div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaUsers />
+              </div>
+              <h5>Total Students</h5>
+              <div className="value">{stats.totalStudents}</div>
+              <div className="subtitle">Enrolled learners</div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaDollarSign />
+              </div>
+              <h5>Total Revenue</h5>
+              <div className="value">${stats.totalRevenue.toFixed(2)}</div>
+              <div className="subtitle">Earnings to date</div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="stats-card">
+              <div className="icon">
+                <FaStar />
+              </div>
+              <h5>Average Rating</h5>
+              <div className="value">{stats.averageRating.toFixed(1)}</div>
+              <div className="subtitle">Overall course rating</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-8">
+            <div className="data-card">
+              <div className="card-header">
+                <h5>Your Courses</h5>
+              </div>
+              <div className="card-body">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>Course Title</th>
+                      <th>Students</th>
+                      <th>Revenue</th>
+                      <th>Rating</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
-        </Col>
-        
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Recent Students</Card.Title>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Course</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentStudents.map((student, index) => (
-                    <tr key={index}>
-                      <td>{student.name || student.username}</td>
-                      <td>{student.email}</td>
-                      <td>{student.course_title || 'N/A'}</td>
+                  </thead>
+                  <tbody>
+                    {stats.courses.map((course) => (
+                      <tr key={course.id}>
+                        <td>{course.title}</td>
+                        <td>{course.students_count}</td>
+                        <td>${course.total_revenue.toFixed(2)}</td>
+                        <td>
+                          <div className="progress">
+                            <div 
+                              className="progress-bar" 
+                              style={{ width: `${(course.average_rating / 5) * 100}%` }}
+                              title={`${course.average_rating.toFixed(1)} out of 5`}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div className="col-md-4">
+            <div className="data-card">
+              <div className="card-header">
+                <h5>Quick Actions</h5>
+              </div>
+              <div className="card-body">
+                <div className="d-grid gap-2">
+                  <button className="action-button" onClick={() => navigate('/instructor/add-course')}>
+                    <FaPlus className="me-2" />
+                    Create New Course
+                  </button>
+                  <button className="action-button" onClick={() => navigate('/instructor/courses')}>
+                    <FaBook className="me-2" />
+                    Manage Courses
+                  </button>
+                  <button className="action-button" onClick={() => navigate('/instructor/students')}>
+                    <FaGraduationCap className="me-2" />
+                    View Students
+                  </button>
+                  <button className="action-button secondary" onClick={() => navigate('/instructor/earnings')}>
+                    <FaChartLine className="me-2" />
+                    View Earnings
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="data-card">
+              <div className="card-header">
+                <h5>Recent Students</h5>
+              </div>
+              <div className="card-body">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Course</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+                  </thead>
+                  <tbody>
+                    {stats.recentStudents.map((student, index) => (
+                      <tr key={index}>
+                        <td>{student.name || student.username || 'Anonymous'}</td>
+                        <td>{student.course_title || 'N/A'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

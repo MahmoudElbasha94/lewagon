@@ -1,23 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaBook, FaUser, FaComments, FaBars, FaTimes, FaSearch, FaGlobe, FaSignOutAlt, FaInfoCircle, FaEnvelope } from 'react-icons/fa';
+import { 
+  FaBook, 
+  FaUser, 
+  FaComments, 
+  FaBars, 
+  FaTimes, 
+  FaSearch, 
+  FaLanguage, 
+  FaSignOutAlt, 
+  FaInfoCircle, 
+  FaEnvelope, 
+  FaHome,
+  FaGraduationCap,
+  FaSignInAlt,
+  FaLightbulb,
+  FaBookReader,
+  FaPaperPlane
+} from 'react-icons/fa';
 import './Navbar.css';
-import { Navbar, Nav, Container, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, Button, Dropdown } from 'react-bootstrap';
 
 const navItems = [
-  { label: 'Courses', path: '/courses', icon: FaBook, auth: false },
-  { label: 'About', path: '/about', icon: FaInfoCircle, auth: false },
-  { label: 'Contact', path: '/contact', icon: FaEnvelope, auth: false },
+  { label: 'Home', path: '/', icon: FaHome, auth: false },
+  { label: 'Courses', path: '/courses', icon: FaBookReader, auth: false },
+  { label: 'About', path: '/about', icon: FaLightbulb, auth: false },
+  { label: 'Contact', path: '/contact', icon: FaPaperPlane, auth: false },
   { label: 'Dashboard', path: '/dashboard', icon: FaUser, auth: true },
-  { label: 'Support', path: '/support', icon: FaComments, auth: true },
+  { label: 'Support', path: '/help', icon: FaComments, auth: false },
 ];
 
 const languages = [
-  { code: 'EN', name: 'English', flag: '🇺🇸' },
-  { code: 'AR', name: 'عربي', flag: '🇸🇦' },
-  { code: 'FR', name: 'Français', flag: '🇫🇷' },
-  { code: 'ES', name: 'Español', flag: '🇪🇸' },
-  { code: 'DE', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'EN', name: 'English' },
+  { code: 'AR', name: 'عربي' },
+  { code: 'FR', name: 'Français' },
+  { code: 'ES', name: 'Español' },
+  { code: 'DE', name: 'Deutsch' }
 ];
 
 function Navbar23() {
@@ -28,7 +46,6 @@ function Navbar23() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const searchRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,108 +80,102 @@ function Navbar23() {
 
   return (
     <Navbar 
-      bg="dark" 
-      variant="dark" 
       expand="lg" 
-      className="py-3"
-      style={{ 
-        backgroundColor: '#111111 !important',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
-      }}
+      fixed="top"
+      className={`ultra-modern-navbar ${isScrolled ? 'scrolled' : ''}`}
     >
       <Container>
         <Navbar.Brand 
           as={Link} 
           to="/" 
-          className="d-flex align-items-center"
-          style={{ fontSize: '1.5rem', fontWeight: '700' }}
+          className="ultra-modern-brand"
         >
           <img 
-            src="/lewagon-logo.png" 
-            alt="LeWagon" 
-            height="30" 
-            className="me-2"
-            onError={(e) => {
-              e.target.src = 'https://www.lewagon.com/assets/v4/logo-lewagon-9c19fb39a748cd3b1f49059ce0dc6c0dfc4cc2447d5a9a3e01bd2d5a214faf3c.svg'
-            }}
+            src="https://avatars.githubusercontent.com/u/5470001"
+            alt=""
+            height="40" 
+            width="40"
+            className="brand-image"
           />
-          
         </Navbar.Brand>
 
         <Navbar.Toggle 
           aria-controls="basic-navbar-nav" 
-          className="border-0"
+          className="ultra-modern-toggler"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          <FaBars />
+          <div className="toggle-icon-container">
+            {isMenuOpen ? <FaTimes className="toggle-icon" /> : <FaBars className="toggle-icon" />}
+          </div>
         </Navbar.Toggle>
 
-        <Navbar.Collapse 
-          id="basic-navbar-nav" 
-          className={`justify-content-end ${isMenuOpen ? 'show' : ''}`}
-        >
-          <Nav className="align-items-center">
-            <Nav.Link 
-              as={Link} 
-              to="/courses" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
-              Courses
-            </Nav.Link>
-            <Nav.Link 
-              as={Link} 
-              to="/about" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
-              About
-            </Nav.Link>
-            <Nav.Link 
-              as={Link} 
-              to="/contact" 
-              className="d-flex align-items-center px-3"
-              style={{ color: '#FFFFFF', opacity: 0.8 }}
-            >
-              Contact
-            </Nav.Link>
-            
-            {!isLoggedIn ? (
-              <>
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mx-auto nav-links-container">
+            {navItems.map((item) => (
+              (!item.auth || (item.auth && isLoggedIn)) && (
                 <Nav.Link 
+                  key={item.path}
                   as={Link} 
+                  to={item.path} 
+                  className={`ultra-modern-nav-link ${location.pathname === item.path ? 'active' : ''}`}
+                >
+                  <div className="nav-link-content">
+                    <item.icon className="nav-icon" />
+                    <span>{item.label}</span>
+                  </div>
+                </Nav.Link>
+              )
+            ))}
+          </Nav>
+
+          <Nav className="ultra-modern-right-nav">
+            <Dropdown align="end" className="ultra-modern-dropdown">
+              <Dropdown.Toggle variant="link" className="ultra-modern-lang-selector">
+                <div className="lang-selector-content">
+                  <FaLanguage className="lang-icon" />
+                  <span>{selectedLang.code}</span>
+                </div>
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="ultra-modern-dropdown-menu">
+                {languages.map((lang) => (
+                  <Dropdown.Item 
+                    key={lang.code}
+                    onClick={() => setSelectedLang(lang)}
+                    className={`ultra-modern-dropdown-item ${selectedLang.code === lang.code ? 'active' : ''}`}
+                  >
+                    <span className="lang-name">{lang.name}</span>
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+
+            {!isLoggedIn ? (
+              <div className="ultra-modern-auth-buttons">
+                <Button 
+                  as={Link}
                   to="/login" 
-                  className="d-flex align-items-center px-3"
-                  style={{ color: 'dark', opacity: 0.8 }}
+                  variant="link" 
+                  className="ultra-modern-login-btn"
                 >
                   Login
-                </Nav.Link>
+                </Button>
                 <Button 
                   as={Link}
                   to="/signup"
-                  variant="outline-light" 
-                  className="ms-3 px-4"
-                  style={{ 
-                    borderColor: '#FD1015',
-                    color: '#FD1015',
-                    backgroundColor: 'transparent'
-                  }}
+                  variant="primary" 
+                  className="ultra-modern-signup-btn"
                 >
                   Sign Up
                 </Button>
-              </>
+              </div>
             ) : (
               <Button 
-                variant="outline-light" 
-                className="ms-3 px-4"
+                variant="outline-danger" 
+                className="ultra-modern-logout-btn"
                 onClick={handleLogout}
-                style={{ 
-                  borderColor: '#FD1015',
-                  color: '#FD1015',
-                  backgroundColor: 'transparent'
-                }}
               >
-                Logout
+                <FaSignOutAlt className="logout-icon" />
+                <span>Logout</span>
               </Button>
             )}
           </Nav>

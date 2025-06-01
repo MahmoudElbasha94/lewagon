@@ -94,12 +94,8 @@ WSGI_APPLICATION = 'lewagon_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL backend
-        'NAME': 'Le_Wagon',  # Replace with your database name
-        'USER': 'Le_Wagon',  # Replace with your PostgreSQL username
-        'PASSWORD': '123456',  # Replace with your PostgreSQL password
-        'HOST': 'localhost',  # Assuming PostgreSQL is running locally
-        'PORT': '5432',  # Default PostgreSQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # قاعدة البيانات هتتخزن في الملف ده
     }
 }
 

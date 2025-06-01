@@ -9,7 +9,7 @@ from rest_framework.generics import UpdateAPIView, DestroyAPIView, ListAPIView
 from django.utils.timezone import now
 from rest_framework import permissions
 
-from backend.project.users import serializers
+from users import serializers
 from .models import Course, Enrollment, Student, Review, Payment, Transaction, CourseVideo, VideoCompletion, Certificate
 from .serializers import CourseSerializer, ReviewCreateSerializer, PaymentSerializer, ReviewSerializer, TransactionSerializer, EnrolledCourseSerializer
 from users.permissions import IsStudent, IsInstructor, IsAdmin

@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite database
+*.sqlite3
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Media and static files (optional)
+media/
+staticfiles/
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# VS Code settings (optional)
+.vscode/
+
+# MacOS and system files
+.DS_Store
+Thumbs.db
+
+# Node modules (if using React in same repo)
+node_modules/
+build/
+dist/
